@@ -1,0 +1,180 @@
+<div class="row">
+    <div class="block block-bordered">
+        <md-toolbar md-colors="::{background: 'white'}">
+            <div class="md-toolbar-tools">
+                <h1 flex>Internal Milestone Report
+                    <small ng-hide='internalMilestoneReportLoaded'>Generating...</small>
+                </h1>
+                <md-button ng-click="sendIndicatorReportEmail();"
+                           ng-show="internalMilestoneReportLoaded && customerMilestoneReportLoaded && ipMilestoneReportLoaded">
+                    <md-icon class="material-icons" style="fill:black;color:black;">email</md-icon>
+                    Export to Email
+                </md-button>
+                <md-button ng-click="refreshEmailMilestoneReport();">
+                    <md-icon class="material-icons" style="fill:black;color:black;">autorenew</md-icon>
+                    Reload
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-content ng-show='internalMilestoneReportLoaded' id='internalMilestoneTable'>
+            <table class='table table-bordered table-condensed table-header-bg'
+                   style='border-collapse: collapse;  border-spacing: 0px!important;' cellpadding="0" cellspacing="0">
+                <thead>
+                <tr>
+                    <th style='padding: 5px; border-collapse: collapse; width: 13%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        PRODUCT
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width: 10%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        Current Rev
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width:  7%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        CA
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width:  7%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        PC
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width:  7%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        RTL FREEZE
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width:  7%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        T/O
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width:  7%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        ENG SAMPLE
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width:  7%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        SDK BRINGUP
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width:  7%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        SV/DVT COMPLETE
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width:  7%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        RESPIN T/O TARGET
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width:  7%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        QUAL COMPLETE
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width:  7%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        SDK GA
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width:  7%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        PRA
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="row in internalrows track by $index" ng-bind-html='trustAsHtml(row)'></tr>
+                </tbody>
+            </table>
+        </md-content>
+    </div>
+</div>
+<div class="row">
+    <div class="block block-bordered">
+        <md-toolbar md-colors="::{background: 'white'}">
+            <div class="md-toolbar-tools">
+                <h1 flex>IP Milestone Report
+                    <small ng-hide='ipMilestoneReportLoaded'>Generating...</small>
+                </h1>
+            </div>
+        </md-toolbar>
+        <md-content ng-show='ipMilestoneReportLoaded' id='ipMilestoneTable'>
+            <table class='table table-bordered table-condensed table-header-bg'
+                   style='border-collapse: collapse;  border-spacing: 0px!important;' cellpadding="0" cellspacing="0">
+                <thead>
+                <tr>
+                    <th style='width: 16%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        IP
+                    </th>
+                    <th style='width: 12%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        Current Rev
+                    </th>
+                    <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        PRLM RTL/VG
+                    </th>
+                    <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        PRLM Lef
+                    </th>
+                    <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        PRLM LIB
+                    </th>
+                    <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        INT VGS
+                    </th>
+                    <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        INT LEF
+                    </th>
+                    <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        INT LIB
+                    </th>
+                    <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        FINAL VGS
+                    </th>
+                    <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        FINAL LIB
+                    </th>
+                    <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        FINAL GDS
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="row in iprows track by $index" ng-bind-html='trustAsHtml(row)'></tr>
+                </tbody>
+            </table>
+        </md-content>
+    </div>
+</div>
+<div class="row">
+    <div class="block block-bordered">
+        <md-toolbar md-colors="::{background: 'white'}">
+            <div class="md-toolbar-tools">
+                <h1 flex>Customer Milestone Report
+                    <small ng-hide='customerMilestoneReportLoaded'>Generating...</small>
+                </h1>
+            </div>
+        </md-toolbar>
+        <md-content ng-show='customerMilestoneReportLoaded' id='customerMilestoneTable'>
+            <table class='table table-bordered table-condensed table-header-bg'
+                   style='border-collapse: collapse;  border-spacing: 0px!important;' cellpadding="0" cellspacing="0">
+                <thead>
+                <tr>
+                    <th style='padding: 5px; border-collapse: collapse; width: 10%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        CUSTOMER
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width: 10%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        PROGRAM
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width: 10%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        CHIP
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width: 10%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        SDK FOR FCS
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width: 10%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        KICKOFF
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width: 10%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        PROTOTYPE/BRINGUP COMPLETE
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width: 10%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        SQA ENTTRY/UNIT TEST COMPLETE
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width: 10%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        SQA COMPLETE
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width: 10%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        PILOT
+                    </th>
+                    <th style='padding: 5px; border-collapse: collapse; width: 10%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
+                        FCS
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="row in customerrows track by $index" ng-bind-html='trustAsHtml(row)'></tr>
+                </tbody>
+            </table>
+        </md-content>
+    </div>
+</div>

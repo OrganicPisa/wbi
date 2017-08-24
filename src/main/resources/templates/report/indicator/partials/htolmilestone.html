@@ -1,0 +1,56 @@
+<div class="row">
+    <div class="block block-bordered">
+        <div class="block-header">
+            <ul class="block-options" ng-show="htolReportLoaded">
+                <li ng-if="permission.authority=='ipm' || permission.authority=='pm' || permission.authority=='admin'">
+                    <button class="btn btn-sm btn-info" type="button" ng-click="refreshHTOLReport();">Refresh</button>
+                </li>
+            </ul>
+            <h3 class="block-title">HTOL Report
+                <small ng-hide='htolReportLoaded'>Generating...</small>
+            </h3>
+        </div>
+        <div class="block-content" ng-show='htolReportLoaded'>
+            <table class='table table-bordered table-condensed table-header-bg' id='htolReportTable' st-table='htolrows'
+                   st-sticky-header>
+                <thead>
+                <tr>
+                    <th style='width: 13%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        DEVICE
+                    </th>
+                    <th style='width: 13%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        PROJECT
+                    </th>
+                    <th style='width: 7%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        IPM
+                    </th>
+                    <th style='width: 7%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        PROCESS NODE
+                    </th>
+                    <th style='width: 7%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        CURRENT REV
+                    </th>
+                    <th style='width: 13%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        T/O
+                    </th>
+                    <th style='width: 10%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        PKG SIZE
+                    </th>
+                    <th style='width: 10%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        MAX POWER
+                    </th>
+                    <th style='width: 10%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        HTOL POWER
+                    </th>
+                    <th style='width: 10%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                        RESPIN T/O TARGET
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="row in htolrows track by $index" ng-bind-html='trustAsHtml(row)'></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,70 @@
+<div class="row">
+    <div class="block block-bordered">
+        <md-toolbar md-colors="::{background: 'white'}">
+            <div class="md-toolbar-tools">
+                <h2 flex>IP Milestone Report</h2>
+                <md-button ng-click="ms.viewNote = !ms.viewNote" ng-show="ms.viewNote">
+                    <md-icon class="material-icons " style="font-size:14px;fill:black;color:black;">tab_unselected
+                    </md-icon>
+                    Hide Summary Note
+                </md-button>
+                <md-button ng-click="ms.viewNote = !ms.viewNote" ng-show="!ms.viewNote">
+                    <md-icon class="material-icons" style="fill:black;color:black;">tab</md-icon>
+                    Show Summary Note
+                </md-button>
+                <md-button
+                        ng-click="exportDataToExcel('ipMilestoneTable', 'Indicator_Report','ip_weekly_indicator.xls')">
+                    <md-icon class="material-icons" style="fill:black;color:black;">get_app</md-icon>
+                    Convert To Excel
+                </md-button>
+                <md-button ng-click="refreshIpMilestoneReport();">
+                    <md-icon class="material-icons" style="fill:black;color:black;">autorenew</md-icon>
+                    Reload
+                </md-button>
+            </div>
+        </md-toolbar>
+        <table class='table table-bordered table-condensed table-header-bg' id='ipMilestoneTable' st-table='iprows'
+               st-sticky-header>
+            <thead>
+            <tr>
+                <th style='width: 16%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    IP
+                </th>
+                <th style='width: 12%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    Current Rev
+                </th>
+                <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    PRLM RTL/VG
+                </th>
+                <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    PRLM Lef
+                </th>
+                <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    PRLM LIB
+                </th>
+                <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    INT VGS
+                </th>
+                <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    INT LEF
+                </th>
+                <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    INT LIB
+                </th>
+                <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    FINAL VGS
+                </th>
+                <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    FINAL LIB
+                </th>
+                <th style='width: 8%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    FINAL GDS
+                </th>
+            </tr>
+            </thead>
+            <tbody ng-show='ipMilestoneReportLoaded'>
+            <tr ng-repeat="row in iprows track by $index" ng-bind-html='trustAsHtml(row)'></tr>
+            </tbody>
+        </table>
+    </div>
+</div>

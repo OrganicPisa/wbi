@@ -1,0 +1,135 @@
+<!--<nav ng-include="'/program/chip/sidebar'" id="sidebar"></nav>-->
+<!-- Buttons Variations -->
+<style type="text/css">
+    a {
+        padding-left: 10px;
+    }
+    md-card-title{
+        padding-top:10px!important;
+        padding-left: 10px !important;
+        max-height: 40px!important;
+
+    }
+    md-card{
+        margin-bottom: 1px!important;
+        margin-left: 1px!important;
+    }
+    md-card-content{
+        padding-bottom: 1px !important;
+    }
+    md-card-actions{
+        margin-bottom: 1px!important;
+        margin-top: 1px!important;
+    }
+
+    p {
+        margin-bottom:1px!important;
+    }
+    .editable-wrap {
+        display: block;
+        white-space: nowrap;
+        margin: 0;
+        width: 100%;
+    }
+
+    .editable-wrap .editable-controls, .editable-wrap .editable-error {
+        width: 100% !important;
+        margin: 0px !important;
+    }
+
+    .editable-wrap .editable-controls > input {
+        margin-bottom: 0;
+        margin-top: 2px;
+        width: -moz-calc(100% - 2px);
+        width: -webkit-calc(100% - 2px);
+        width: calc(100% - 2px);
+    }
+
+    .editable-wrap .editable-controls > textarea {
+        margin-bottom: 0;
+        margin-top: 5px;
+        width: -moz-calc(100% - 20px);
+        width: -webkit-calc(100% - 20px);
+        width: calc(100% - 20px);
+    }
+
+    .editable-error {
+        text-color: red;
+    }
+    md-select{ margin-top: 0px!important;}
+    .md-subhead{
+        padding-top: 5px !important;
+        padding-left: 10px !important;
+    }
+</style>
+
+<section layout="row" flex>
+    <md-sidenav class="md-sidenav-left"
+            md-component-id="left"
+            md-is-locked-open="$mdMedia('gt-md')" style="width:200px!important;"
+            md-whiteframe="4" ng-include="'/program/chip/sidebar'">
+    </md-sidenav>
+    <div layout="column" flex>
+        <md-toolbar md-scroll-shrink class="md-menu-toolbar">
+            <div class="md-toolbar-tools">
+                <h4 flex md-truncate>
+                    <span style='font-size: 18px;'>
+						<a href="/">{{(segment|uppercase)}}</a>
+						<i class="glyphicon glyphicon-chevron-right"></i>
+					</span>
+                    <a href="/program/chip/{{pid}}/{{rid}}/dashboard">{{(programName|uppercase)}}</a>
+                    <span>
+                        <i class="glyphicon glyphicon-chevron-right"></i>
+                        <a href="">{{(page|uppercase)}}</a>
+                    </span>
+                </h4>
+
+                <md-button type="button" ng-repeat="rev in revisions |orderBy:'revision'"
+                           ng-click="go(rev['rid'], '')" md-colors="{background: '{{rev.revision_btn_color.toLowerCase()}}'}">
+                    {{(rev['revision']|uppercase)}}
+                    <small> {{rev['stage']|myUpperCase}}</small>
+                </md-button>
+
+            </div>
+        </md-toolbar>
+        <md-content flex>
+            <div ng-switch on="page">
+                <div ng-switch-default>
+                    <div ng-include="'/program/chip/dashboard'"></div>
+                </div>
+                <div ng-switch-when="info">
+                    <div ng-include="'/program/chip/info'"></div>
+                </div>
+                <div ng-switch-when="dashboard">
+                    <div ng-include="'/program/chip/dashboard'"></div>
+                </div>
+                <div ng-switch-when="sku">
+                    <div ng-include="'/program/chip/sku'"></div>
+                </div>
+                <div ng-switch-when="milestone">
+                    <div ng-include="'/program/chip/milestone'"></div>
+                </div>
+                <div ng-switch-when="weeklyUpdate">
+                    <div ng-include="'/program/chip/weeklyUpdate'"></div>
+                </div>
+                <div ng-switch-when="resourceSummary">
+                    <div ng-include="'/program/chip/resourceSummary'"></div>
+                </div>
+                <div ng-switch-when="resourceReport">
+                    <div ng-include="'/program/chip/resourceReport'"></div>
+                </div>
+                <div ng-switch-when="resourceData">
+                    <div ng-include="'/program/chip/resourceData'"></div>
+                </div>
+                <div ng-switch-when="settings"
+                     ng-if="authority=='admin' || authority=='pm' || authority=='ipm'">
+                    <div ng-include="'/program/chip/settings'"></div>
+                </div>
+            </div>
+        </md-content>
+    </div>
+
+
+
+
+</section>

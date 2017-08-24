@@ -1,0 +1,246 @@
+<div class='row'>
+    <div class="col-md-6 col-md-offset-4 col-lg-6 col-lg-offset-4">
+        <h2>Create New Internal Program</h2>
+    </div>
+</div>
+<div class="row">
+    <form class="form-horizontal" role="form" data-ng-submit="submitChipForm(chipForm.$valid)" novalidate
+          name='chipForm'>
+        <div class="col-md-12 col-lg-9 col-lg-offset-2">
+            <div class="block">
+                <div class="block-header">
+                    <h3 class="block-title">Program Information</h3>
+                </div>
+                <div class="block-content block-content-narrow">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="pname">Program Name <span
+                                class="text-danger">*</span>
+                        </label>
+                        <div class="col-md-9"
+                             data-ng-class="{'has-error':chipForm.pname.$invalid && (chipForm.pname.$dirty || chipForm.$submitted)}">
+                            <input class='form-control' ng-model='chip.info.pname' name='pname' type='text'
+                                   placeholder='Program name' tabindex='1' autocomplete="off"
+                                   required minlength="3" maxlength="100" ng-unique-program="chip.info.pname">
+                            <p class="help-block"
+                               ng-show="chipForm.pname.$error.required && (chipForm.pname.$dirty || chipForm.$submitted)">
+                                Required</p>
+                            <p class="help-block"
+                               ng-show="chipForm.pname.$error.minlength && (chipForm.pname.$dirty || chipForm.$submitted)">
+                                Min 3 Characters</p>
+                            <p class="help-block"
+                               ng-show="chipForm.pname.$error.maxlength && (chipForm.pname.$dirty || chipForm.$submitted)">
+                                Max 100 characters</p>
+                            <p class="help-block"
+                               ng-show="chipForm.pname.$error.programUnique && (chipForm.pname.$dirty || chipForm.$submitted)">
+                                Already Registered</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="aka">AKA</label>
+                        <div class="col-md-9">
+                            <input class='form-control' name='aka' ng-model='chip.info.aka' type='text'
+                                   autocomplete="off" tabindex='2' placeholder="Alternative name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="baseDie">Base Die <span class="text-danger">*</span>
+                        </label>
+                        <div class="col-md-9"
+                             ng-class="{'has-error':chipForm.baseDie.$invalid && (chipForm.baseDie.$dirty || chipForm.$submitted)}">
+                            <input class='form-control' ng-model='chip.info.baseDie' name='baseDie' type='text'
+                                   placeholder='BCM568xx - NA if not assigned' tabindex='3'
+                                   autocomplete="off" required maxlength="100" ng-unique-program="chip.info.baseDie">
+                            <p class="help-block"
+                               ng-show="chipForm.baseDie.$error.required && (chipForm.baseDie.$dirty || chipForm.$submitted)">
+                                Required</p>
+                            <p class="help-block"
+                               ng-show="chipForm.baseDie.$error.maxlength && (chipForm.baseDie.$dirty || chipForm.$submitted)">
+                                Max 100 characters</p>
+                            <p class="help-block"
+                               ng-show="chipForm.baseDie.$error.programUnique && (chipForm.baseDie.$dirty || chipForm.$submitted)">
+                                Already Registered</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="segment">Segment<span class="text-danger">*</span>
+                        </label>
+                        <div class="col-md-3"
+                             ng-class="{'has-error':chipForm.segment.$invalid && (chipForm.segment.$dirty || chipForm.$submitted)}">
+                            <select tabindex='5' class='form-control' ng-model='chip.info.segment'
+                                    data-ng-options="segment.name for segment in segments |orderBy:'orderNum' track by segment.id"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="processNode">Process Node</label>
+                        <div class="col-md-9">
+                            <input class='form-control' name='processNode' ng-model='chip.info.processNode' type='text'
+                                   autocomplete="off" tabindex='6' placeholder="Process Node">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="interface">Interface</label>
+                        <div class="col-md-9">
+                            <input class='form-control' name='interface' ng-model='chip.info.interface' type='text'
+                                   autocomplete="off" tabindex='7' placeholder="Interface">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="memory">Memory</label>
+                        <div class="col-md-9">
+                            <input class='form-control' name='memory' ng-model='chip.info.memory' type='text'
+                                   autocomplete="off" tabindex='7' placeholder="Memory (Number of Bits)">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="power">Power</label>
+                        <div class="col-md-9">
+                            <input class='form-control' name='power' ng-model='chip.info.power' type='text'
+                                   autocomplete="off" tabindex='8' placeholder="Power">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="packageSize">Package Size</label>
+                        <div class="col-md-9">
+                            <input class='form-control' name='packageSize' ng-model='chip.info.packageSize' type='text'
+                                   autocomplete="off" tabindex='9' placeholder="Package">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="block-header">
+                    <h3 class="block-title">Contact</h3>
+                </div>
+                <div class="block-content block-content-narrow">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="programManager">Program Manager</label>
+                        <div class="col-md-9">
+                            <input class='form-control' ng-model='chip.contact.programManager' name='programManager'
+                                   type='text' placeholder='Program Manager' tabindex='10' autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="productLineManager">Product Line Manager</label>
+                        <div class="col-md-9">
+                            <input class='form-control' ng-model='chip.contact.productLineManager'
+                                   name='productLineManager' type='text' placeholder='Product Line Manager'
+                                   tabindex='11' autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="chipLead">Chip Lead</label>
+                        <div class="col-md-9">
+                            <input class='form-control' ng-model='chip.contact.chipLead' name='chipLead' type='text'
+                                   placeholder='Chip Lead' tabindex='12' autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="applicationEngineer">Application Engineer</label>
+                        <div class="col-md-9">
+                            <input class='form-control' ng-model='chip.contact.applicationEngineer'
+                                   name='applicationEngineer' type='text' placeholder='Application Engineer'
+                                   tabindex='13' autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="hardwareManager">Hardware Manager</label>
+                        <div class="col-md-9">
+                            <input class='form-control' ng-model='chip.contact.hardwareManager' name='hardwareManager'
+                                   type='text' placeholder='Hardware Manager' tabindex='14' autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="softwareManager">Software Manager</label>
+                        <div class="col-md-9">
+                            <input class='form-control' ng-model='chip.contact.softwareManager' name='softwareManager'
+                                   type='text' placeholder='Software Manager' tabindex='15' autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="block">
+                <div class="block-header">
+                    <h3 class="block-title">Meetings</h3>
+                </div>
+                <div class="block-content block-content-narrow">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="ctm">CTM</label>
+                        <div class="col-md-9">
+                            <input class='form-control' ng-model='chip.meeting.ctm' name='portal' type='text'
+                                   placeholder='http://ctm.meeting.com' tabindex='21' autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="qual">QUAL</label>
+                        <div class="col-md-9">
+                            <input class='form-control' ng-model='chip.meeting.qual' name='qual' type='text'
+                                   placeholder='http://qual.meeting.com' tabindex='22' autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="postsi">POST SI</label>
+                        <div class="col-md-9">
+                            <input class='form-control' ng-model='chip.meeting.postsi' name='postsi' type='text'
+                                   placeholder='http://postsi.meeting.com' tabindex='23' autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="pkg">PKG/SI/PI</label>
+                        <div class="col-md-9">
+                            <input class='form-control' ng-model='chip.meeting.pkg' name='pkg' type='text'
+                                   placeholder='http://pkg.meeting.com' tabindex='24' autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="block">
+                <div class="block-header">
+                    <h3 class="block-title">Links</h3>
+                </div>
+                <div class="block-content block-content-narrow">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="portal">Portal</label>
+                        <div class="col-md-9">
+                            <input class='form-control' ng-model='chip.link.portal' name='portal' type='text'
+                                   placeholder='http://portal.link.com' tabindex='16' autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="ca">CA</label>
+                        <div class="col-md-9">
+                            <input class='form-control' ng-model='chip.link.ca' name='ca' type='text'
+                                   placeholder='http://link.to.ca.slide' tabindex='17' autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="pc">PC</label>
+                        <div class="col-md-9">
+                            <input class='form-control' ng-model='chip.link.pc' name='pc' type='text'
+                                   placeholder='http://link.to.pc.slide' tabindex='18' autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="ecr">ECR</label>
+                        <div class="col-md-9">
+                            <input class='form-control' ng-model='chip.link.ecr' name='ecr' type='text'
+                                   placeholder='http://link.to.ecr' tabindex='19' autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" for="eps">EPS</label>
+                        <div class="col-md-9">
+                            <input class='form-control' ng-model='chip.link.eps' name='eps' type='text'
+                                   placeholder='http://link.to.eps' tabindex='20' autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
+            <button type="submit" class="btn btn-primary btn-block" data-ng-disabled="chipForm.$invalid" tabindex='25'
+                    data-ng-click='submitted=true'>Submit
+            </button>
+        </div>
+    </form>
+</div>

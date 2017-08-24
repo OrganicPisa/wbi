@@ -1,0 +1,34 @@
+<div class='table-responsive'>
+    <table st-safe-src='rowCollection' st-table='displayCollection'
+           class='table table-bordered table-condensed table-header-bg'>
+        <thead>
+        <tr>
+            <th style='width: 2% !important;'><span class="si si-book-open"></span></th>
+            <th style='width: 1% !important;' st-sort='schedule_flag'>S</th>
+            <th st-sort='program' style='width: 13% !important;' st-sort-default='true'>Program</th>
+            <th st-sort='revision' style='width: 5% !important;'>Rev</th>
+            <th style='width: 13% !important;' st-sort='reduced_pm'>PM</th>
+            <th style='width: 5% !important;' st-sort='stage'>Stage</th>
+            <th style='width: 61% !important;'>Headline</th>
+        </tr>
+        </thead>
+        <tbody ng-show='dataloaded'>
+        <tr ng-repeat='row in displayCollection' ng-hide="frontpageDisplayBookmarkOnly && frontpageDisplayBookmarkOnly!=row.bookmark">
+            <td style='width: 2% !important;'>
+                <label class="css-input css-checkbox css-checkbox-primary remove-margin-t remove-margin-b">
+                    <input type="checkbox" ng-true-value="row.bookmark" ng-checked="row.bookmark"
+                           ng-click='saveBookmark(row)'><span></span>
+                </label>
+            </td>
+            <td style='width: 1% !important;' ng-class='row.schedule_flag'></td>
+            <td style='width: 13% !important;'>
+                <strong ng-bind='row.program'></strong>
+            </td>
+            <td style='width: 5% !important;' dynamic='row.rev'></td>
+            <td style='width: 13% !important;' ng-bind-html='trustAsHtml(row.pm)'></td>
+            <td style='width: 5% !important;'><span ng-bind='row.stage'></span></td>
+            <td style='width: 61% !important;' ng-bind-html="trustAsHtml('<p>'+row.hlts1+'<p>'+row.headline)"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>

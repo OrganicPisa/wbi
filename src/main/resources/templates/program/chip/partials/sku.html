@@ -1,0 +1,21 @@
+<div layout="row" >
+    <md-card>
+        <md-card-title>
+            <md-card-title-text>
+                <div layout="row">
+                    <span class="md-title">SKU</span>
+                    <span flex></span>
+                    <a class="md-primary" ng-click="skueditform.$show();" ng-show='!skueditform.$visible' ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'">
+                        Edit
+                    </a>
+                    <a class="md-primary" ng-click="refreshSku();" ng-show='!skueditform.$visible' ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'">
+                        Refresh
+                    </a>
+                </div>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content flex>
+            <sku-edit-form></sku-edit-form>
+        </md-card-content>
+    </md-card>
+</div>

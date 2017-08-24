@@ -1,0 +1,65 @@
+<div class="row">
+    <div class="block block-bordered">
+        <md-toolbar md-colors="::{background: 'white'}">
+            <div class="md-toolbar-tools">
+                <h2 flex>Customer Headline Report</h2>
+                <md-button ng-click="convertToPPT()">
+                    <md-icon class="material-icons" style="fill:black;color:black;">get_app</md-icon>
+                    Convert To PPT
+                </md-button>
+                <md-button ng-click="refreshHeadlineReport();">
+                    <md-icon class="material-icons" style="fill:black;color:black;">autorenew</md-icon>
+                    Reload
+                </md-button>
+                <md-button ng-click="headlinereporteditform.$show()">
+                    <md-icon class="material-icons" style="fill:black;color:black;">list</md-icon>
+                    Change Order
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-content ng-show='headlineReportLoaded'>
+            <form editable-form name='headlinereporteditform' onaftersave='saveHeadlineReportTable()'
+                  oncancel='cancel()'>
+                <div class='btn-form pull-right' ng-show='headlinereporteditform.$visible'>
+                    <button type='submit' ng-disabled='headlinereporteditform.$waiting'
+                            class='btn btn-default btn-info'>Save
+                    </button>
+                    <button type='button' ng-disabled='headlinereporteditform.$waiting'
+                            ng-click='headlinereporteditform.$cancel();' class='btn btn-default'>Cancel
+                    </button>
+                </div>
+                <table class='table table-bordered table-condensed table-header-bg' st-table='customerheadlinerows'
+                       st-sticky-header>
+                    <thead>
+                    <tr>
+                        <th style='width:1%!important;'>T</th>
+                        <th style='width: 10%;'>CPM</th>
+                        <th style='width: 10%;'>Customer / FCS</th>
+                        <th style='width: 10%;'>Chip / SDK</th>
+                        <th style='width: 55%;'>Headline</th>
+                        <th style='width: 10%;' ng-show='headlinereporteditform.$visible'>Order</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="row in customerheadlinerows | orderBy:'order' track by $index">
+                        <td style='width:1%!important;' ng-class='(row.prediction_flag|lowercase)'></td>
+                        <td style='width:10%!important;' ng-bind='row.reduce_pm'></td>
+                        <td style='width:10%!important;'
+                            ng-bind-html="trustAsHtml(row.base+ '<ul><li>'+(row.program|myUpperCase)+'</li></ul>'+ row.fcs)"></td>
+                        <td style='width:10%!important;'
+                            ng-bind-html="trustAsHtml(row.switch_chip+'<br>'+row.sdk_fcs)"></td>
+                        <td style='width:55%!important;' ng-bind-html='trustAsHtml(row.headline)'></td>
+                        <td style='width:10%!important;' ng-show='headlinereporteditform.$visible'>
+								<span editable-number="row.order" e-form="headlinereporteditform">
+									{{row.order}}
+								</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </form>
+        </md-content>
+    </div>
+</div>
+
+

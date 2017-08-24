@@ -1,0 +1,111 @@
+<style>
+    .gridStyle {
+        height: 100%;
+    }
+
+    .ui-grid-row: {
+        display: table-row;
+    }
+
+    .ui-grid-row, .ui-grid-cell {
+        height: auto !important;
+    }
+
+    .ui-grid-cell {
+        float: none;
+        display: table-cell;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-6 col-md-6 col-sm-12">
+        <!-- 		<div class="row"> -->
+        <!-- 			<div class="block block-bordered"> -->
+        <!-- 				<div class="block-header"> -->
+        <!-- 					<h3 class="block-title">Location Distribution This month</h3> -->
+        <!-- 				</div> -->
+        <!-- 				<div class="block-content"> -->
+        <!-- 					<highchart id="resourceCurrentLocationStatusChart" config="locPieChartConfig" style="height: 400px;"></highchart> -->
+        <!-- 				</div> -->
+        <!-- 			</div> -->
+        <!-- 		</div> -->
+        <div class="row">
+            <div class="block block-bordered">
+                <div class="block-header">
+                    <h3 class="block-title">Skill Distribution This month</h3>
+                </div>
+                <div class="block-content">
+                    <highchart id="resourceCurrentSkillStatusChart" config="skillPieChartConfig"
+                               style="height: 400px;"></highchart>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-12">
+        <div class="row">
+            <div class="block block-bordered">
+                <div class="block-header">
+                    <h3 class="block-title">Project Distribution This month</h3>
+                </div>
+                <div class="block-content">
+                    <highchart id="resourceCurrentProjectStatusChart" config="projectPieChartConfig"
+                               style="height: 400px;"></highchart>
+                </div>
+            </div>
+        </div>
+        <!-- 		<div class="row"> -->
+        <!-- 			<div class="block block-bordered"> -->
+        <!-- 					<ul class="block-options"> -->
+        <!-- 						<li> -->
+        <!-- 							<button class='btn btn-sm btn-info' ng-click="go('/report/resource/collect/location');">Detail</button> -->
+        <!-- 						</li> -->
+        <!-- 					</ul> -->
+        <!-- 				<div class="block-header"> -->
+        <!-- 					<h3 class="block-title">Location Trend This year</h3> -->
+        <!-- 				</div> -->
+        <!-- 				<div class="block-content">				 -->
+        <!-- 					<highchart id="resourceTrendLocationStatusChart" config="locTrendColumnChartConfig" style="height: 400px;"></highchart> -->
+        <!-- 				</div> -->
+        <!-- 			</div> -->
+        <!-- 		</div> -->
+    </div>
+    <div class="col-lg-12 col-md-12 col-sm-12">
+        <div class="row">
+            <div class="block block-bordered">
+                <div class="block-header">
+                    <ul class="block-options">
+                        <li>
+                            <button class='btn btn-sm btn-info' ng-click="go('/report/resource/collect/skill');">
+                                Detail
+                            </button>
+                        </li>
+                    </ul>
+                    <h3 class="block-title">Skill Trend This year</h3>
+                </div>
+                <div class="block-content">
+                    <highchart id="resourceTrendSkillStatusChart" config="skillTrendColumnChartConfig"
+                               style="height: 400px;"></highchart>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 col-md-12 col-sm-12">
+        <div class="row">
+            <div class="block block-bordered">
+                <div class="block-header">
+                    <ul class="block-options">
+                        <li>
+                            <button class='btn btn-sm btn-info' ng-click="go('/report/resource/collect/project');">
+                                Detail
+                            </button>
+                        </li>
+                    </ul>
+                    <h3 class="block-title">Project Trend This year</h3>
+                </div>
+                <div class="block-content">
+                    <highchart id="resourceTrendProjectStatusChart" config="projectTrendColumnChartConfig"
+                               style="height: 400px;"></highchart>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

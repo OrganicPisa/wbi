@@ -1,0 +1,40 @@
+<div class="row">
+    <div class="block block-bordered">
+        <div class="block-header">
+            <ul class="block-options" ng-show="outlookReportLoaded"
+                ng-if="permission.authority=='pm' || permission.authority=='admin'">
+                <li>
+                    <button class="btn btn-sm btn-info" type="button" ng-click="refreshOutlookReport();">Refresh
+                    </button>
+                </li>
+            </ul>
+            <h3 class="block-title">Internal Outlook Report
+                <small ng-hide='outlookReportLoaded'>Generating...</small>
+            </h3>
+        </div>
+        <div class="block-content" ng-show='outlookReportLoaded'>
+            <table class='table table-bordered table-condensed  table-header-bg'>
+                <thead>
+                <tr>
+                    <th style='width: 15%;'>Project</th>
+                    <th style='width: 10%;'>Revision</th>
+                    <th style='width: 75%;'>Outlook</th>
+                </tr>
+                </thead>
+                <tbody ng-repeat="(segment, arr) in outlooks track by $index">
+                <tr>
+                    <th colspan='3' style="background-color:#C0C0C0; text-align:center; font-size:14px; padding:1px">
+                        {{segment| split:'_':1}}
+                    </th>
+                </tr>
+                <tr ng-repeat="row in arr |orderBy:['pname', 'rname'] track by $index">
+                    <td style='width: 15%;' ng-bind-html='trustAsHtml(row.pname)'></td>
+                    <td style='width: 10%;' ng-bind-html='trustAsHtml(row.rname)'></td>
+                    <td style='width: 75%;'
+                        ng-bind-html="trustAsHtml('<p><i>'+row.outlookts+'</i></p>'+row.outlook)"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

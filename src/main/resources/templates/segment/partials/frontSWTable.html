@@ -1,0 +1,50 @@
+<style>
+    tr {
+        width: 100%;
+        display: inline-table;
+        table-layout: fixed;
+    }
+
+    table {
+        height: 800px;
+    / / < -- Select the height of the table display: -moz-groupbox;
+    / / Firefox Bad Effect
+    }
+
+    tbody {
+        overflow-y: auto;
+        max-height: 800px;
+    / / < -- Select the height of the body width: 100 %;
+        position: absolute;
+    }
+
+</style>
+<div class='table-responsive'>
+    <table st-safe-src='rowCollection' st-table='displayCollection' search-watch-model='searchquery'
+           class='table table-bordered table-condensed table-header-bg'>
+        <thead>
+        <tr>
+            <th style='width: 2% !important;' class='hidden-xs'><span class="si si-book-open"></span></th>
+            <th st-sort='program' style='width: 15% !important;' st-sort-default='true'>Program</th>
+            <th class='hidden-xs' style='width: 15% !important;' st-sort='reduced_pm'>PM</th>
+            <th class='hidden-xs hidden-sm' style='width: 68% !important;'>Headline</th>
+        </tr>
+        </thead>
+        <tbody ng-show='dataloaded'>
+        <tr ng-repeat='row in displayCollection' ng-hide="frontpageDisplayBookmarkOnly && frontpageDisplayBookmarkOnly!=row.bookmark">
+            <td style='width: 2% !important;' class='hidden-xs'>
+                <label class="css-input css-checkbox css-checkbox-primary remove-margin-t remove-margin-b">
+                    <input type="checkbox" ng-true-value="row.bookmark" ng-checked="row.bookmark"
+                           ng-click='saveBookmark(row)'><span></span>
+                </label>
+            </td>
+            <td style='width: 15% !important;' dynamic='row.displayName'></td>
+            <td class='hidden-xs' style='width: 15% !important;' ng-bind-html='trustAsHtml(row.pm)'></td>
+            <td class='hidden-xs hidden-sm' style='width: 68% !important;'>
+                <p ng-bind-html="trustAsHtml(row.hlts1)"></p>
+                <pre>{{row.headline}}</pre>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

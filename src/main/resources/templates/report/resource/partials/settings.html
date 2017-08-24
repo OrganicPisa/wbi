@@ -1,0 +1,107 @@
+<div layout="column" flex>
+    <div layout="column" flex>
+        <md-card>
+            <md-card-content>
+                <h1 class="md-title">Create New Group</h1>
+                <div layout="row">
+                    <md-input-container flex="50">
+                        <label>Project Group Name</label>
+                        <input type="text" name="projectGroupName" ng-model="rs.newgroup.name" required/>
+                    </md-input-container>
+                    <md-input-container flex="20">
+                        <md-select ng-model="rs.newgroup.type" placeholder="Please select Report Type">
+                            <md-option value="report">Report</md-option>
+                            <md-option value="project">Project</md-option>
+                        </md-select>
+                    </md-input-container>
+                    <md-input-container flex="20">
+                        <md-checkbox ng-model="rs.newgroup.includeInReport" aria-label="Include In Report">Include In
+                            Report
+                        </md-checkbox>
+                    </md-input-container>
+
+                </div>
+                <div layout="row">
+                    <md-input-container>
+                        <md-button class="md-raised md-primary" ng-click='newResourceProjectSettings()'>Submit
+                        </md-button>
+                    </md-input-container>
+                </div>
+
+            </md-card-content>
+        </md-card>
+        <md-card>
+            <md-card-content>
+                <h1 class="md-title">Edit Existing Group</h1>
+                <div layout="row">
+                    <md-input-container flex="40">
+                        <md-select ng-model="rs.exist.object" placeholder="Please select Project Group">
+                            <md-option ng-repeat="a in rs.type_list track by $index" ng-value="a">{{a.name}}</md-option>
+                        </md-select>
+                    </md-input-container>
+                    <md-input-container flex="20">
+                        <md-checkbox ng-model="rs.exist.includeInReport" aria-label="Include In Report">Include In
+                            Report
+                        </md-checkbox>
+                    </md-input-container>
+                </div>
+                <div layout="row">
+                    <md-input-container class="md-block" flex="40">
+                        <input ng-model="rs.exist.name" placeholder="Update Name (if needed)">
+                    </md-input-container>
+                    <md-input-container flex="20">
+                        <md-select ng-model="rs.exist.type" placeholder="Please select Report Type">
+                            <md-option value="report">Report</md-option>
+                            <md-option value="project">Project</md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                <div layout="row">
+                    <md-input-container flex>
+                        <h4 class="md-title">List of Projects</h4>
+                        <md-select multiple ng-model="rs.exist.project_list"
+                                   placeholder="Please select to edit project in the current group">
+                            <md-option ng-repeat="a in rs.all_project_list" value="{{a}}">{{a}}</md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                <div layout="row">
+                    <md-input-container flex="20">
+                        <md-button class="md-raised md-primary" ng-click='saveResourceProjectSettings()'>Save Change
+                        </md-button>
+                    </md-input-container>
+                    <md-input-container flex="20">
+                        <md-button class="md-raised md-warn" ng-click='deleteResourceProjectSettings()'>Delete Group
+                        </md-button>
+                    </md-input-container>
+                </div>
+
+            </md-card-content>
+        </md-card>
+    </div>
+</div>
+
+<!-- <div class="row" style='height:600px;'> -->
+<!-- 	<div class="form-group col-lg-1 col-md-1 col-sm-1"> -->
+<!-- 		<div isteven-multi-select input-model="rs.type_list" output-model="typeselected" button-label="name" -->
+<!-- 			item-label="maker" tick-property="ticked" max-height="200px" selection-mode='single' on-item-click='loadResourceProjectType(data)'> -->
+<!-- 		</div> -->
+<!-- 	</div> -->
+<!-- 	<div class="form-group col-lg-2 col-md-2 col-sm-2"> -->
+<!-- 		<div class="checkbox"> -->
+<!-- 	  		<label><input type="checkbox" value="true" ng-model='rs.status'>In Report</label> -->
+<!-- 		</div> -->
+<!-- 	</div> -->
+<!-- 	<div class="form-group col-lg-8 col-md-8 col-sm-8"> -->
+<!-- 		<div isteven-multi-select input-model="rs.project_list" output-model="rs.projectselected" button-label="name" orientation="horizontal" -->
+<!-- 			item-label="maker" tick-property="ticked" max-height="400px"  output-properties="name"> -->
+<!-- 		</div> -->
+<!-- 	</div> -->
+<!-- 	<div class="form-group col-lg-1 col-md-1 col-sm-1 pull-left" > -->
+<!-- 		<button type="button" class="btn btn-info" ng-click='saveResourceProjectSettings()'>Update</button> -->
+<!-- 	</div>	 -->
+<!-- 	<div class="form-group pull-left col-lg-4 col-md-4 col-sm-4"> -->
+<!-- 		<input type="text" ng-model="rs.newtypeselected"> -->
+<!-- 		<button type="button" class="btn btn-success btn-xs" ng-click='addNewResourceProjectSettings()'>Add</button> -->
+<!-- 	</div> -->
+<!-- </div> -->

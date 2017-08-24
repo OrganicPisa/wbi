@@ -1,0 +1,87 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="description" content="WBI - Web Based Indicator for Switch Team">
+    <meta name="author" content="Vinh Tran">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0">
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet" media="screen"/>
+    <link href="/css/oneui.css" rel="stylesheet" media="screen"/>
+    <link href="/css/themes/modern.min.css" rel="stylesheet" media="screen"/>
+</head>
+<body>
+<!-- Login Content -->
+<div class="content overflow-hidden">
+    <div class="row">
+        <div
+                class="col-sm-8 col-md-6 col-md-offset-1 col-lg-4 col-lg-offset-3">
+            <!-- Login Block -->
+            <div class="block block-themed animated fadeIn">
+                <div class="block-header bg-primary">
+                    <h3 class="block-title">Please login</h3>
+                </div>
+                <div class="block-content block-content-full block-content-narrow">
+                    <!-- Login Title -->
+                    <h1 class="h2 font-w600 push-30-t push-5 text-center">Web Based Indicator</h1>
+
+                    <form autocomplete="off" class="js-validation-login form-horizontal push-30-t push-50"
+                          th:action="@{/login}" method="post">
+                        <div class="form-group">
+                            <p class="text-center text-danger" th:if="${loginError}">
+                                <strong>Error!!!</strong>
+                                <span th:text="${message}"></span>
+                            </p>
+                            <p class="text-center text-success" th:if="${logout}">
+                                <span>Logout Successfully</span>
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-xs-12">
+                                <div class="form-material form-material-primary floating">
+                                    <input class="form-control" type="text" id="username" name="username"
+                                           placeholder="Okta Username"
+                                           required oninvalid="this.setCustomValidity('Enter your valid Username')">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-xs-12">
+                                <div class="form-material form-material-primary floating">
+                                    <input class="form-control" type="password" id="password" name="password"
+                                           autocomplete="off" placeholder="Broadcom Password"
+                                           required oninvalid="this.setCustomValidity('Enter your valid password')">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-xs-12 col-sm-6 col-md-4">
+                                <button class="btn btn-block btn-primary" type="submit">
+                                    <i class="si si-login pull-right"></i> Log in
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <!-- 						<div> -->
+                    <!-- 							<a href="auth/google" type="submit" class="btn btn-danger"> -->
+                    <!-- 								<i class="fa fa-google"></i><span> | </span><span>Google Sign In</span> -->
+                    <!-- 							</a> -->
+                    <!-- 						</div> -->
+                    <!-- END Login Form -->
+                </div>
+            </div>
+            <!-- END Login Block -->
+        </div>
+    </div>
+</div>
+<!-- END Login Content -->
+
+<!-- Login Footer -->
+<div class="push-10-t text-center animated fadeInUp">
+    <small class="text-muted font-w600"><span class="js-year-copy"></span>
+        &copy; Broadcom Ltd.
+    </small>
+</div>
+<!-- END Login Footer -->
+</body>
+</html>

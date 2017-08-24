@@ -1,0 +1,67 @@
+<div class="row">
+    <div class="block block-bordered">
+        <md-toolbar md-colors="::{background: 'white'}">
+            <div class="md-toolbar-tools">
+                <h2 flex>Customer Milestone Report</h2>
+                <md-button ng-click="ms.viewNote = !ms.viewNote" ng-show="ms.viewNote">
+                    <md-icon class="material-icons " style="font-size:14px;fill:black;color:black;">tab_unselected
+                    </md-icon>
+                    Hide Summary Note
+                </md-button>
+                <md-button ng-click="ms.viewNote = !ms.viewNote" ng-show="!ms.viewNote">
+                    <md-icon class="material-icons" style="fill:black;color:black;">tab</md-icon>
+                    Show Summary Note
+                </md-button>
+                <md-button
+                        ng-click="exportDataToExcel('customerMilestoneTable', 'Indicator_Report', 'customer_weekly_indicator.xls');">
+                    <md-icon class="material-icons" style="fill:black;color:black;">get_app</md-icon>
+                    Convert To Excel
+                </md-button>
+                <md-button ng-click="refreshCustomerMilestoneReport();">
+                    <md-icon class="material-icons" style="fill:black;color:black;">autorenew</md-icon>
+                    Reload
+                </md-button>
+            </div>
+        </md-toolbar>
+        <table class='table table-bordered table-condensed table-header-bg' id='customerMilestoneTable'
+               st-table='customerrows' st-sticky-header>
+            <thead>
+            <tr>
+                <th style='width: 10%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    CUSTOMER
+                </th>
+                <th style='width: 10%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    PROGRAM
+                </th>
+                <th style='width: 10%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    CHIP
+                </th>
+                <th style='width: 10%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    SDK FOR FCS
+                </th>
+                <th style='width: 10%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    KICKOFF
+                </th>
+                <th style='width: 10%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    PROTOTYPE/BRINGUP COMPLETE
+                </th>
+                <th style='width: 10%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    SQA ENTTRY/UNIT TEST COMPLETE
+                </th>
+                <th style='width: 10%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    SQA COMPLETE
+                </th>
+                <th style='width: 10%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    PILOT
+                </th>
+                <th style='width: 10%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
+                    FCS
+                </th>
+            </tr>
+            </thead>
+            <tbody ng-show='customerMilestoneReportLoaded'>
+            <tr ng-repeat="row in customerrows track by $index" ng-bind-html='trustAsHtml(row)'></tr>
+            </tbody>
+        </table>
+    </div>
+</div>

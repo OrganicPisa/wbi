@@ -1,0 +1,289 @@
+<!-- Buttons Variations -->
+<div class="row">
+    <div class="col-lg-8 col-md-8 col-sm-12">
+        <div class="row">
+            <!-- Default Buttons -->
+            <div class="block block-bordered">
+                <div class="block-header">
+                    <ul class="block-options hidden-xs">
+                        <li ng-show='!ipcateditform.$visible'>
+                            <button class="btn btn-sm btn-info" type="button" ng-click="refreshIPCatHeadline();">
+                                Refresh
+                            </button>
+                        </li>
+                        <li ng-show='!ipcateditform.$visible'>
+                            <button class="btn btn-sm btn-info" type="button" ng-click="ipcateditform.$show();">Edit
+                            </button>
+                        </li>
+                        <li ng-show="ipcateditform.$visible">
+                            <a ng-disabled='ipcateditform.$waiting'
+                               ng-click='ipcateditform.$cancel();ipcat.tinymce=ipcat.content;'
+                               class='btn btn-xs pull-right'>Cancel</a>
+                        </li>
+                        <li ng-show="ipcateditform.$visible">
+                            <a ng-click='saveIPCatHeadline();ipcateditform.$cancel();'
+                               ng-disabled='ipcateditform.$waiting' class='btn btn-xs pull-right'>Save</a>
+                        </li>
+                    </ul>
+                    <h3 class="block-title">{{ipcat.name}} Headline
+                        <small ng-show='ipcatheadlineloaded' ng-bind-html="trustAsHtml(ipcat.timestamp)"></small>
+                        <small ng-hide='ipcatheadlineloaded'>Loading...</small>
+                    </h3>
+                </div>
+                <div class="block-content">
+                    <div ng-hide="ipcateditform.$visible" ng-bind-html="ipcat.content"></div>
+                    <ip-cat-edit-form></ip-cat-edit-form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Default Buttons -->
+            <div class="block block-bordered">
+                <div class="block-header">
+                    <ul class="block-options hidden-xs" ng-show='headlineloaded'
+                        ng-if="permission.authority=='pm' || permission.authority=='ippm' ||  permission.authority=='admin'">
+                        <li ng-hide='(headlineeditform.$visible || snapshotHeadline)'>
+                            <button class='btn btn-sm btn-info' ng-click="refreshHeadline()">Refresh</button>
+                        </li>
+                        <li ng-hide='(headlineeditform.$visible || !showEditFeature || snapshotHeadline)'>
+                            <button class='btn btn-sm btn-info' ng-click="headlineeditform.$show();">Edit</button>
+                        </li>
+                        <li ng-hide='(headlineeditform.$visible || !showEditFeature || snapshotHeadline)'>
+                            <button class='btn btn-sm btn-info' ng-click="removeHeadline()">Delete</button>
+                        </li>
+                        <li ng-hide='(headlineeditform.$visible || snapshotHeadline)'>
+                            <button class='btn btn-sm btn-info' ng-click="newHeadline(); headlineeditform.$show(); ">
+                                New
+                            </button>
+                        </li>
+                        <li>
+                            <select name="headlineSnapshot" id="headlineSnapshotSelect"
+                                    ng-model="headline.snapshotSelect">
+                                <option value="">---Latest---</option>
+                                <option ng-repeat="snapshot in headline.snapshots track by $index" value="{{snapshot}}">
+                                    {{snapshot}}
+                                </option>
+                            </select>
+                        </li>
+                    </ul>
+                    <h3 class="block-title">{{programName}} Headline
+                        <small ng-show='headlineloaded' ng-bind-html="trustAsHtml(headline.timestamp)"></small>
+                        <small ng-hide='headlineloaded'>Loading...</small>
+                    </h3>
+                </div>
+                <div class="block-content" ng-show='headlineloaded'>
+                    <div ng-hide="headlineeditform.$visible">
+                        <ul class="list-group" id='headline-issue-list'>
+                            <li class="list-group-item" ng-repeat="headline in headline.content track by $index"
+                                ng-click='headlineClick($index, $event, headline)'
+                                ng-class="{active:$index == headlineSelected}">
+                                <span ng-bind-html="trustAsHtml(headline)"></span>
+                            </li>
+                        </ul>
+                    </div>
+                    <headline-edit-form></headline-edit-form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="block block-bordered" style="margin-left:0px; margin-top: 5px;">
+                <div class="block-header">
+                    <ul class="block-options" ng-show='!milestoneeditform.$visible'>
+                        <li ng-if="permission.authority=='pm' || permission.authority=='ippm' ||  permission.authority=='admin'"
+                            ng-show="!milestoneeditform.$visible && ms.currentCategory.toLowerCase()=='project' && !snapshotMilestone">
+                            <label for='automaticStatusSelected'>Project Health: Automatic </label>
+                            <input id='automaticStatusSelected' type="checkbox" ng-model="ms.automaticStatusSelected">
+                        </li>
+                        <li ng-if="permission.authority=='pm' || permission.authority=='ippm' ||  permission.authority=='admin'"
+                            ng-show="!milestoneeditform.$visible && ms.currentCategory.toLowerCase()=='project' && !snapshotMilestone && !automaticStatusSelected">
+                            <select style='font-size: 12px !important;' name="flagSelect" ng-model="ms.flagSelect"
+                                    ng-options="item.value for item in flaglist track by item.order"
+                                    ng-hide="ms.automaticStatusSelected" ng-change="updateProjectOverallStatus()">
+                            </select>
+                        </li>
+                        <li ng-show='!milestoneeditform.$visible'>
+                            <button class='btn btn-xs btn-info' ng-click="displayMilestoneSnapshot();">Show History
+                            </button>
+                        </li>
+                        <li ng-if="permission.authority=='pm' || permission.authority=='ippm' ||  permission.authority=='admin'"
+                            ng-show="!snapshotMilestone">
+                            <button ng-if="permission.authority=='pm' || permission.authority=='ippm' ||  permission.authority=='admin'"
+                                    class='btn btn-xs btn-info' ng-click="$event.stopPropagation();refreshMilestone();">
+                                Reload
+                            </button>
+                        </li>
+                    </ul>
+                    <h3 class="block-title">{{(ms.currentCategory)}} Milestone
+                        <small ng-show='!milestoneloaded'>Loading...</small>
+                        <small ng-show='milestoneeditform.$visible'
+                               ng-if="permission.authority=='pm' || permission.authority=='ippm' ||  permission.authority=='admin'">
+                            Editing {{milestoneSelected.name|myUpperCase}}
+                        </small>
+                        <small ng-show='!milestoneeditform.$visible'>
+                            <select name="snapshotSelect" id="snapshotSelect" ng-model="ms.snapshotSelect"
+                                    ng-show='!milestoneeditform.$visible'>
+                                <option value="">---Latest---</option>
+                                <option ng-repeat="snapshot in snapshots track by $index" value="{{snapshot}}">
+                                    {{snapshot}}
+                                </option> <!-- interpolation -->
+                            </select>
+                        </small>
+                    </h3>
+                </div>
+                <div class="block-content" ng-show="milestoneloaded">
+                    <ul class="block-options pull-right" ng-show='!milestoneeditform.$visible' style='margin-left:0px;'
+                        ng-if="permission.authority=='pm' || permission.authority=='ippm' ||  permission.authority=='admin'">
+                        <li>
+                            <button class='btn btn-xs btn-info'
+                                    ng-click="checkNewFormShowCondition(milestoneeditform);">New
+                            </button>
+                        </li>
+                        <li ng-show="!snapshotMilestone">
+                            <button class='btn  btn-info btn-xs'
+                                    ng-click="checkEditFormShowCondition(milestoneeditform);">Edit
+                            </button>
+                        </li>
+                        <li ng-show="ms.allowEdit">
+                            <button class='btn  btn-info btn-xs' ng-click="removeMilestone();">Delete</button>
+                        </li>
+                    </ul>
+                    <ul class="block-options pull-left" ng-show='!milestoneeditform.$visible' style='margin-left:0px;'
+                        ng-if="permission.authority=='admin'">
+                        <li ng-show="!snapshotMilestone && ms.allowEdit">
+                            <button class='btn  btn-info btn-xs' ng-click="cleanTableContent();">Reset Table</button>
+                        </li>
+                    </ul>
+                    <ip-milestone-table></ip-milestone-table>
+                    <ip-milestone-edit-form></ip-milestone-edit-form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-12" style="padding: 0px!important;">
+                <div class="block block-bordered">
+                    <div class="block-header">
+                        <ul class="block-options hidden-xs" ng-show='meetingloaded'
+                            ng-if="permission.authority=='pm' || permission.authority=='ippm' ||  permission.authority=='admin'">
+                            <li ng-show='!meetingeditform.$visible'>
+                                <button class='btn btn-sm btn-info' ng-click="refreshLink()">Refresh</button>
+                            </li>
+                            <li ng-show='!meetingeditform.$visible'>
+                                <button class='btn btn-sm btn-info' ng-click="meetingeditform.$show();">Edit</button>
+                            </li>
+                        </ul>
+                        <h3 class="block-title">Meeting
+                            <small ng-hide='meetingloaded'>Loading...</small>
+                        </h3>
+                    </div>
+                    <div class="block-content" ng-show='meetingloaded'>
+                        <meeting-edit-form></meeting-edit-form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12" style="padding: 0px!important;">
+                <div class="block block-bordered">
+                    <div class="block-header">
+                        <ul class="block-options hidden-xs" ng-show='linkloaded'
+                            ng-if="permission.authority=='pm' || permission.authority=='ippm' ||  permission.authority=='admin'">
+                            <li ng-show='!linkeditform.$visible'>
+                                <button class='btn btn-sm btn-info' ng-click="refreshLink()">Refresh</button>
+                            </li>
+                            <li ng-show='!linkeditform.$visible'>
+                                <button class='btn btn-sm btn-info' ng-click="linkeditform.$show();">Edit</button>
+                            </li>
+                        </ul>
+                        <h3 class="block-title">Links
+                            <small ng-hide='linkloaded'>Loading...</small>
+                        </h3>
+                    </div>
+                    <div class="block-content" ng-show='linkloaded'>
+                        <link-edit-form></link-edit-form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-12">
+        <div class="row">
+            <!-- Default Buttons -->
+            <div class="block block-bordered">
+                <div class="block-header">
+                    <ul class="block-options" ng-show='infoloaded && !infoeditform.$visible'>
+                        <li ng-if="permission.authority=='ippm' || permission.authority=='pm' || permission.authority=='admin'">
+                            <button class='btn btn-sm btn-info' ng-click="refreshInfoDashboard()">Refresh</button>
+                        </li>
+                        <li ng-if="permission.authority=='ippm' || permission.authority=='pm' || permission.authority=='admin'">
+                            <button class='btn btn-sm btn-info' ng-click="infoeditform.$show();">Edit</button>
+                        </li>
+                    </ul>
+                    <h3 class="block-title">Program Information
+                        <small ng-hide='infoloaded'>Loading...</small>
+                    </h3>
+                </div>
+                <div class="block-content" ng-show='infoloaded'>
+                    <ip-information-edit-form></ip-information-edit-form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Default Buttons -->
+            <div class="block block-bordered">
+                <div class="block-header">
+                    <ul class="block-options" ng-show='infoRevChangeloaded && !infoRevChangeEditform.$visible'>
+                        <li ng-if="permission.authority=='ippm' || permission.authority=='pm' || permission.authority=='admin'">
+                            <button class='btn btn-sm btn-info' ng-click="refreshInfoRevChange()">Refresh</button>
+                        </li>
+                        <li ng-if="permission.authority=='ippm' || permission.authority=='pm' || permission.authority=='admin'">
+                            <button class='btn btn-sm btn-info' ng-click="infoRevChangeEditform.$show();">Edit</button>
+                        </li>
+                    </ul>
+                    <h3 class="block-title">Revision Changes
+                        <small ng-hide='infoRevChangeloaded'>Loading...</small>
+                    </h3>
+                </div>
+                <div class="block-content" ng-show='infoRevChangeloaded'>
+                    <ip-information-rev-change-edit-form></ip-information-rev-change-edit-form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Default Buttons -->
+            <div class="block block-bordered">
+                <div class="block-header">
+                    <ul class="block-options hidden-xs" ng-show='contactloaded'
+                        ng-if="permission.authority=='pm' || permission.authority=='ippm' ||  permission.authority=='admin'">
+                        <li ng-show='!contacteditform.$visible'>
+                            <button class='btn btn-sm btn-info' ng-click="refreshContact(1)">Refresh</button>
+                        </li>
+                        <li ng-show='!contacteditform.$visible'>
+                            <button class='btn btn-sm btn-info' ng-click="contacteditform.$show();">Edit</button>
+                        </li>
+                    </ul>
+                    <h3 class="block-title">Contact
+                        <small ng-hide='contactloaded'>Loading...</small>
+                    </h3>
+                </div>
+                <div class="block-content" ng-show='contactloaded'>
+                    <contact-edit-form></contact-edit-form>
+                </div>
+            </div>
+        </div>
+        <div class="row"
+             ng-if="permission.authority=='ippm' || permission.authority=='pm' ||  permission.authority=='admin'">
+            <!-- Default Buttons -->
+            <div class="block block-bordered">
+                <div class="block-header">
+                    <ul class="block-options hidden-xs">
+                        <li ng-show='!ipsettingeditform.$visible'>
+                            <button class='btn btn-sm btn-info' ng-click="ipsettingeditform.$show();">Edit</button>
+                        </li>
+                    </ul>
+                    <h3 class="block-title">Settings</h3>
+                </div>
+                <div class="block-content">
+                    <ip-setting-edit-form></ip-setting-edit-form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

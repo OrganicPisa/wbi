@@ -1,0 +1,132 @@
+<div class='row'>
+    <div class="col-md-12 col-lg-12">
+        <h2 class="content-heading">Create New Internal Program</h2>
+    </div>
+</div>
+<div class="row">
+    <form class="form-horizontal" role="form" data-ng-submit="submitRevForm(revForm.$valid)" novalidate name='revForm'>
+        <div class="col-md-12 col-lg-6">
+            <div class="block">
+                <div class="block-header">
+                    <h3 class="block-title">Program Information</h3>
+                </div>
+                <div class="block-content block-content-narrow">
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="pname">Search Program Name <span class="text-danger">*</span>
+                        </label>
+                        <div class="col-md-7">
+                            <input autocomplete="off" class='form-control' type="text" ng-model="chip.info.pname"
+                                   placeholder="Search Program"
+                                   typeahead-min-length="3" typeahead-wait-ms='5' typeahead-loading="loadingPrograms"
+                                   typeahead-no-results="noResults"
+                                   uib-typeahead="item as p.formated for p in searchProgram($viewValue)"
+                                   typeahead-on-select="onProjectSelect($item, $model, $label)" tabindex='1'>
+                            <i ng-show="loadingPrograms" class="glyphicon glyphicon-refresh"></i>
+                            <div ng-show="noResults">
+                                <i class="glyphicon glyphicon-remove"></i> No Results Found
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <select name="revisionList" ng-model="chip.info.revision"
+                                    ng-options="revision.name for revision in revisionList track by revision.name"
+                                    tabindex='2'>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-4 control-label" for="rname">Revision<span class="text-danger">*</span>
+                        </label>
+                        <div class="col-md-7"
+                             ng-class="{'has-error':revForm.rname.$invalid && (revForm.rname.$dirty || revForm.$submitted)}">
+                            <input class='form-control' ng-model='chip.info.rev' name='rname' type='text'
+                                   placeholder='Revision name' tabindex='3'
+                                   autocomplete="off" required minlength="1" ng-change="checkRevision()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-6">
+            <div class="block-header">
+                <h3 class="block-title">Links</h3>
+            </div>
+            <div class="block-content block-content-narrow">
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="portal">Portal</label>
+                    <div class="col-md-7">
+                        <input class='form-control' ng-model='chip.link.portal' name='portal' type='text'
+                               placeholder='http://portal.link.com' tabindex='16' autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="ca">CA</label>
+                    <div class="col-md-7">
+                        <input class='form-control' ng-model='chip.link.ca' name='ca' type='text'
+                               placeholder='http://link.to.ca.slide' tabindex='17' autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="pc">PC</label>
+                    <div class="col-md-7">
+                        <input class='form-control' ng-model='chip.link.pc' name='pc' type='text'
+                               placeholder='http://link.to.pc.slide' tabindex='18' autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="ecr">ECR</label>
+                    <div class="col-md-7">
+                        <input class='form-control' ng-model='chip.link.ecr' name='ecr' type='text'
+                               placeholder='http://link.to.ecr' tabindex='19' autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="eps">EPS</label>
+                    <div class="col-md-7">
+                        <input class='form-control' ng-model='chip.link.eps' name='eps' type='text'
+                               placeholder='http://link.to.eps' tabindex='20' autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-6">
+            <div class="block-header">
+                <h3 class="block-title">Meetings</h3>
+            </div>
+            <div class="block-content block-content-narrow">
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="ctm">CTM</label>
+                    <div class="col-md-7">
+                        <input class='form-control' ng-model='chip.meeting.ctm' name='portal' type='text'
+                               placeholder='http://ctm.meeting.com' tabindex='21' autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="qual">QUAL</label>
+                    <div class="col-md-7">
+                        <input class='form-control' ng-model='chip.meeting.qual' name='qual' type='text'
+                               placeholder='http://qual.meeting.com' tabindex='22' autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="postsi">POST SI</label>
+                    <div class="col-md-7">
+                        <input class='form-control' ng-model='chip.meeting.postsi' name='postsi' type='text'
+                               placeholder='http://postsi.meeting.com' tabindex='23' autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label" for="pkg">PKG/SI/PI</label>
+                    <div class="col-md-7">
+                        <input class='form-control' ng-model='chip.meeting.pkg' name='pkg' type='text'
+                               placeholder='http://pkg.meeting.com' tabindex='24' autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 col-lg-12">
+            <button type="submit" class="btn btn-primary btn-block" data-ng-disabled="revForm.$invalid" tabindex='25'
+                    data-ng-click='submitted=true'>Submit
+            </button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,35 @@
+<nav ng-include="'/report/resource/sidebar'" id="sidebar"></nav>
+<main id="main-container">
+    <div class="content">
+        <div ng-switch on="type">
+            <div ng-switch-when="collect">
+                <div ng-switch on="page">
+                    <div ng-switch-when="dashboard">
+                        <div ng-include="'/report/resource/dashboard'"></div>
+                    </div>
+                    <div ng-switch-when="location">
+                        <div ng-include="'/report/resource/location'"></div>
+                    </div>
+                    <div ng-switch-when="project">
+                        <div ng-include="'/report/resource/project'"></div>
+                    </div>
+                    <div ng-switch-when="skill">
+                        <div ng-include="'/report/resource/skill'"></div>
+                    </div>
+                    <div ng-switch-when="projectgrouping">
+                        <div ng-include="'/report/resource/projectgrouping'"></div>
+                    </div>
+                    <div ng-switch-when="reportgrouping">
+                        <div ng-include="'/report/resource/reportgrouping'"></div>
+                    </div>
+                    <div ng-switch-when="settings">
+                        <div ng-include="'/report/resource/settings'"></div>
+                    </div>
+                    <div ng-switch-when="data">
+                        <div ng-include="'/report/resource/data'"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

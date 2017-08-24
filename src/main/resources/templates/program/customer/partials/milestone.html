@@ -1,0 +1,83 @@
+<script type="text/ng-template" id="newCategoryModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">New Category</h3>
+    </div>
+    <div class="modal-body">
+        <p class="error" ng-show='hasError'>Duplicate Name</p>
+        <input class="form-control" placeholder="Name of Category" ng-model="newCat">
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="button" ng-click="save()" ng-disabled='hasError'>OK</button>
+        <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+<div class="row" style="margin-top: 5px;">
+    <div style='text-align:center'>
+        <div class="btn-group " ng-repeat="cat in ms.categories | orderBy:['order', 'name']">
+            <a class='btn' ng-class="{'btn-danger' : (cat.status.toLowerCase()=='red'),
+				'btn-warning' : (cat.status.toLowerCase()=='orange'), 
+				'btn-success' : (cat.status.toLowerCase()=='green' || cat.status.toLowerCase()=='black')}"
+               ng-click="ms.gid=cat.id;milestoneeditform.$cancel();"
+               ng-bind="cat.name|uppercase"></a>
+        </div>
+    </div>
+</div>
+<div class="row" style="margin-top: 5px;">
+    <div class="block block-bordered" style="margin-left:0px; margin-top: 5px;">
+        <div class="block-header">
+            <ul class="block-options" ng-show='!milestoneeditform.$visible'
+                ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
+
+                <li>
+                    <button class='btn btn-xs btn-info' ng-click="addNewCat()">Add New Category</button>
+                </li>
+                <li ng-hide="ms.currentCategory.toLowerCase()=='project'">
+                    <button class='btn btn-xs btn-info' ng-click="removeCat()"> Remove Current Category</button>
+                </li>
+                <li>
+                    <button type="button" loading-text="Detail" class="btn btn-info btn-xs"
+                            ng-click="displayMilestoneStrikeout = !displayMilestoneStrikeout">Show History
+                    </button>
+                </li>
+                <li ng-show="!snapshotMilestone">
+                    <button class='btn btn-info btn-xs' ng-click="$event.stopPropagation();refreshMilestone();">Reload
+                    </button>
+                </li>
+            </ul>
+            <h3 class="block-title">{{(ms.currentCategory)}} Milestone
+                <small ng-show='!milestoneloaded'>Loading...</small>
+                <small ng-show='milestoneeditform.$visible'
+                       ng-if="permission.authority=='pm' || permission.authority=='cpm' ||  permission.authority=='admin'">
+                    Editing {{milestoneSelected.name|myUpperCase}}
+                </small>
+                <small ng-show='!milestoneeditform.$visible'>
+                    <select name="snapshotSelect" id="snapshotSelect" ng-model="ms.snapshotSelect"
+                            ng-show='!milestoneeditform.$visible'>
+                        <option value="">---Latest---</option>
+                        <option ng-repeat="snapshot in snapshots track by $index" value="{{snapshot}}">{{snapshot}}
+                        </option> <!-- interpolation -->
+                    </select>
+                </small>
+            </h3>
+        </div>
+        <div class="block-content" ng-show="milestoneloaded">
+            <ul class="block-options pull-right" ng-show='!milestoneeditform.$visible' style='margin-left:0px;'
+                ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
+                <li ng-show="!snapshotMilestone">
+                    <button class='btn btn-info btn-xs' ng-click="checkEditFormShowCondition(milestoneeditform);">Edit
+                    </button>
+                </li>
+                <li ng-show="ms.currentCategory.toLowerCase()!='project'">
+                    <button class='btn btn-info btn-xs' ng-click="checkNewFormShowCondition(milestoneeditform);">New
+                    </button>
+                </li>
+                <li ng-show="ms.currentCategory.toLowerCase()!='project'">
+                    <button class='btn btn-info btn-xs' ng-click="removeMilestone();">Delete</button>
+                </li>
+            </ul>
+            <customer-milestone-table></customer-milestone-table>
+            <customer-milestone-edit-form></customer-milestone-edit-form>
+        </div>
+    </div>
+</div>
+		

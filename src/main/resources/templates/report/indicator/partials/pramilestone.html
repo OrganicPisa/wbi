@@ -1,0 +1,22 @@
+<div class="row">
+    <div class="block block-bordered">
+        <div class="block-header">
+            <ul class="block-options" ng-show="praMilestoneReportLoaded">
+                <li ng-if="permission.authority=='ipm' || permission.authority=='pm' || permission.authority=='admin'">
+                    <button class="btn btn-sm btn-info" type="button" ng-click="refreshPRAMilestoneReport();">Refresh
+                    </button>
+                </li>
+            </ul>
+            <h3 class="block-title">PRA Milestone Report
+                <small ng-hide='praMilestoneReportLoaded'>Generating...</small>
+            </h3>
+        </div>
+        <div class="block-content" ng-show='praMilestoneReportLoaded'>
+            <div id="praReport-div" ng-show='praMilestoneReportLoaded' class='gridWidthWrapper'>
+                <div ui-grid="praGridOptions" ui-grid-exporter ui-grid-resize-columns ui-grid-save-state
+                     ui-grid-move-columns ui-grid-auto-resize class="gridStyle"></div>
+            </div>
+
+        </div>
+    </div>
+</div>

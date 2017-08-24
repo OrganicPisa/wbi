@@ -1,0 +1,42 @@
+<div class='table-responsive'>
+    <table st-safe-src='rowCollection' st-table='displayCollection' search-watch-model='searchquery' st-sticky-header
+           class='table table-bordered table-condensed table-header-bg'>
+        <thead>
+        <tr>
+            <th class='hidden-xs' style='width: 2% !important;'><span class="si si-book-open"></span></th>
+            <th class='hidden-xs' style='width: 1% !important;' st-sort='schedule_flag'>S</th>
+            <th style='width: 1% !important;' st-sort='prediction_flag'>E</th>
+            <th class='hidden-xs' style='width: 5% !important;' st-sort='base' st-sort-default='true'>Customer</th>
+            <th style='width: 6% !important;' st-sort='program'>Program</th>
+            <th class='hidden-xs' style='width: 6% !important;' st-sort='switch_chip'>Switch Chip</th>
+            <th class='hidden-xs hidden-sm' style='width: 7% !important;' st-sort='sdk_current'>Current SDK</th>
+            <th class='hidden-xs hidden-sm' style='width: 7% !important;' st-sort='sdk_fcs'>SDK For FCS</th>
+            <th style='width: 4% !important;' st-sort='fcs'>FCS</th>
+            <th class='hidden-xs' style='width: 8% !important;' st-sort='reduced_pm'>PM</th>
+            <th class='hidden-xs hidden-sm' style='width: 50% !important;'>Headline</th>
+        </tr>
+        </thead>
+        <tbody ng-show='dataloaded'>
+        <tr ng-repeat='row in displayCollection' ng-hide="frontpageDisplayBookmarkOnly && frontpageDisplayBookmarkOnly!=row.bookmark">
+            <td class='hidden-xs' style='width: 2% !important;'>
+                <label class="css-input css-checkbox css-checkbox-primary remove-margin-t remove-margin-b">
+                    <input type="checkbox" ng-true-value="row.bookmark" ng-checked="row.bookmark"
+                           ng-click='saveBookmark(row)'><span></span>
+                </label>
+            </td>
+            <td style='width: 1% !important;' ng-class='row.schedule_flag'></td>
+            <td style='width: 1% !important;' ng-class='(row.prediction_flag|lowercase)'></td>
+            <td class='hidden-xs' style='width: 5% !important;'><strong ng-bind='row.base'></strong></td>
+            <td style='width: 6% !important;' dynamic='row.rev'></td>
+            <td class='hidden-xs' style='width: 6% !important;' ng-bind-html='trustAsHtml(row.switch_chip)'></td>
+            <td class='hidden-xs hidden-sm' style='width: 7% !important;'
+                ng-bind-html='trustAsHtml(row.sdk_current)'></td>
+            <td class='hidden-xs hidden-sm' style='width: 7% !important;' ng-bind-html='trustAsHtml(row.sdk_fcs)'></td>
+            <td style='width: 4% !important;' ng-bind-html='trustAsHtml(row.fcs)'></td>
+            <td class='hidden-xs' style='width: 8% !important;' ng-bind-html='trustAsHtml(row.pm)'></td>
+            <td class='hidden-xs hidden-sm' style='width: 50% !important;'
+                ng-bind-html="trustAsHtml('<p>'+row.hlts1+'</p>'+row.headline)"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>

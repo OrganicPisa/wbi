@@ -1,0 +1,21 @@
+<div class="row">
+    <div class="block block-bordered">
+        <div class="block-header">
+            <ul class="block-options" ng-show="infotableloaded"
+                ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
+                <li ng-hide='infoeditform.$visible'>
+                    <button class="btn btn-sm btn-info" type="button" ng-click="refreshInfoTable();">Refresh</button>
+                </li>
+                <li ng-hide='infoeditform.$visible'>
+                    <button class="btn btn-sm btn-info" type="button" ng-click="infoeditform.$show();">Edit</button>
+                </li>
+            </ul>
+            <h3 class="block-title">Information
+                <small ng-hide='infotableloaded'>Loading...</small>
+            </h3>
+        </div>
+        <div class="block-content" ng-show='infotableloaded'>
+            <information-table-edit-form></information-table-edit-form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,46 @@
+<div class="row">
+    <div class="block block-bordered">
+        <div class="block-header">
+            <h3 class="block-title">Settings</h3>
+        </div>
+        <div class="block-content">
+            <div layout="row" flex>
+                <md-input-container flex="20">
+                    <label>Program Name</label>
+                    <input type="text" name="programName" ng-model="settings.program" required/>
+                </md-input-container>
+                <md-input-container flex="20">
+                    <label>Revision</label>
+                    <input type="text" name="revisionName" ng-model="settings.revision" required/>
+                </md-input-container>
+                <md-input-container flex="20">
+                    <label>Base Die</label>
+                    <input type="text" name="baseDie" ng-model="settings.base" required/>
+                </md-input-container>
+            </div>
+            <div layout="row" flex>
+                <md-input-container flex="30">
+                    <label>Status</label>
+                    <md-select ng-model="settings.status" placeholder="Status" required>
+                        <md-option value="true">Active</md-option>
+                        <md-option value="false">Non Active</md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+            <div layout="row" flex>
+                <md-input-container flex="30">
+                    <label>Schedule Temperature</label>
+                    <md-select ng-model="settings.scheduleFlag" placeholder="Schedule Temperature" required>
+                        <md-option ng-repeat="item in flaglist track by item.order" ng-value="item">{{item.value}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+            <div layout="row">
+                <md-input-container>
+                    <md-button class="md-raised md-primary" ng-click='saveSettings()'>Save</md-button>
+                </md-input-container>
+            </div>
+        </div>
+    </div>
+</div>

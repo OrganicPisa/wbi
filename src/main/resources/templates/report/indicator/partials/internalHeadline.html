@@ -1,0 +1,33 @@
+<div class="row">
+    <div class="block block-bordered">
+        <md-toolbar md-colors="::{background: 'white'}">
+            <div class="md-toolbar-tools">
+                <h2 flex>Internal Headline Report</h2>
+                <md-button ng-click="convertToPPT()">
+                    <md-icon class="material-icons" style="fill:black;color:black;">get_app</md-icon>
+                    Convert To PPT
+                </md-button>
+                <md-button ng-click="refreshHeadlineReport();">
+                    <md-icon class="material-icons" style="fill:black;color:black;">autorenew</md-icon>
+                    Reload
+                </md-button>
+            </div>
+        </md-toolbar>
+        <table class='table table-bordered table-condensed table-header-bg header-fixed' st-table='internalheadlinerows'
+               st-sticky-header>
+            <thead>
+            <tr>
+                <th style='width:1%!important;'>T</th>
+                <th style='width: 7%;'>IPM</th>
+                <th style='width: 13%;'>Project</th>
+                <th style='width: 14%;'>NT Milestone</th>
+                <th style='width: 70%;'>Headline</th>
+            </tr>
+            </thead>
+            <tbody ng-show='headlineReportLoaded'>
+            <tr ng-repeat="row in internalheadlinerows track by $index" ng-bind-html='trustAsHtml(row)' dynamic></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+

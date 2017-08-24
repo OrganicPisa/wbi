@@ -1,0 +1,63 @@
+<style>
+    pre {
+        width: 99%;
+        border: none;
+        background-color: transparent !important;
+        font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 12px;
+    }
+</style>
+<div class="row">
+    <div class="col-lg-1 col-md-1 col-sm-1">
+        <div class="pull-left" style="padding-left: 5px; padding-top: 10px;">
+            <h5>
+                <a href="/">SW</a>
+                <i class="glyphicon glyphicon-chevron-right"></i>
+            </h5>
+        </div>
+    </div>
+    <div class="col-lg-10 col-md-10 col-sm-10" style='padding-left:0;'>
+        <div class="pull-left" style="padding-top: 3px;">
+            <uib-tabset type="pills" active="swtabIndex">
+                <uib-tab heading='{{tab.program|uppercase}}' ng-repeat="tab in swtabs" select='loadSWTab(tab)'
+                         disable="!dataloaded"></uib-tab>
+            </uib-tabset>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <!-- Default Buttons -->
+    <div class="block block-bordered">
+        <div class="block-header">
+            <ul class="block-options hidden-xs" ng-show='dataloaded'
+                ng-if="permission.authority=='swpm' || permission.authority=='pm' ||  permission.authority=='admin'">
+                <li>
+                    <toggle-switch ng-model="swo.inReport" on-label="Report" off-label="All" knob-label='Display'>
+                        <toggle-switch>
+                </li>
+                <li ng-hide='sweditform.$visible'>
+                    <button class='btn btn-sm btn-info' ng-click="refreshsw()">Refresh</button>
+                </li>
+                <li ng-hide='sweditform.$visible'>
+                    <button class='btn btn-sm btn-info'
+                            ng-click="sweditform.$show();">Edit
+                    </button>
+                </li>
+            </ul>
+
+            <h3 class="block-title">
+                Headline
+                <small><a ng-click="openNewTab('http://confluence.broadcom.com/display/SWITCHPM/SW+Indicator')">
+                    <i class="fa fa-question-circle fa-fw fa-2x"></i>
+                </a></small>
+                <small ng-show='dataloaded' ng-bind-html="trustAsHtml(sw.timestamp)"></small>
+                <small ng-hide='dataloaded'>Loading...</small>
+            </h3>
+        </div>
+        <div class="block-content" ng-show='dataloaded'>
+            <sw-edit-form></sw-edit-form>
+        </div>
+    </div>
+</div>
+
+

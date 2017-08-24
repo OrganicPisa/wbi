@@ -1,0 +1,62 @@
+<nav ng-include="'/report/indicator/sidebar'" id="sidebar"></nav>
+<main id="main-container">
+    <div class="content">
+        <div ng-switch on="type">
+            <div ng-switch-when="headline">
+                <div ng-switch on="page">
+                    <div ng-switch-when="internal">
+                        <div ng-include="'/report/indicator/internalHeadline'"></div>
+                    </div>
+                    <div ng-switch-when="customer">
+                        <div ng-include="'/report/indicator/customerHeadline'"></div>
+                    </div>
+                    <div ng-switch-when="ip">
+                        <div ng-include="'/report/indicator/ipHeadline'"></div>
+                    </div>
+                </div>
+            </div>
+            <div ng-switch-when="milestone">
+                <div ng-switch on="page">
+                    <div ng-switch-when="email">
+                        <div ng-include="'/report/indicator/emailMilestone'"></div>
+                    </div>
+                    <div ng-switch-when="internal">
+                        <div ng-include="'/report/indicator/internalMilestone'"></div>
+                    </div>
+                    <div ng-switch-when="customer">
+                        <div ng-include="'/report/indicator/customerMilestone'"></div>
+                    </div>
+                    <div ng-switch-when="ip">
+                        <div ng-include="'/report/indicator/ipMilestone'"></div>
+                    </div>
+                    <div ng-switch-when="pra">
+                        <div ng-include="'/report/indicator/praMilestone'"></div>
+                    </div>
+                    <div ng-switch-when="htol">
+                        <div ng-include="'/report/indicator/htolMilestone'"></div>
+                    </div>
+                </div>
+            </div>
+            <div ng-switch-when="outlook">
+                <div ng-switch on="page">
+                    <div ng-switch-when="internal">
+                        <div ng-include="'/report/indicator/internalOutlook'"></div>
+                    </div>
+                    <div ng-switch-when="customer">
+                        <div ng-include="'/report/indicator/customerOutlook'"></div>
+                    </div>
+                </div>
+            </div>
+            <div ng-switch-when="information">
+                <div ng-switch on="page">
+                    <div ng-switch-when="internal">
+                        <div ng-include="'/report/indicator/internalInformation'"></div>
+                    </div>
+                    <div ng-switch-when="customer">
+                        <div ng-include="'/report/indicator/customerInformation'"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

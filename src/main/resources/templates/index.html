@@ -1,0 +1,77 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml" ng-app="app">
+<head>
+    <title>Web Based Indicator</title>
+    <base href="/">
+    <meta name="description" content="WBI - Web Based Indicator for Switch Team">
+    <meta name="author" content="Vinh Tran">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0">
+    <meta name="_csrf" content="${_csrf.token}"/>
+    <!-- default header name is X-CSRF-TOKEN -->
+    <meta name="_csrf_header" content="${_csrf.headerName}"/>
+
+    <link th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.min.css}" rel="stylesheet" media="screen"/>
+    <link th:href="@{/webjars/angular-material/angular-material.min.css}" rel="stylesheet" media="screen"/>
+    <link th:href="@{/webjars/angular-loading-bar/0.9.0/loading-bar.min.css}" rel="stylesheet" media="screen"/>
+    <link th:href="@{/webjars/angular-ui-notification/0.3.5/angular-ui-notification.min.css}" rel="stylesheet" media="screen"/>
+
+    <!--<link href="/css/oneui.css" rel="stylesheet" media="screen"/>-->
+    <!--<link href="/css/themes/modern.min.css" rel="stylesheet" media="screen"/>-->
+
+    <link href="/css/main.css" rel="stylesheet" media="screen"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://npmcdn.com/@angular2-material/core@latest/style/core.css" rel="stylesheet">
+    <link href="https://npmcdn.com/@angular2-material/core@latest/overlay/overlay.css" rel="stylesheet">
+    <style type="text/css">
+        .autocomplete-custom-template li {
+            border-bottom: 1px solid #ccc;
+            height: auto;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            white-space: normal;
+        }
+
+        .autocomplete-custom-template li:last-child {
+            border-bottom-width: 0;
+        }
+
+        .autocomplete-custom-template .item-title,
+        .autocomplete-custom-template .item-metadata {
+            display: block;
+            line-height: 1;
+        }
+
+    </style>
+</head>
+<body ng-cloak>
+<div id="page-container" class="sidebar-o-xs header-navbar-scroll">
+    <md-toolbar class="md-menu-toolbar" style="border-bottom: dotted 1px; height:40px!important;" ng-include="'/header'" ng-controller="HeaderCtrl"></md-toolbar>
+    <div autoscroll="true" ui-view></div>
+
+    <script th:src="@{/webjars/angularjs/1.6.4/angular.min.js}"></script>
+    <script th:src="@{/webjars/angularjs/1.6.4/angular-animate.min.js}"></script>
+    <script th:src="@{/webjars/angularjs/1.6.4/angular-aria.min.js}"></script>
+    <script th:src="@{/webjars/angularjs/1.6.4/angular-messages.min.js}"></script>
+    <script th:src="@{/webjars/angularjs/1.6.4/angular-sanitize.min.js}"></script>
+    <script th:src="@{/webjars/ngStorage/0.3.11/ngStorage.min.js}"></script>
+
+    <script th:src="@{/webjars/angular-material/angular-material.min.js}"></script>
+    <script th:src="@{/webjars/angular-ui-router/1.0.3/angular-ui-router.min.js}"></script>
+    <!--<script th:src="@{/webjars/angular-ui-bootstrap/2.2.0/ui-bootstrap-tpls.min.js}"></script>-->
+    <script th:src="@{/webjars/oclazyload/1.0.9/ocLazyLoad.min.js}"></script>
+    <script th:src="@{/webjars/angular-loading-bar/0.9.0/loading-bar.min.js}"></script>
+    <script th:src="@{/webjars/angular-ui-notification/0.3.5/angular-ui-notification.min.js}"></script>
+    <script th:src="@{/webjars/stomp-websocket/2.3.3/stomp.min.js}"></script>
+
+    <script th:src="@{/js/app.js}"></script>
+    <script th:src="@{/js/factories.js}"></script>
+    <script th:src="@{/js/directives.js}"></script>
+    <!--<script th:src="@{/js/headerController.js}"></script>-->
+    <script th:src="@{/js/segmentController.js}"></script>
+    <script th:src="@{/js/program/internalProgramController.js}"></script>
+    <script th:src="@{/js/program/customerProgramController.js}"></script>
+    <script th:src="@{/js/reportController.js}"></script>
+</div>
+</body>
+</html>

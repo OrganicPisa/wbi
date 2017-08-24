@@ -1,0 +1,110 @@
+<style>
+    .gridWidthWrapper {
+        width: 100%;
+        height: 100%;
+        overflow: hide;
+    }
+
+    .gridStyle {
+        /* width: 100%;  --- 100% not sizing on load - using gridWidthWrapper class to obtain 100% */
+        width: 100%;
+        height: 100%;
+    }
+
+    .my-css-class {
+        color: blue
+    }
+</style>
+<div layout="column" flex>
+    <div layout="column" flex>
+        <md-card>
+            <md-card-content>
+                <h1 class="md-title">Criteria</h1>
+                <div layout="row">
+                    <md-input-container>
+                        <md-datepicker ng-model="resourceDate.fromDate" md-current-view="month"
+                                       md-placeholder="From date"></md-datepicker>
+                    </md-input-container>
+                    <md-input-container>
+                        <md-datepicker ng-model="resourceDate.toDate" md-current-view="month"
+                                       md-placeholder="To date"></md-datepicker>
+                    </md-input-container>
+                    <md-input-container>
+                        <label>Interval</label>
+                        <md-select ng-model='resourceDate.intervalGroup'>
+                            <md-option value='month'>Month</md-option>
+                            <md-option value='quarter'>Quarter</md-option>
+                            <md-option value='year'>Year</md-option>
+                        </md-select>
+                    </md-input-container>
+                    <md-input-container>
+                        <md-button ng-click='generateDataReport()'>Submit</md-button>
+                    </md-input-container>
+                </div>
+            </md-card-content>
+        </md-card>
+    </div>
+
+    <div layout="column" flex>
+        <md-card>
+            <md-card-content>
+                <h1 class="md-title">Skill Data</h1>
+                <div layout="row" flex>
+                    <div id="site-div" class='table-responsive gridWidthWrapper'>
+                        <div ui-grid="dataGridOptions" ui-grid-grouping ui-grid-exporter ui-grid-resize-columns
+                             ui-grid-move-columns ui-grid-auto-resize class="gridStyle"></div>
+                    </div>
+                </div>
+            </md-card-content>
+        </md-card>
+    </div>
+</div>
+
+<!-- <div class="row"> -->
+<!-- 	<div class="col-lg-2 col-md-2 col-sm-2" > -->
+<!-- 		<p class="input-group">             -->
+<!-- 			<input type='text' class='form-control' ng-model='resourceDate.fromDate' name='fromDate' ng-animate='fade' datepicker-options='resourceDatePickerOptions'   -->
+<!-- 				placeholder='From Date' uib-datepicker-popup='MM/yyyy' datepicker-append-to-body='true' show-button-bar='false' -->
+<!-- 				is-open='startDateOpenStatus' close-text='Close' ng-readonly='true'> -->
+<!-- 			<span class='input-group-btn'> -->
+<!-- 				<button type='button' class='btn btn-default' ng-click='openStartDatePicker($event)'> -->
+<!-- 					<i class='glyphicon glyphicon-calendar'></i> -->
+<!-- 				</button> -->
+<!-- 			</span> -->
+<!-- 		</p> -->
+<!-- 	</div> -->
+<!-- 	<div class="col-lg-2 col-md-2 col-sm-2" > -->
+<!-- 		<p class="input-group"> -->
+<!-- 			<input type='text' class='form-control' ng-model='resourceDate.toDate' name='toDate' ng-animate='fade' datepicker-options='resourceDatePickerOptions'  -->
+<!-- 				placeholder='Until Date' uib-datepicker-popup='MM/yyyy' datepicker-append-to-body='true' show-button-bar='false' -->
+<!-- 				is-open='toDateOpenStatus' close-text='Close' ng-readonly='true'> -->
+<!-- 			<span class='input-group-btn'> -->
+<!-- 				<button type='button' class='btn btn-default' ng-click='openEndDatePicker($event)'> -->
+<!-- 					<i class='glyphicon glyphicon-calendar'></i> -->
+<!-- 				</button> -->
+<!-- 			</span> -->
+<!-- 		</p> -->
+<!-- 	</div> -->
+<!-- 	<div class="col-lg-2 col-md-2 col-sm-2" > -->
+<!-- 		<div class="form-group"> -->
+<!-- 			<button type="button" class="btn btn-success from-control" ng-click='generateDataReport()'>Submit</button> -->
+<!-- 		</div> -->
+<!-- 	</div> -->
+<!-- </div> -->
+<!-- <div class="row"> -->
+<!-- 	<div class="col-lg-12 col-md-12 col-sm-12" > -->
+<!-- 		<div class="row"> -->
+<!-- Default Buttons -->
+<!-- 			<div class="block block-bordered"> -->
+<!-- 				<div class="block-header"> -->
+<!-- 					<h3 class="block-title">Manager Report Data</h3> -->
+<!-- 				</div> -->
+<!-- 				<div class="block-content"> -->
+<!-- 					<div id="div" class='table-responsive gridWidthWrapper'> -->
+<!-- 						<div ui-grid="dataGridOptions" ui-grid-grouping  ui-grid-exporter ui-grid-resize-columns ui-grid-move-columns ui-grid-auto-resize class="gridStyle"></div> -->
+<!-- 					</div> -->
+<!-- 				</div> -->
+<!-- 			</div> -->
+<!-- 		</div> -->
+<!-- 	</div> -->
+<!-- </div> -->

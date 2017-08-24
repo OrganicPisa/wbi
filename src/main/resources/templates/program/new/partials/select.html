@@ -1,0 +1,80 @@
+<style>
+    fieldset.scheduler-border {
+        border: 1px groove #ddd !important;
+        padding: 0 1.4em 1.4em 1.4em !important;
+        margin: 0 0 1.5em 0 !important;
+        -webkit-box-shadow: 0px 0px 0px 0px #000;
+        box-shadow: 0px 0px 0px 0px #000;
+    }
+
+    legend.scheduler-border {
+        font-size: 1.2em !important;
+        font-weight: bold !important;
+        text-align: left !important;
+        width: auto;
+        padding: 0 10px;
+        border-bottom: none;
+    }
+</style>
+<div class='row'>
+    <div class="col-md-6 col-md-offset-2 col-lg-6 col-lg-offset-2">
+        <h2>Select what you would like to create</h2>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-lg-9">
+        <div class="block">
+            <div class="block-content ">
+                <fieldset class="scheduler-border"
+                          data-ng-if="permission.authority=='ipm' || permission.authority=='pm' || permission.authority=='admin'">
+                    <legend class="scheduler-border">Internal Program</legend>
+                    <div class="control-group">
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" ng-model="createNew.type" value="internalprogram"> New Internal
+                                Program
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" ng-model="createNew.type" value="internalrevision"> New Internal
+                                Revision
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="scheduler-border"
+                          data-ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
+                    <legend class="scheduler-border">Customer Program</legend>
+                    <div class="control-group">
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" ng-model="createNew.type" value="customerprogram"> New Customer
+                                Program
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="scheduler-border"
+                          data-ng-if="permission.authority=='ippm' || permission.authority=='pm' || permission.authority=='admin'">
+                    <legend class="scheduler-border">IP Program</legend>
+                    <div class="control-group">
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" ng-model="createNew.type" value="ipprogram"> New IP
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" ng-model="createNew.type" value="iprevision"> New IP Revision
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" data-ng-click='newGo(createNew.type)'>Go</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

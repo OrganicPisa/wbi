@@ -1,0 +1,42 @@
+<style>
+    .ui-grid-row: {
+        display: table-row;
+    }
+
+    .ui-grid-row, .ui-grid-cell {
+        height: auto !important;
+    }
+
+    .ui-grid-cell {
+        float: none;
+        display: table-cell;
+    }
+
+    .ui-grid-header-cell, .ui-grid-cell-contents {
+        white-space: normal;
+        padding: 2px;
+        word-break: break-word;
+    }
+
+    .delay {
+        background-color: rgb(255, 0, 0) !important;
+        font-size: 0;
+        border-bottom: 1px solid #d4d4d4;
+    }
+
+    .risk {
+        background-color: rgb(255, 165, 0) !important;
+        font-size: 0;
+        border-bottom: 1px solid #d4d4d4;
+    }
+
+    .normal {
+        background-color: rgb(0, 128, 0) !important;
+        font-size: 0;
+        border-bottom: 1px solid #d4d4d4;
+    }
+</style>
+<div>
+    <div ui-grid="gridOptions" ui-grid-exporter ui-grid-resize-columns ui-grid-save-state
+         ui-grid-move-columns ui-grid-auto-resize class="gridStyle"></div>
+</div>

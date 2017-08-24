@@ -1,0 +1,227 @@
+
+<div layout="row" >
+    <div flex-xs flex-gt-xs="70" layout="column" style="padding-left: 0px!important; padding-top: 0px!important; padding-bottom: 0px!important;">
+        <md-card  ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">Program Outlook</span>
+                        <span flex></span>
+                        <a class="md-primary" ng-click="outlookeditform.$show();" ng-show='!outlookeditform.$visible'>
+                           Edit
+                        </a>
+                        <a class="md-primary" ng-click="refreshOutlook();" ng-show='!outlookeditform.$visible'>
+                            Refresh
+                        </a>
+                    </div>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <outlook-edit-form></outlook-edit-form>
+            </md-card-content>
+        </md-card>
+        <md-card>
+            <md-card-title >
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">Headline </span>
+                        <span class='md-subhead' ng-bind-html="trustAsHtml(headline.timestamp)"></span>
+                        <span flex></span>
+                        <md-select name="headlineSnapshot" id="headlineSnapshotSelect" ng-model="headline.snapshotSelect" placeholder="SNAPSHOT"
+                                   aria-label="Headline Snapshot">
+                            <md-option value="">---Latest---</md-option>
+                            <md-option ng-repeat="snapshot in headline.snapshots track by $index" value="{{snapshot}}"> {{snapshot}}  </md-option>
+                        </md-select>
+                        <span ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
+                            <a class='md-primary'
+                               ng-click="headlineeditform.$show();"
+                               ng-hide='(headlineeditform.$visible || !showEditFeature || snapshotHeadline)'>Edit</a>
+                            <a class='md-primary'
+                               ng-click="removeHeadline()"
+                               ng-hide='(headlineeditform.$visible || !showEditFeature || snapshotHeadline)'>Delete</a>
+                            <a class='md-primary'
+                               ng-click="newHeadline(); headlineeditform.$show(); "
+                               ng-hide='(headlineeditform.$visible || snapshotHeadline)'>New</a>
+                            <a class='md-primary'
+                               ng-click="refreshHeadline()"
+                               ng-hide='(headlineeditform.$visible || snapshotHeadline)'>Refresh</a>
+                        </span>
+
+                    </div>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <div ng-hide="headlineeditform.$visible">
+                    <ul class="list-group" id='headline-issue-list'>
+                        <li class="list-group-item" ng-repeat="headline in headline.content track by $index"
+                            ng-click='headlineClick($index, $event, headline)'
+                            ng-class="{active:$index == headlineSelected}">
+                            <span ng-bind-html="trustAsHtml(headline)"></span>
+                        </li>
+                    </ul>
+                </div>
+                <headline-edit-form></headline-edit-form>
+            </md-card-content>
+        </md-card>
+        <md-card >
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">Resource Summary </span>
+                        <span ng-bind-html="trustAsHtml(resourceTimestamp)"></span></span>
+                        <span flex></span>
+                        <a class='md-primary' ng-click="go(rid, 'resourceSummary');"  ng-disabled="!milestoneResourceValid">More </a>
+                    </div>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <div ng-show='milestoneResourceValid'>
+                    <div class="row">
+                        <table class='table table-bordered table-condensed table-header-bg'>
+                            <thead>
+                            <tr>
+                                <th style='width: 10%'>&nbsp;</th>
+                                <th style='width: 18%'>Pre PC</th>
+                                <th style='width: 18%'>PC-T/O</th>
+                                <th style='width: 18%'>T/O - PRA</th>
+                                <th style='width: 18%'>Post PRA</th>
+                                <th style='width: 18%'>Total</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="(type, arr) in resources">
+                                <td ng-repeat="r in arr | orderBy: 'order' track by $index"
+                                    ng-bind-html='trustAsHtml(r.value)'></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <highchart id="resourceDashboardTrendChart" config="resourceMonthlyChartConfig"  style="height: 400px; margin: 0 auto"></highchart>
+                    </div>
+                </div>
+                <div ng-hide='milestoneResourceValid '>
+                    <div class="alert alert-info">
+                        <strong>INFO: </strong> the plot cannot be displayed because some dates are missing in the
+                        Milestone table.  See this <a ng-click="openNewTab('http://confluence.broadcom.com/display/SWITCHPM/No+resource+plot ')">link</a>
+                        for more info.
+                    </div>
+                </div>
+            </md-card-content>
+        </md-card>
+        <md-card>
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">IP Usages </span>
+                        <span flex></span>
+                        <span ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
+                            <a class='md-primary' ng-show='!ipchipeditform.$visible'  ng-click="ipchipeditform.$show();">Edit</a>
+                            <a class='md-primary' ng-show='!ipchipeditform.$visible' ng-click="refreshIPChipTable()">Refresh</a>
+                        </span>
+                    </div>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <ip-chip-table-edit-form></ip-chip-table-edit-form>
+            </md-card-content>
+        </md-card>
+        <md-card>
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">Meeting </span>
+                        <span flex></span>
+                        <span ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
+                            <a class='md-primary' ng-show='!meetingeditform.$visible' ng-click="meetingeditform.$show();">Edit</a>
+                            <a class='md-primary' ng-show='!meetingeditform.$visible' ng-click="refreshLink()">Refresh</a>
+                        </span>
+                    </div>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <meeting-edit-form></meeting-edit-form>
+            </md-card-content>
+        </md-card>
+        <md-card>
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">Links </span>
+                        <span flex></span>
+                        <span ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
+                            <a class='md-primary' ng-show='!linkeditform.$visible' ng-click="linkeditform.$show();">Edit</a>
+                            <a class='md-primary' ng-show='!linkditform.$visible' ng-click="refreshLink()">Refresh</a>
+                        </span>
+                    </div>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <link-edit-form></link-edit-form>
+            </md-card-content>
+        </md-card>
+
+    </div>
+    <div flex-xs flex-gt-xs="30" layout="column">
+        <md-card>
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">Program Information </span>
+                        <span flex></span>
+                        <span ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
+                            <a class='md-primary' ng-click="go(rid, 'info');">More</a>
+                            <a class='md-primary' ng-click="refreshInfoDashboard()">Refresh</a>
+                        </span>
+                    </div>
+                </md-card-title-text>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <information-edit-form></information-edit-form>
+            </md-card-content>
+        </md-card>
+        <md-card>
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">Contact </span>
+                        <span flex></span>
+                        <span ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
+                            <a class='md-primary' ng-show='!contacteditform.$visible' ng-click="contacteditform.$show();">Edit</a>
+                            <a class='md-primary' ng-click="refreshContact()">Refresh</a>
+                        </span>
+                    </div>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <contact-edit-form></contact-edit-form>
+            </md-card-content>
+        </md-card>
+        <md-card>
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">Key Project Milestones </span>
+                        <span flex></span>
+                        <span>
+                            <a class='md-primary' ng-click="go(rid, 'milestone');">More</a>
+                            <a class='md-primary' ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'" ng-click="refreshFrontPageMilestone()">Refresh</a>
+                        </span>
+                    </div>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <table class='table table-bordered table-condensed'>
+                    <tbody>
+                    <tr ng-repeat="milestone in milestones | orderBy: 'order'">
+                        <td class='col-sm-6 col-md-6'><strong>{{milestone['key']|myUpperCase}}</strong></td>
+                        <td style='text-align:center;' class='col-sm-6 col-md-6'
+                            ng-bind-html="trustAsHtml(milestone['value'])"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </md-card-content>
+        </md-card>
+</div>
+</div>

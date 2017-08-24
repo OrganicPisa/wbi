@@ -1,0 +1,21 @@
+<div layout="row" >
+    <md-card>
+        <md-card-title>
+            <md-card-title-text>
+                <div layout="row">
+                    <span class="md-title">Program Information</span>
+                    <span flex></span>
+                    <a class="md-primary" ng-click="infoeditform.$show();" ng-show='!infoeditform.$visible' ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'">
+                        Edit
+                    </a>
+                    <a class="md-primary" ng-click="refreshInfoTable();" ng-show='!infoeditform.$visible' ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'">
+                        Refresh
+                    </a>
+                </div>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content flex>
+            <information-table-edit-form></information-table-edit-form>
+        </md-card-content>
+    </md-card>
+</div>

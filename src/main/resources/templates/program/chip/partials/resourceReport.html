@@ -1,0 +1,67 @@
+<div class="row">
+    <div class="block block-bordered">
+        <div class="block-header">
+            <h3 class="block-title">Resource By Skill
+                <small ng-hide='resourceloaded'>Loading...</small>
+                <small ng-show='resourceloaded' ng-bind-html="trustAsHtml(resourceTimestamp)"></small>
+            </h3>
+        </div>
+        <div class="block-content" ng-show='resourceloaded'>
+            <div ng-show='milestoneResourceValid'>
+                <div class="row">
+                    <highchart id="resourceSkillCurrentCompareChart" config="resourceSkillCurrentCompareChartConfig"
+                               style="height: 400px; margin: 0 auto"></highchart>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <highchart id="porResourceMonthlySkillTrendChart"
+                                   config="porResourceMonthlySkillTrendChartConfig"
+                                   style="height: 400px; margin: 0 auto"></highchart>
+                    </div>
+                    <div class="col-sm-6">
+                        <highchart id="actualResourceMonthlySkillTrendChart"
+                                   config="actualResourceMonthlySkillTrendChartConfig"
+                                   style="height: 400px; margin: 0 auto"></highchart>
+                    </div>
+                </div>
+            </div>
+            <div ng-hide='milestoneResourceValid || !resourceloaded'>
+                <div class="alert alert-info">
+                    <strong>INFO: </strong> the plot cannot be displayed because some dates are missing in the Milestone
+                    table.
+                    See this <a
+                        ng-click="openNewTab('http://confluence.broadcom.com/display/SWITCHPM/No+resource+plot ')">link</a>
+                    for more info.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="block block-bordered">
+        <div class="block-header">
+            <ul class="block-options" ng-show="resourceloaded">
+                <li>
+                    <select name="skillSelect" id="snapshotSelect" ng-model="rs.skillSelect">
+                        <option value="">---Please select Skill for Compare---</option>
+                        <option ng-repeat="skill in skillList track by $index" value="{{skill}}">{{skill}}</option>
+                        <!-- interpolation -->
+                    </select>
+                </li>
+            </ul>
+            <h3 class="block-title">Skill Compare
+                <small ng-hide='resourceloaded'>Loading...</small>
+
+                <small>{{rs.skillSelect}}</small>
+            </h3>
+        </div>
+        <div class="block-content" ng-show="resourceloaded">
+            <div ng-show="milestoneResourceValid  &&rs.skillSelect != null && rs.skillSelect != ''">
+                <div class="row">
+                    <highchart id="resourceSkillTrendCompareChart" config="resourceSkillTrendCompareChartConfig"
+                               style="height: 400px; margin: 0 auto"></highchart>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

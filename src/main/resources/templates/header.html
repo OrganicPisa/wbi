@@ -1,0 +1,263 @@
+
+<!--<md-toolbar class="md-menu-toolbar" style="border-bottom: dotted 1px">-->
+    <div class="md-toolbar-tools">
+        <div class="fill-height" flex="55" layout="row">
+            <a class="md-toolbar-item" ui-sref="segment({ status: 'active' })">
+                <h1>WBI {{environmentMode}}</h1>
+            </a>
+            <div class="md-toolbar-item layout-row" layout="row">
+                <md-menu-bar>
+                    <md-menu>
+                        <button ng-click="$mdMenu.open()">
+                            <span style='font-size:16px;'>Project</span>
+                        </button>
+                        <md-menu-content width="4">
+                            <md-menu-item>
+                                <md-button ui-sref="segment({ status: 'active' })">
+                                    <span>Active Project</span>
+                                </md-button>
+                            </md-menu-item>
+                            <md-menu-item>
+                                <md-button ui-sref="segment({ status: 'archived' })">
+                                    <span>Archived Project</span>
+                                </md-button>
+                            </md-menu-item>
+                            <md-menu-divider
+                                    ng-show="authority=='admin' || authority=='pm' || authority =='ipm' || authority=='cpm' || authority=='ippm'">
+                            </md-menu-divider>
+                            <md-menu-item
+                                    ng-show="authority=='admin' || authority=='pm' || authority =='ipm' || authority=='cpm' || authority=='ippm'">
+                                <md-button ui-sref="program({ptype:'new',pid:0, rid:0, page:'select'})">
+                                    <span>Create New</span>
+                                </md-button>
+                            </md-menu-item>
+                        </md-menu-content>
+                    </md-menu>
+                    <md-menu>
+                        <button ng-click="$mdMenu.open()">
+                            <span style='font-size:16px;'>Report</span>
+                        </button>
+                        <md-menu-content width="4">
+                            <md-menu-item>
+                                <md-button ui-sref="report({rtype:'indicator',type:'milestone', page:'email'})">
+                                    Weekly Indicator Email
+                                </md-button>
+                            </md-menu-item>
+                            <md-menu-divider></md-menu-divider>
+                            <md-menu-item>
+                                <md-menu>
+                                    <md-button ng-click="$mdMenu.open()">
+                                        Headline Reports
+                                    </md-button>
+                                    <md-menu-content width="2">
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="report({rtype:'indicator',type:'headline', page:'internal'})">
+                                                Internal Projects
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="report({rtype:'indicator',type:'headline', page:'customer'})">
+                                                Customer Projects
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button ui-sref="report({rtype:'indicator',type:'headline', page:'ip'})">
+                                                IP Projects
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
+                            </md-menu-item>
+                            <md-menu-item>
+                                <md-menu>
+                                    <md-button ng-click="$mdMenu.open()">
+                                        Milestone Reports
+                                    </md-button>
+                                    <md-menu-content width="2">
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="report({rtype:'indicator',type:'milestone', page:'internal'})">
+                                                Internal Projects
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="report({rtype:'indicator',type:'milestone', page:'customer'})">
+                                                Customer Projects
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="report({rtype:'indicator',type:'milestone', page:'ip'})">
+                                                IP Projects
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
+                            </md-menu-item>
+                            <md-menu-item>
+                                <md-menu>
+                                    <md-button ng-click="$mdMenu.open()">
+                                        <span>Other Milestone Reports</span>
+                                    </md-button>
+                                    <md-menu-content width="2">
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="report({rtype:'indicator',type:'milestone', page:'pra'})">
+                                                PRA Milestones
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="report({rtype:'indicator',type:'milestone', page:'htol'})">
+                                                HTOL Milestones
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
+                            </md-menu-item>
+                            <md-menu-divider></md-menu-divider>
+                            <md-menu-item>
+                                <md-menu>
+                                    <md-button ng-click="$mdMenu.open()">
+                                        <span>Information Reports</span>
+                                    </md-button>
+                                    <md-menu-content width="2">
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="report({rtype:'indicator',type:'information', page:'internal'})">
+                                                Internal Projects
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="report({rtype:'indicator',type:'information', page:'customer'})">
+                                                Customer Projects
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
+                            </md-menu-item>
+                        </md-menu-content>
+                    </md-menu>
+                    <md-menu ng-show="authority=='admin' || authority=='pm'">
+                        <button ng-click="$mdMenu.open()">
+                            <span style='font-size:16px;'>Resource (PT)</span>
+                        </button>
+                        <md-menu-content width="4">
+                            <md-menu-item>
+                                <md-button ui-sref="report({rtype:'resource',type:'collect', page:'dashboard'})">
+                                    Dashboard
+                                </md-button>
+                            </md-menu-item>
+                            <md-menu-divider></md-menu-divider>
+                            <md-menu-item>
+                                <md-button ui-sref="report({rtype:'resource',type:'collect', page:'projectgrouping'})">
+                                    AOP
+                                </md-button>
+                            </md-menu-item>
+                            <md-menu-divider></md-menu-divider>
+                            <md-menu-item>
+                                <md-menu>
+                                    <md-button ng-click="$mdMenu.open()">
+                                        Other Reports
+                                    </md-button>
+                                    <md-menu-content width="2">
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="report({rtype:'resource',type:'collect', page:'project'})">
+                                                By Projects
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="report({rtype:'resource',type:'collect', page:'skill'})">
+                                                By Skill
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="report({rtype:'resource',type:'collect', page:'manager'})">
+                                                By Manager
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
+                            </md-menu-item>
+                            <md-menu-divider></md-menu-divider>
+                            <md-menu-item>
+                                <md-menu>
+                                    <md-button ng-click="$mdMenu.open()">
+                                        Settings
+                                    </md-button>
+                                    <md-menu-content width="2">
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="report({rtype:'resource',type:'collect', page:'settings'})">
+                                                Project Grouping Settings
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button>
+                                                Clear Cache
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
+                            </md-menu-item>
+                        </md-menu-content>
+                    </md-menu>
+                </md-menu-bar>
+            </div>
+        </div>
+        <div class="fill-height" flex="30" layout="row">
+            <form ng-submit="$event.preventDefault()">
+                <md-autocomplete md-input-name="autocomplete" md-no-cache="true"
+                                 md-input-minlength="3" md-input-maxlength="128"
+                                 md-delay="5" md-selected-item="selectedItem"
+                                 md-search-text="searchText" md-item-text="item.num"
+                                 md-menu-class="autocomplete-custom-template"
+                                 md-selected-item-change="selectedItemChange(item)"
+                                 md-items="item in searchProgram(searchText)"
+                                 placeholder="Search Program">
+                    <md-item-template>
+                                <span class="item-title">
+                                    <strong> {{item.pname + ' '+ item.num}} </strong>
+                                </span>
+                        <span class="item-metadata">
+                                    <span> {{item.description}} </span>
+                                </span>
+                    </md-item-template>
+                </md-autocomplete>
+            </form>
+        </div>
+        <div class="fill-height" flex="15" layout="row">
+            <md-menu-bar>
+                <md-menu>
+                    <button ng-click="$mdMenu.open()">
+                        <span style='font-size:16px;'>Welcome, {{loginedUser}}</span>
+                    </button>
+                    <md-menu-content width="2">
+                        <md-menu-item>
+                            <md-button ng-click="goLogout()">
+                                Logout
+                            </md-button>
+                        </md-menu-item>
+                        <md-menu-divider ng-show="authority=='admin' || authority=='pm'"></md-menu-divider>
+                        <md-menu-item ng-show="authority=='admin' || authority=='pm'">
+                            <md-button ng-click="clearAllCache()">
+                                Clear All Cache
+                            </md-button>
+                        </md-menu-item>
+                    </md-menu-content>
+                </md-menu>
+            </md-menu-bar>
+        </div>
+<!--</md-toolbar>-->
+<!-- Header Navigation Right -->
+
+
+
+

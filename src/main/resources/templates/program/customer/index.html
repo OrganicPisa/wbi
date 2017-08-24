@@ -1,0 +1,53 @@
+<nav data-ng-include="'/program/customer/sidebar'" id="sidebar"></nav>
+<main id="main-container">
+    <div class="content bg-gray-lighter">
+        <div class="row">
+            <div class="col-sm-7">
+                <h3 class="page-heading">
+					<span style='font-size: 18px;'>
+						<a href="/">CUSTOMER</a>
+						<i class="glyphicon glyphicon-chevron-right"></i>
+					</span>
+                    <a href="/program/{{category}}/{{pid}}/{{rid}}/dashboard">{{(basedie + '
+                        '+programName|uppercase)}}</a>
+                </h3>
+            </div>
+            <div class="col-sm-5 text-right">
+                <div class="pull-right" role="group" id='revisionList' style='padding-top:7px;'>
+					<span class="label" ng-class="{'label-danger' : (revisions[0].schedule_flag.toLowerCase()=='red') , 
+						'label-warning' : (revisions[0].schedule_flag.toLowerCase()=='orange'),
+						'label-success' : (revisions[0].schedule_flag.toLowerCase()=='green' || revisions[0].schedule_flag.toLowerCase()=='black')}"
+                          style='font-size:12px;'>Schedule</span>
+
+                    <span class="label" ng-class="{'label-danger' : (revisions[0].prediction_flag.toLowerCase()=='red') ,
+						'label-warning' : (revisions[0].prediction_flag.toLowerCase()=='orange'),
+						'label-success' : (revisions[0].prediction_flag.toLowerCase()=='green' || revisions[0].prediction_flag.toLowerCase()=='black')}"
+                          style='font-size:12px;'>Escalation</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        <div ng-switch on="page">
+            <div ng-switch-default>
+                <div ng-include="'/program/customer/dashboard'"></div>
+            </div>
+            <div ng-switch-when="info">
+                <div ng-include="'/program/customer/info'"></div>
+            </div>
+            <div ng-switch-when="dashboard">
+                <div ng-include="'/program/customer/dashboard'"></div>
+            </div>
+            <div ng-switch-when="milestone">
+                <div ng-include="'/program/customer/milestone'"></div>
+            </div>
+            <div ng-switch-when="weeklyUpdate">
+                <div ng-include="'/program/customer/weeklyUpdate'"></div>
+            </div>
+            <div ng-switch-when="settings"
+                 data-ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
+                <div ng-include="'/program/customer/settings'"></div>
+            </div>
+        </div>
+    </div>
+</main>
