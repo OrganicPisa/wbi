@@ -6,7 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -43,7 +43,7 @@ public class Sku extends AbstractDomainClass implements Serializable {
     @Column(name = "itemp")
     private String itemp;
 
-    @NotEmpty
+    @NotBlank
     @Column(name = "sku_num")
     private String skuNum = "NA";
 

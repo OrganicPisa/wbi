@@ -8,48 +8,41 @@ App.controller('HeaderCtrl', function ($scope, $rootScope, $timeout, $window, $h
     else if (hostname.match(/localhost/i)) {
         $scope.environmentMode = 'DEV';
     }
-    var searchProgramDisplay = [];
     $scope.searchProgram = function (term) {
-        searchProgramDisplay = [];
-        return $http.get('/search/program', {
-            params: {
-                'term': term.toLowerCase().replace(/\+/i, 'plus')
-            }
-        }).then(function (res) {
-            searchProgramDisplay = [];
-            searchProgramDisplay = res.data;
-            return searchProgramDisplay;
+        $http.get('/api/search/program?term=' + term.toLowerCase().replace(/\+/i, 'plus')
+        ).then(function (res) {
+            return res.data;
         });
     };
-    $rootScope.authenticated = false;
-    $http.get("/api/auth/user", {ignoreLoadingBar: true})
-        .then(function (response) {
-            $rootScope.authenticated = response.authenticated;
-            if (response.principal && response.principal.authorities) {
-                $rootScope.username = response.principal.username;
-                angular.forEach(ret.principal.authorities, function (arr, key) {
-                    $rootScope.authority = arr.authority.replace(/^role_/i, "");
-                    if (arr.authority.match(/admin/i)) {
-                        $rootScope.authority = 'admin';
-                    }
-                    else {
-                        if ($rootScope.authority.match(/view/i))
-                            $rootScope.authority = arr.authority;
-                    }
-                });
-            }
-        });
+    // $rootScope.authenticated = false;
+    // $http.get("/api/auth/user", {ignoreLoadingBar: true})
+    //     .then(function (response) {
+    //         $rootScope.authenticated = response.authenticated;
+    //         if (response.principal && response.principal.authorities) {
+    //             $rootScope.username = response.principal.username;
+    //             angular.forEach(ret.principal.authorities, function (arr, key) {
+    //                 $rootScope.authority = arr.authority.replace(/^role_/i, "");
+    //                 if (arr.authority.match(/admin/i)) {
+    //                     $rootScope.authority = 'admin';
+    //                 }
+    //                 else {
+    //                     if ($rootScope.authority.match(/view/i))
+    //                         $rootScope.authority = arr.authority;
+    //                 }
+    //             });
+    //         }
+    //     });
 
 
     $scope.goLogout = function () {
         $window.location = "/logout";
-    }
+    };
     $scope.clearAllCache = function () {
-        $http.get('/admin/clearCache')
+        $http.get('/api/admin/clearCache')
             .success(function (ret) {
                 location.reload();
             });
-    }
+    };
     $scope.changeHeaderClass = function () {
         var carr = document.getElementsByClassName("nav-header");
         if (carr.length > 0) {

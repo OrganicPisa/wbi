@@ -5,8 +5,7 @@ import com.broadcom.wbi.exception.IDNotFoundException;
 import com.broadcom.wbi.model.elasticSearch.*;
 import com.broadcom.wbi.model.mysql.*;
 import com.broadcom.wbi.service.elasticSearch.*;
-import com.broadcom.wbi.service.event.TaskSaveEventPublisher;
-import com.broadcom.wbi.service.event.TaskWithSameNameSaveEvent;
+import com.broadcom.wbi.service.event.*;
 import com.broadcom.wbi.service.indicator.IndicatorService;
 import com.broadcom.wbi.service.jpa.*;
 import com.broadcom.wbi.util.DateResetUtil;
@@ -21,6 +20,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.WebAsyncTask;
@@ -69,7 +70,7 @@ public class RevisionController {
     private EmployeeService employeeService;
     @Autowired
     private IndicatorService indicatorService;
-    ;
+
     @Autowired
     private RevisionOutlookService revisionOutlookService;
     @Autowired
@@ -98,6 +99,12 @@ public class RevisionController {
     private IndicatorDateSearchService indicatorDateSearchService;
     @Autowired
     private TaskSaveEventPublisher taskSaveEventPublisher;
+    @Autowired
+    private HeadlineSaveEventPublisher headlineSaveEventPublisher;
+    @Autowired
+    private CacheClearEventPublisher cacheClearEventPublisher;
+    @Autowired
+    private RedisCacheRepository redisCacheRepository;
 
     @RequestMapping(value = {"/getInformation"}, method = {RequestMethod.GET})
     public WebAsyncTask<LinkedHashMap> getInformation(HttpServletRequest req,
@@ -112,7 +119,7 @@ public class RevisionController {
                 return revisionInformationSearchService.getRevisionInformationReport(rid, infoType);
             }
         };
-        return new WebAsyncTask<LinkedHashMap>(1800000, callable);
+        return new WebAsyncTask<LinkedHashMap>(120000, callable);
     }
 
     @PreAuthorize("hasAnyRole('PM', 'IPM', 'CPM', 'IPPM','SWPM', 'ADMIN')")
@@ -136,6 +143,8 @@ public class RevisionController {
                     }
                 }
                 final Revision revision = rev;
+                final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
+
                 RevisionSearch rs = revisionSearchService.findById(Integer.toString(revision.getId()));
                 if (map.containsKey("type")) {
                     String type = map.get("type").toString();
@@ -152,52 +161,61 @@ public class RevisionController {
                                 public void run() {
                                     HashMap map = (HashMap) obj;
                                     if (map.containsKey("editable")) {
+                                        SecurityContext ctx = SecurityContextHolder.createEmptyContext();
+                                        ctx.setAuthentication(currentAuthentication);
+                                        SecurityContextHolder.setContext(ctx);
+
                                         Boolean isEditable = (Boolean) map.get("editable");
                                         if (isEditable) {
                                             String value = map.get("value").toString().trim();
-                                            Integer id = Integer.parseInt(map.get("id").toString());
-                                            if (id > 0) {
-                                                RevisionInformation ri = revisionInformationService.findById(id);
-                                                RevisionInformationSearch ris = revisionInformationSearchService.findById(Integer.toString(id));
-                                                if (ri != null && !ri.getValue().equalsIgnoreCase(value.trim())) {
-                                                    ri.setValue(value);
-                                                    revisionInformationService.saveOrUpdate(ri);
-                                                }
-                                                if (ris != null && !ris.getValue().equalsIgnoreCase(value.trim())) {
-                                                    ris.setValue(value.trim().toLowerCase());
-                                                    ri.setValue(value);
-                                                    revisionInformationSearchService.saveOrUpdate(ris);
-                                                }
-                                            } else {
-                                                if (revision != null) {
-                                                    String name = map.get("key").toString().trim();
-                                                    Integer orderNum = Integer.parseInt(map.get("order").toString().trim());
-                                                    RevisionInformation ri = new RevisionInformation();
-                                                    ri.setIsRestrictedView(false);
-                                                    ri.setIsUserEditable(true);
-                                                    ri.setName(name);
-                                                    ri.setOnDashboard(true);
-                                                    ri.setOrderNum(orderNum);
-                                                    ri.setPhase("current");
-                                                    ri.setRevision(revision);
-                                                    ri.setValue(value);
-                                                    ri = revisionInformationService.saveOrUpdate(ri);
+                                            try {
+                                                Integer id = Integer.parseInt(map.get("id").toString());
+                                                if (id > 0) {
+                                                    RevisionInformation ri = revisionInformationService.findById(id);
+                                                    if (ri != null && !ri.getValue().equalsIgnoreCase(value.trim())) {
+                                                        ri.setValue(value);
+                                                        ri = revisionInformationService.saveOrUpdate(ri);
+                                                    }
 
-                                                    RevisionInformationSearch ris = new RevisionInformationSearch();
-                                                    ris.setCreated_date(ri.getCreatedDate());
-                                                    ris.setId(Integer.toString(ri.getId()));
-                                                    ris.setOrderNum(ri.getOrderNum());
-                                                    ris.setLast_updated_date(ri.getLastUpdatedDate());
-                                                    ris.setName(ri.getName().toLowerCase().trim());
-                                                    ris.setOnDashboard(ri.getOnDashboard());
-                                                    ris.setPhase(ri.getPhase().toLowerCase().trim());
-                                                    ris.setValue(ri.getValue().toLowerCase().trim());
-                                                    ris.setIsUserEditable(ri.getIsUserEditable());
-                                                    ris.setIsRestrictedView(ri.getIsRestrictedView());
-                                                    ris.setRevision(revision.getId());
+                                                    RevisionInformationSearch ris = revisionInformationSearchService.findById(Integer.toString(id));
+                                                    if (ris != null && !ris.getValue().equalsIgnoreCase(value.trim())) {
+                                                        ris.setValue(value.trim().toLowerCase());
+                                                        ri.setValue(value);
+                                                        revisionInformationSearchService.saveOrUpdate(ris);
+                                                    }
+                                                } else {
+                                                    if (revision != null) {
+                                                        String name = map.get("key").toString().trim();
+                                                        Integer orderNum = Integer.parseInt(map.get("order").toString().trim());
+                                                        RevisionInformation ri = new RevisionInformation();
+                                                        ri.setIsRestrictedView(false);
+                                                        ri.setIsUserEditable(true);
+                                                        ri.setName(name);
+                                                        ri.setOnDashboard(true);
+                                                        ri.setOrderNum(orderNum);
+                                                        ri.setPhase("current");
+                                                        ri.setRevision(revision);
+                                                        ri.setValue(value);
+                                                        ri = revisionInformationService.saveOrUpdate(ri);
 
-                                                    revisionInformationSearchService.saveOrUpdate(ris);
+                                                        RevisionInformationSearch ris = new RevisionInformationSearch();
+                                                        ris.setCreated_date(ri.getCreatedDate());
+                                                        ris.setId(Integer.toString(ri.getId()));
+                                                        ris.setOrderNum(ri.getOrderNum());
+                                                        ris.setLast_updated_date(ri.getLastUpdatedDate());
+                                                        ris.setName(ri.getName().toLowerCase().trim());
+                                                        ris.setOnDashboard(ri.getOnDashboard());
+                                                        ris.setPhase(ri.getPhase().toLowerCase().trim());
+                                                        ris.setValue(ri.getValue().toLowerCase().trim());
+                                                        ris.setIsUserEditable(ri.getIsUserEditable());
+                                                        ris.setIsRestrictedView(ri.getIsRestrictedView());
+                                                        ris.setRevision(revision.getId());
+
+                                                        revisionInformationSearchService.saveOrUpdate(ris);
+                                                    }
                                                 }
+                                            } catch (NumberFormatException e) {
+                                                e.printStackTrace();
                                             }
                                         }
                                     }
@@ -223,75 +241,82 @@ public class RevisionController {
                                 public void run() {
                                     HashMap hm = (HashMap) data.get(title);
                                     if (hm.keySet().size() > 0) {
+                                        SecurityContext ctx = SecurityContextHolder.createEmptyContext();
+                                        ctx.setAuthentication(currentAuthentication);
+                                        SecurityContextHolder.setContext(ctx);
                                         for (Object key : hm.keySet()) {
                                             HashMap map = (HashMap) hm.get(key);
                                             if (map.containsKey("editable")) {
                                                 Boolean isEditable = (Boolean) map.get("editable");
                                                 if (isEditable) {
                                                     String value = map.get("value").toString().trim();
-                                                    Integer id = Integer.parseInt(map.get("id").toString());
-                                                    if (title.toString().equalsIgnoreCase("base die") && !value.trim().isEmpty()) {
-                                                        Program p = revision.getProgram();
-                                                        p.setBaseNum(value);
-                                                        p = programService.saveOrUpdate(p);
-                                                        List<RevisionSearch> rsl = revisionSearchService.findByProgram(p.getId());
-                                                        if (rsl != null && !rsl.isEmpty()) {
-                                                            for (RevisionSearch rs : rsl) {
-                                                                rs.setBase_num(value);
-                                                                revisionSearchService.saveOrUpdate(rs);
+                                                    try {
+                                                        Integer id = Integer.parseInt(map.get("id").toString());
+                                                        if (title.toString().equalsIgnoreCase("base die") && !value.trim().isEmpty()) {
+                                                            Program p = revision.getProgram();
+                                                            p.setBaseNum(value);
+                                                            p = programService.saveOrUpdate(p);
+                                                            List<RevisionSearch> rsl = revisionSearchService.findByProgram(p.getId());
+                                                            if (rsl != null && !rsl.isEmpty()) {
+                                                                for (RevisionSearch rs : rsl) {
+                                                                    rs.setBase_num(value);
+                                                                    revisionSearchService.saveOrUpdate(rs);
+                                                                }
                                                             }
                                                         }
-                                                    }
+                                                        if (id > 0) {
+                                                            RevisionInformation ri = revisionInformationService.findById(id);
+                                                            if (ri != null && !ri.getValue().equalsIgnoreCase(value.trim())) {
 
-                                                    if (id > 0) {
-                                                        RevisionInformation ri = revisionInformationService.findById(id);
-                                                        RevisionInformationSearch ris = revisionInformationSearchService.findById(Integer.toString(id));
-                                                        if (ri != null && !ri.getValue().equalsIgnoreCase(value.trim())) {
-                                                            ri.setValue(value);
-                                                            revisionInformationService.saveOrUpdate(ri);
-                                                        }
-                                                        if (ris != null && !ris.getValue().equalsIgnoreCase(value.trim())) {
-                                                            ris.setValue(value.trim().toLowerCase());
-                                                            ris.setLast_updated_date(new Date());
-                                                            revisionInformationSearchService.saveOrUpdate(ris);
-                                                        }
-                                                    } else {
-                                                        if (revision != null) {
-                                                            if (map.containsKey("key") && !map.get("key").toString().trim().isEmpty()) {
-                                                                String name = map.get("key").toString().trim();
-                                                                Integer orderNum = 0;
-                                                                if (map.containsKey("order"))
-                                                                    orderNum = Integer.parseInt(map.get("order").toString());
-                                                                else
-                                                                    orderNum = 1000;
-                                                                RevisionInformation ri = new RevisionInformation();
-                                                                ri.setIsRestrictedView(false);
-                                                                ri.setIsUserEditable(true);
-                                                                ri.setName(name);
-                                                                ri.setOnDashboard(false);
-                                                                ri.setOrderNum(orderNum);
-                                                                ri.setPhase("current");
-                                                                ri.setRevision(revision);
+                                                                System.out.println(ri.getName() + " : " + value + "---" + ri.getValue());
                                                                 ri.setValue(value);
-                                                                ri = revisionInformationService.saveOrUpdate(ri);
-
-                                                                RevisionInformationSearch ris = new RevisionInformationSearch();
-                                                                ris.setCreated_date(ri.getCreatedDate());
-                                                                ris.setId(Integer.toString(ri.getId()));
-                                                                ris.setOrderNum(ri.getOrderNum());
-                                                                ris.setLast_updated_date(ri.getLastUpdatedDate());
-                                                                ris.setName(ri.getName().toLowerCase().trim());
-                                                                ris.setOnDashboard(ri.getOnDashboard());
-                                                                ris.setPhase(ri.getPhase().toLowerCase().trim());
-                                                                ris.setValue(ri.getValue().toLowerCase().trim());
-                                                                ris.setIsUserEditable(ri.getIsUserEditable());
-                                                                ris.setIsRestrictedView(ri.getIsRestrictedView());
-                                                                ris.setRevision(revision.getId());
-
+                                                                revisionInformationService.saveOrUpdate(ri);
+                                                            }
+                                                            RevisionInformationSearch ris = revisionInformationSearchService.findById(Integer.toString(id));
+                                                            if (ris != null && !ris.getValue().equalsIgnoreCase(value.trim())) {
+                                                                ris.setValue(value.trim().toLowerCase());
+                                                                ris.setLast_updated_date(new Date());
                                                                 revisionInformationSearchService.saveOrUpdate(ris);
                                                             }
+                                                        } else {
+                                                            if (revision != null) {
+                                                                if (map.containsKey("key") && !map.get("key").toString().trim().isEmpty()) {
+                                                                    String name = map.get("key").toString().trim();
+                                                                    Integer orderNum = 0;
+                                                                    if (map.containsKey("order"))
+                                                                        orderNum = Integer.parseInt(map.get("order").toString());
+                                                                    else
+                                                                        orderNum = 1000;
+                                                                    RevisionInformation ri = new RevisionInformation();
+                                                                    ri.setIsRestrictedView(false);
+                                                                    ri.setIsUserEditable(true);
+                                                                    ri.setName(name);
+                                                                    ri.setOnDashboard(false);
+                                                                    ri.setOrderNum(orderNum);
+                                                                    ri.setPhase("current");
+                                                                    ri.setRevision(revision);
+                                                                    ri.setValue(value);
+                                                                    ri = revisionInformationService.saveOrUpdate(ri);
 
+                                                                    RevisionInformationSearch ris = new RevisionInformationSearch();
+                                                                    ris.setCreated_date(ri.getCreatedDate());
+                                                                    ris.setId(Integer.toString(ri.getId()));
+                                                                    ris.setOrderNum(ri.getOrderNum());
+                                                                    ris.setLast_updated_date(ri.getLastUpdatedDate());
+                                                                    ris.setName(ri.getName().toLowerCase().trim());
+                                                                    ris.setOnDashboard(ri.getOnDashboard());
+                                                                    ris.setPhase(ri.getPhase().toLowerCase().trim());
+                                                                    ris.setValue(ri.getValue().toLowerCase().trim());
+                                                                    ris.setIsUserEditable(ri.getIsUserEditable());
+                                                                    ris.setIsRestrictedView(ri.getIsRestrictedView());
+                                                                    ris.setRevision(revision.getId());
+
+                                                                    revisionInformationSearchService.saveOrUpdate(ris);
+                                                                }
+                                                            }
                                                         }
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
                                                     }
                                                 }
                                             }
@@ -313,7 +338,7 @@ public class RevisionController {
                 return ResponseEntity.ok(ret);
             }
         };
-        return new WebAsyncTask<ResponseEntity>(1800000, callable);
+        return new WebAsyncTask<ResponseEntity>(120000, callable);
     }
 
     /***********************************************************************
@@ -353,7 +378,7 @@ public class RevisionController {
                 return null;
             }
         };
-        return new WebAsyncTask<List>(1800000, callable);
+        return new WebAsyncTask<List>(120000, callable);
     }
 
     @PreAuthorize("hasAnyRole('PM', 'IPM', 'CPM', 'IPPM','SWPM', 'ADMIN')")
@@ -451,7 +476,7 @@ public class RevisionController {
                 return ResponseEntity.ok(ret);
             }
         };
-        return new WebAsyncTask<ResponseEntity>(1800000, callable);
+        return new WebAsyncTask<ResponseEntity>(120000, callable);
     }
 
     @RequestMapping(value = {"/saveBookmark"}, method = {RequestMethod.POST})
@@ -477,8 +502,15 @@ public class RevisionController {
                 final String username = SecurityContextHolder.getContext().getAuthentication().getName();
                 Employee user = employeeService.findByAccountName(username);
                 if (user == null) {
-                    user = employeeService.findById(Integer.parseInt(username));
+                    Integer user_id = Integer.parseInt(username.substring(3));
+                    user = employeeService.findById(user_id);
                 }
+                if (user == null) {
+                    ret.put("data", "User Not found");
+                    ret.put("code", HttpStatus.NOT_FOUND);
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ret);
+                }
+
                 Set<Revision> revs = user.getRevisions();
                 if (revs == null) {
                     revs = new HashSet<Revision>();
@@ -496,11 +528,12 @@ public class RevisionController {
                         employeeService.saveOrUpdate(user);
                     }
                 }
+                redisCacheRepository.deleteWildCard(rs.getSegment().toLowerCase() + "_" + username + "_*");
                 ret.put("data", "Saved to db");
                 return ResponseEntity.ok(ret);
             }
         };
-        return new WebAsyncTask<ResponseEntity>(1800000, callable);
+        return new WebAsyncTask<ResponseEntity>(120000, callable);
     }
 
 
@@ -561,7 +594,7 @@ public class RevisionController {
             }
         };
 
-        return new WebAsyncTask<List>(1800000, callable);
+        return new WebAsyncTask<List>(120000, callable);
     }
 
     @PreAuthorize("hasAnyRole('PM', 'IPM', 'IPPM', 'ADMIN')")
@@ -642,7 +675,7 @@ public class RevisionController {
                 return ResponseEntity.ok(ret);
             }
         };
-        return new WebAsyncTask<ResponseEntity>(1800000, callable);
+        return new WebAsyncTask<ResponseEntity>(120000, callable);
     }
 
     @PreAuthorize("hasAnyRole('PM', 'IPM', 'ADMIN')")
@@ -685,7 +718,7 @@ public class RevisionController {
                 return null;
             }
         };
-        return new WebAsyncTask<HashMap>(18000000, callable);
+        return new WebAsyncTask<HashMap>(1200000, callable);
     }
 
     @PreAuthorize("hasAnyRole('PM', 'IPM', 'ADMIN')")
@@ -729,7 +762,7 @@ public class RevisionController {
             }
         };
 
-        return new WebAsyncTask<ResponseEntity>(1800000, callable);
+        return new WebAsyncTask<ResponseEntity>(120000, callable);
     }
 
     /***********************************************************************
@@ -776,7 +809,7 @@ public class RevisionController {
                 return null;
             }
         };
-        return new WebAsyncTask<HashMap>(18000000, callable);
+        return new WebAsyncTask<HashMap>(1200000, callable);
     }
 
     @PreAuthorize("hasAnyRole('PM', 'IPM', 'CPM', 'IPPM','SWPM', 'ADMIN')")
@@ -856,7 +889,7 @@ public class RevisionController {
                 return ResponseEntity.ok(ret);
             }
         };
-        return new WebAsyncTask<ResponseEntity>(1800000, callable);
+        return new WebAsyncTask<ResponseEntity>(120000, callable);
     }
 
     /***********************************************************************
@@ -902,7 +935,7 @@ public class RevisionController {
             }
         };
 
-        return new WebAsyncTask<HashMap>(18000000, callable);
+        return new WebAsyncTask<HashMap>(1200000, callable);
     }
 
     @RequestMapping(value = {"/getHeadlineSnapshot"}, method = {RequestMethod.GET})
@@ -923,7 +956,7 @@ public class RevisionController {
             }
         };
 
-        return new WebAsyncTask<LinkedHashSet>(18000000, callable);
+        return new WebAsyncTask<LinkedHashSet>(1200000, callable);
     }
 
     @PreAuthorize("hasAnyRole('PM', 'IPM', 'CPM', 'IPPM','SWPM', 'ADMIN')")
@@ -970,7 +1003,6 @@ public class RevisionController {
                     value = "";
                 }
 
-                System.out.println(value);
 //                rev = revisionService.saveOrUpdate(rev);
 
                 //create new headline
@@ -985,8 +1017,6 @@ public class RevisionController {
                 headline.setIsActive(rev.getIsActive());
                 headline = headlineService.saveOrUpdate(headline);
 
-                System.out.println(headline);
-                System.out.println(headline.getId());
 
                 hls.setRevision_name(rev.getName());
                 hls.setRevision_id(rid);
@@ -995,12 +1025,17 @@ public class RevisionController {
                 hls.setId(Integer.toString(headline.getId()));
                 headlineSearchService.saveOrUpdate(hls);
 
+
+                //publish event to clear cache front page and report
+                headlineSaveEventPublisher.publish(new HeadlineSaveEvent(rid));
+
+
                 ret.put("code", HttpStatus.OK);
                 ret.put("data", "Saved to db");
                 return ResponseEntity.ok(ret);
             }
         };
-        return new WebAsyncTask<ResponseEntity>(1800000, callable);
+        return new WebAsyncTask<ResponseEntity>(120000, callable);
     }
 
     /***********************************************************************
@@ -1033,7 +1068,7 @@ public class RevisionController {
                 return ret;
             }
         };
-        return new WebAsyncTask<HashMap>(1800000, callable);
+        return new WebAsyncTask<HashMap>(120000, callable);
     }
 
     @RequestMapping(value = {"/getRemarkSnapshot"}, method = {RequestMethod.GET})
@@ -1055,7 +1090,7 @@ public class RevisionController {
             }
         };
 
-        return new WebAsyncTask<LinkedHashSet>(18000000, callable);
+        return new WebAsyncTask<LinkedHashSet>(1200000, callable);
     }
 
     @PreAuthorize("hasAnyRole('PM', 'IPM', 'CPM', 'IPPM','SWPM', 'ADMIN')")
@@ -1108,7 +1143,7 @@ public class RevisionController {
 
             }
         };
-        return new WebAsyncTask<ResponseEntity>(1800000, callable);
+        return new WebAsyncTask<ResponseEntity>(120000, callable);
     }
 
     /***********************************************************************
@@ -1168,7 +1203,7 @@ public class RevisionController {
                 return null;
             }
         };
-        return new WebAsyncTask<List>(18000000, callable);
+        return new WebAsyncTask<List>(1200000, callable);
     }
 
     @PreAuthorize("hasAnyRole('PM', 'IPM', 'CPM', 'IPPM','SWPM', 'ADMIN')")
@@ -1243,7 +1278,7 @@ public class RevisionController {
                 return ResponseEntity.ok(ret);
             }
         };
-        return new WebAsyncTask<ResponseEntity>(1800000, callable);
+        return new WebAsyncTask<ResponseEntity>(120000, callable);
     }
 
     @PreAuthorize("hasAnyRole('PM', 'IPM', 'CPM', 'IPPM','SWPM', 'ADMIN')")
@@ -1297,7 +1332,7 @@ public class RevisionController {
                 return ResponseEntity.ok(ret);
             }
         };
-        return new WebAsyncTask<ResponseEntity>(1800000, callable);
+        return new WebAsyncTask<ResponseEntity>(120000, callable);
     }
 
     /***********************************************************************
@@ -1349,7 +1384,7 @@ public class RevisionController {
                 return ResponseEntity.ok(ret);
             }
         };
-        return new WebAsyncTask<ResponseEntity>(18000000, callable);
+        return new WebAsyncTask<ResponseEntity>(1200000, callable);
     }
 
     @PreAuthorize("hasAnyRole('PM', 'IPM', 'CPM', 'IPPM','SWPM', 'ADMIN')")
@@ -1455,13 +1490,11 @@ public class RevisionController {
                     note = hm.get("note").toString();
                 }
                 if (hm.containsKey("tstatus") && hm.get("tstatus").toString().trim().length() > 1) {
-                    tstatus = ProjectConstant.EnumIndicatorStatus.valueOf(hm.get("tstatus").toString()
-                            .replaceAll("^t+", "").toUpperCase());
+                    tstatus = ProjectConstant.EnumIndicatorStatus.valueOf(hm.get("tstatus").toString().toUpperCase());
                 }
                 ret.put("tstatus", tstatus.toString().toLowerCase());
                 if (hm.containsKey("gstatus") && hm.get("gstatus").toString().trim().length() > 1) {
-                    gstatus = ProjectConstant.EnumIndicatorStatus.valueOf(hm.get("gstatus").toString()
-                            .replaceAll("^t+", "").toUpperCase());
+                    gstatus = ProjectConstant.EnumIndicatorStatus.valueOf(hm.get("gstatus").toString().toUpperCase());
                 }
                 ret.put("gstatus", gstatus.toString().toLowerCase());
                 if (g.getName().equalsIgnoreCase("project")) {
@@ -1568,11 +1601,9 @@ public class RevisionController {
                     its = indicatorTaskSearchService.saveOrUpdate(its);
                 }
 
-
 //				/*save task with the same name
 //				 * async method -- fire and dont wait for return
 //					*/
-
 
                 //save date
                 for (ProjectConstant.EnumIndicatorTrackingDateType ttype : ProjectConstant.EnumIndicatorTrackingDateType.values()) {
@@ -1581,7 +1612,7 @@ public class RevisionController {
                         if (hm.containsKey(date_key)) {
                             String datename = ttype.toString().toLowerCase() + "_" + etype.toString().toLowerCase();
                             HashMap dmap = (HashMap) hm.get(date_key);
-                            String dvalue = dmap.get("date").toString().trim();
+                            String dvalue = dmap.get("value").toString().trim();
                             String comment = dmap.get("comment").toString();
                             ProjectConstant.EnumIndicatorStatus dhstatus = ProjectConstant.EnumIndicatorStatus.BLACK;
                             DateTime ddt = DateUtil.toDate(dvalue).withTimeAtStartOfDay();
@@ -1601,13 +1632,7 @@ public class RevisionController {
                             IndicatorDateSearch ids = indicatorDateSearchService.findByIndicatorTask(t.getId(), datename);
 
                             if (dmap.containsKey("dhstatus") && !dmap.get("dhstatus").toString().trim().isEmpty()) {
-                                if (dmap.get("dhstatus").toString().toLowerCase().startsWith("t")) {
-                                    dhstatus = ProjectConstant.EnumIndicatorStatus.valueOf(dmap.get("dhstatus").toString()
-                                            .toUpperCase().substring(1));
-                                } else {
-                                    dhstatus = ProjectConstant.EnumIndicatorStatus.valueOf(dmap.get("dhstatus")
-                                            .toString().toUpperCase());
-                                }
+                                dhstatus = ProjectConstant.EnumIndicatorStatus.valueOf(dmap.get("dhstatus").toString().toUpperCase());
                             }
                             if (ttype.equals(ProjectConstant.EnumIndicatorTrackingDateType.CURRENT) &&
                                     etype.equals(ProjectConstant.EnumIndicatorEndingDateType.END)) {
@@ -1689,6 +1714,7 @@ public class RevisionController {
                         }
                     }
                 }
+
                 //handle fcs date for customer
                 if (p.getType().equals(ProjectConstant.EnumProgramType.CUSTOMER) &&
                         g.getName().equalsIgnoreCase("fcs")) {
@@ -1737,7 +1763,17 @@ public class RevisionController {
                     }
                     headlineSearchService.saveOrUpdate(hls);
                 }
-                taskSaveEventPublisher.publish(new TaskWithSameNameSaveEvent(hm));
+
+                HashMap tmp = new HashMap();
+                tmp.putAll(hm);
+                tmp.put("group_name", g.getName());
+                tmp.put("pid", p.getId());
+                taskSaveEventPublisher.publish(new TaskWithSameNameSaveEvent(tmp));
+
+                String btn_color = gstatus.toString().toLowerCase();
+                if (btn_color.equals("black"))
+                    btn_color = "green";
+                ret.put("revision_btn_color", btn_color);
 
 
                 ret.put("code", HttpStatus.OK);
@@ -1745,7 +1781,7 @@ public class RevisionController {
                 return ResponseEntity.ok(ret);
             }
         };
-        return new WebAsyncTask<ResponseEntity>(12000000, callable);
+        return new WebAsyncTask<ResponseEntity>(120000, callable);
     }
 
     /***********************************************************************
@@ -1780,7 +1816,7 @@ public class RevisionController {
                 return null;
             }
         };
-        return new WebAsyncTask<List>(1800000, callable);
+        return new WebAsyncTask<List>(120000, callable);
     }
 
     @RequestMapping(value = {"/getIndicatorByCategory"}, method = {RequestMethod.GET})
@@ -1809,7 +1845,7 @@ public class RevisionController {
                 return null;
             }
         };
-        return new WebAsyncTask<List>(18000000, callable);
+        return new WebAsyncTask<List>(1200000, callable);
     }
 
     @RequestMapping(value = {"/getMilestoneSnapshot"}, method = {RequestMethod.GET})
@@ -1837,7 +1873,7 @@ public class RevisionController {
             }
         };
 
-        return new WebAsyncTask<LinkedHashSet>(18000000, callable);
+        return new WebAsyncTask<LinkedHashSet>(1200000, callable);
     }
 
     /***********************************************************************
@@ -2022,7 +2058,7 @@ public class RevisionController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ret);
             }
         };
-        return new WebAsyncTask<ResponseEntity>(18000000, callable);
+        return new WebAsyncTask<ResponseEntity>(1200000, callable);
     }
 
     @PreAuthorize("hasAnyRole('PM', 'IPM', 'CPM', 'IPPM','SWPM', 'ADMIN')")
@@ -2236,7 +2272,7 @@ public class RevisionController {
                 return ResponseEntity.ok(ret);
             }
         };
-        return new WebAsyncTask<ResponseEntity>(1800000, callable);
+        return new WebAsyncTask<ResponseEntity>(120000, callable);
     }
 
     private boolean isValidStage(ProjectConstant.EnumHeadlineStage oldStage, ProjectConstant.EnumHeadlineStage newStage) {

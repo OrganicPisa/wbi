@@ -212,10 +212,10 @@ App.controller('HomeCtrl', function ($scope, $rootScope, $log, $filter, $http, $
                 if (typeof result.data != 'undefined') {
                     if (!$scope.ptype.match(/^ip/i)) {
                         if (typeof result.data == 'string' && result.data.match(/[0-9a-zA-Z]/)) {
-                            $scope.rowCollection = angular.fromJson(result.data);
+                            $scope.rowCollection = angular.fromJson($filter('orderBy')(result.data, ['pid', 'rid']));
                         }
                         else if (typeof result.data != 'string') {
-                            $scope.rowCollection = angular.fromJson(result.data);
+                            $scope.rowCollection = angular.fromJson($filter('orderBy')(result.data, ['pid', 'rid']));
                         }
                         if ($scope.rowCollection.length > 0) {
                             $scope.displayCollection = [].concat($scope.rowCollection);
@@ -238,15 +238,12 @@ App.controller('HomeCtrl', function ($scope, $rootScope, $log, $filter, $http, $
                 $scope.dataloaded = true;
                 Notification.error({message: data, title: 'Error', replaceMessage: true});
             });
-    }
+    };
     // $scope.$watch('segment', function (val){
     $scope.$watch('selectedTab', function(tab){
-
         if(typeof tab.name != 'undefined') {
             $scope.selectedIndex = $scope.tabs.indexOf(tab);
-
             $scope.dataloaded = false;
-            Notification.info({message: 'Please Wait...', replaceMessage: true});
             $rootScope.currentDashboardSegmentClicked = tab;
             if (tab.name.match(/^customer/i)) {
                 $scope.ptype = "Customer";
@@ -268,10 +265,10 @@ App.controller('HomeCtrl', function ($scope, $rootScope, $log, $filter, $http, $
                     if (typeof result != 'undefined') {
                         if (!$scope.ptype.match(/^ip/i)) {
                             if (typeof result.data == 'string' && result.match(/[0-9a-zA-Z]/)) {
-                                $scope.rowCollection = angular.fromJson(result.data);
+                                $scope.rowCollection = angular.fromJson($filter('orderBy')(result.data, ['pid', 'rid']));
                             }
                             else if (typeof result.data != 'string') {
-                                $scope.rowCollection = angular.fromJson(result.data);
+                                $scope.rowCollection = angular.fromJson($filter('orderBy')(result.data, ['pid', 'rid']));
                             }
                             if ($scope.rowCollection.length > 0) {
                                 $scope.displayCollection = [].concat($scope.rowCollection);
@@ -305,21 +302,7 @@ App.controller('HomeCtrl', function ($scope, $rootScope, $log, $filter, $http, $
         }
     });
 
-    // $scope.saveBookmark = function(row){
-    // 	var pobj ;
-    // 	var index = -1;
-    // 	Notification.info({message:'Please wait', title:'Processing', replaceMessage:true});
-    // 	row.bookmark = !row.bookmark;
-    // 	index = $scope.rowCollection.indexOf(row);
-    // 	$scope.rowCollection[index] = row;
-    // 	pobj = $filter('filter')($scope.rowCollection, {rid:row.rid});
-    // 	//save into db
-    // 	$timeout(function(){
-    // 		$http.post('/revision/saveBookmark?rid='+row.rid+"&bookmark="+row.bookmark)
-    // 		.then(function(ret){
-    // 			Notification.then('Bookmark '+ row.displayName+" ... Done");
-    // 			Notification.then({message:'Bookmark '+ row.displayName+" ... Done",replaceMessage:true});
-    // 		});
-    // 	}, 100);
-    // };
+    $scope.saveBookmark = function (row) {
+        $http.post('/api/revision/saveBookmark?rid=' + row.rid + "&bookmark=" + !row.bookmark)
+    };
 });

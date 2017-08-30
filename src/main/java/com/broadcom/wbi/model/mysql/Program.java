@@ -3,13 +3,13 @@ package com.broadcom.wbi.model.mysql;
 import com.broadcom.wbi.util.ProjectConstant;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -29,18 +29,19 @@ public class Program extends AbstractDomainClass implements Serializable {
     @GeneratedValue(generator = "program")
     private Integer id;
 
-    @NotEmpty
+    @NotBlank
     @Column(name = "base_num", nullable = false)
     private String baseNum = "NA";
 
-    @NotEmpty
+    @NotBlank
     @Column(name = "name", nullable = false)
     private String name;
 
-    @NotEmpty
+    @NotBlank
     @Column(name = "display_name", nullable = false)
     private String displayName;
 
+    @NotBlank
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     private ProjectConstant.EnumProgramType type = ProjectConstant.EnumProgramType.CHIP;
@@ -58,10 +59,12 @@ public class Program extends AbstractDomainClass implements Serializable {
     })
     private Set<Segment> segments = new HashSet<Segment>();
 
+    @Min(value = 0L, message = "Order should be positive number")
     @Column(name = "order_num", columnDefinition = "int default 0", nullable = false)
     private Integer orderNum = 0;
 
-    @NonNull
+    @JsonIgnore
+    @NotBlank
     @Column(name = "is_include_in_report", columnDefinition = "tinyint default 1", nullable = false)
     private Boolean isProgramIncludeInReport = true;
 

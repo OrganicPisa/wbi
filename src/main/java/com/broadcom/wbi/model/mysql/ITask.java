@@ -2,14 +2,14 @@ package com.broadcom.wbi.model.mysql;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -28,14 +28,14 @@ public class ITask extends AbstractDomainClass implements Serializable {
     @GeneratedValue(generator = "indicatortask")
     private Integer id;
 
-    @NotEmpty
+    @NotBlank
     @Column(name = "name")
     private String name;
 
     @Column(name = "name_in_report")
     private String nameInReport;
 
-    @NonNull
+    @Min(value = 0L, message = "Order value should be positive")
     @Column(name = "order_num", columnDefinition = "int default 0", nullable = false)
     private Integer orderNum = 0;
 

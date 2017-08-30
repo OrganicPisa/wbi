@@ -1,9 +1,9 @@
 package com.broadcom.wbi.model.mysql;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -23,9 +23,11 @@ public class ResourceProgramClassification extends AbstractDomainClass implement
     @GeneratedValue(generator = "resourceProgramClassification")
     private Integer id;
 
+    @NotBlank
     @Column(name = "name", nullable = false)
     private String name;
 
+    @NotBlank
     @Column(name = "type", nullable = false)
     private String type;
 
@@ -33,7 +35,7 @@ public class ResourceProgramClassification extends AbstractDomainClass implement
     @Column(name = "content", length = 4000)
     private String programList;
 
-    @NonNull
+    @NotBlank
     @Column(name = "status", nullable = false, columnDefinition = "INT(11)")
     private Boolean status = true;
 

@@ -2,7 +2,6 @@ package com.broadcom.wbi.model.mysql;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
@@ -10,6 +9,8 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
@@ -26,13 +27,15 @@ public class RevisionInformation extends AbstractDomainClass implements Serializ
     @GeneratedValue(generator = "info")
     private Integer id;
 
-    @NotEmpty
+    @NotNull
     @Column(name = "name", nullable = false)
     private String name;
 
+    @NotNull
     @Column(name = "value", nullable = false)
     private String value;
 
+    @Min(value = 0L, message = "Order should be positive number")
     @Column(name = "order_num", nullable = false)
     private Integer orderNum;
 
@@ -40,15 +43,15 @@ public class RevisionInformation extends AbstractDomainClass implements Serializ
     @Column(name = "phase", nullable = false)
     private String phase = "current";
 
-    @NonNull
+    @NotNull
     @Column(name = "on_dashboard", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean onDashboard = false;
 
-    @NonNull
+    @NotNull
     @Column(name = "is_user_editable", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean isUserEditable = false;
 
-    @NonNull
+    @NotNull
     @Column(name = "is_restricted", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean isRestrictedView = false;
 

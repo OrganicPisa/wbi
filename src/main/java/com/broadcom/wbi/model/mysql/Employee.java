@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
@@ -28,7 +28,6 @@ public class Employee extends AbstractDomainClass implements Serializable {
     @GeneratedValue(strategy = GenerationType.TABLE)
     private Integer id;
 
-    @NotEmpty
     @Column(nullable = false)
     private String profit_center;
     private String cost_center;
@@ -39,13 +38,14 @@ public class Employee extends AbstractDomainClass implements Serializable {
     private String full_name;
 
     @Email
-    @NotEmpty
     @Column(name = "email", length = 128, nullable = false)
     private String email;
 
     private String email_alias;
+
+
+    @NotBlank
     @Column(name = "acc_nt", length = 128, nullable = false)
-    @NotEmpty
     private String accNt;
     private String acc_unix;
     private String office_num;
@@ -87,6 +87,7 @@ public class Employee extends AbstractDomainClass implements Serializable {
 
     private String is_manager;
 
+    @JsonIgnore
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
     @Column(name = "last_updated_date", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")

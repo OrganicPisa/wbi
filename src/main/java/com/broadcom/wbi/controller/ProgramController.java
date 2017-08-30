@@ -13,7 +13,6 @@ import com.broadcom.wbi.service.jpa.ProgramService;
 import com.broadcom.wbi.service.jpa.RedisCacheRepository;
 import com.broadcom.wbi.service.jpa.RevisionService;
 import com.broadcom.wbi.service.jpa.SkuService;
-import com.broadcom.wbi.util.ProjectConstant;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,7 +119,6 @@ public class ProgramController {
                         }
                         try {
                             redisCacheRepository.put(redisKey, mapper.writeValueAsString(ret));
-                            System.out.println(mapper.writeValueAsString(ret));
 //                            redisCacheRepository.setExpire(redisKey, ProjectConstant.CacheTimeout.HOUR.getSecond());
                             return ret;
                         } catch (JsonProcessingException e) {
@@ -130,9 +128,9 @@ public class ProgramController {
                     return null;
                 }
                 String value = (String) redisCacheRepository.get(redisKey);
-                System.out.println(value);
                 try {
-                    List ret = (List) mapper.readValue(value, new TypeReference<ArrayList>() { });
+                    List ret = mapper.readValue(value, new TypeReference<ArrayList>() {
+                    });
                     return ret;
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -140,7 +138,7 @@ public class ProgramController {
                 return null;
             }
         };
-        return new WebAsyncTask<List>(18000000, callable);
+        return new WebAsyncTask<List>(120000, callable);
     }
 
     @RequestMapping(value = {"/getSku"}, method = {RequestMethod.GET})
@@ -202,7 +200,7 @@ public class ProgramController {
                 return null;
             }
         };
-        return new WebAsyncTask<List>(900000, callable);
+        return new WebAsyncTask<List>(120000, callable);
     }
 
     @PreAuthorize("hasAnyRole('PM', 'IPM', 'ADMIN')")
@@ -325,7 +323,7 @@ public class ProgramController {
                 return ResponseEntity.ok(obj);
             }
         };
-        return new WebAsyncTask<ResponseEntity>(900000, callable);
+        return new WebAsyncTask<ResponseEntity>(120000, callable);
 
     }
 

@@ -2,14 +2,14 @@ package com.broadcom.wbi.model.mysql;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
@@ -26,14 +26,15 @@ public class RevisionContact extends AbstractDomainClass implements Serializable
     @GeneratedValue(generator = "contact")
     private Integer id;
 
-    @NotEmpty
+    @NotBlank
     @Column(name = "name", nullable = false)
     private String name;
 
+    @NotNull
     @Column(name = "value", nullable = false)
     private String value;
 
-    @NonNull
+    @NotNull
     @Column(name = "on_dashboard", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean onDashboard = false;
 

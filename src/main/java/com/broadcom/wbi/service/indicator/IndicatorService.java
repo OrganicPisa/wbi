@@ -10,21 +10,21 @@ import java.util.List;
 import java.util.Map;
 
 public interface IndicatorService {
-    final static DateTimeFormatter dfmt = DateTimeFormat.forPattern("MM/dd/yy");
+    DateTimeFormatter dfmt = DateTimeFormat.forPattern("MM/dd/yy");
 
-    final static DateTimeFormatter dfmt2 = DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss");
+    DateTimeFormatter dfmt2 = DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss");
 
-    final static DateTime emptydt = new DateTime().withYear(1980).dayOfYear().withMinimumValue().withTimeAtStartOfDay();
-    final static DateTime tbddt = new DateTime().withYear(1960).dayOfYear().withMinimumValue().withTimeAtStartOfDay();
-    final static DateTime nadt = new DateTime().withYear(1950).dayOfYear().withMinimumValue().withTimeAtStartOfDay();
+    DateTime emptydt = new DateTime().withYear(1980).dayOfYear().withMinimumValue().withTimeAtStartOfDay();
+    DateTime tbddt = new DateTime().withYear(1960).dayOfYear().withMinimumValue().withTimeAtStartOfDay();
+    DateTime nadt = new DateTime().withYear(1950).dayOfYear().withMinimumValue().withTimeAtStartOfDay();
 
-    final static DateTime checkEmptydt = new DateTime().withYear(2003).withMonthOfYear(3).withDayOfMonth(3).withTimeAtStartOfDay();
-    final static DateTime checkTBDdt = new DateTime().withYear(2002).withMonthOfYear(2).withDayOfMonth(2).withTimeAtStartOfDay();
-    final static DateTime checkNAdt = new DateTime().withYear(2001).dayOfYear().withMinimumValue().withTimeAtStartOfDay();
+    DateTime checkEmptydt = new DateTime().withYear(2003).withMonthOfYear(3).withDayOfMonth(3).withTimeAtStartOfDay();
+    DateTime checkTBDdt = new DateTime().withYear(2002).withMonthOfYear(2).withDayOfMonth(2).withTimeAtStartOfDay();
+    DateTime checkNAdt = new DateTime().withYear(2001).dayOfYear().withMinimumValue().withTimeAtStartOfDay();
 
-    final static String[] chipKeyMilestones = {"pc", "t/o", "eng sample", "qual complete", "pra"};
+    String[] chipKeyMilestones = {"pc", "t/o", "eng sample", "qual complete", "pra"};
 
-    static final HashMap<String, String> internalProjectFixedMilestone = new HashMap<String, String>() {
+    HashMap<String, String> internalProjectFixedMilestone = new HashMap<String, String>() {
         {
             put("ca", null);
             put("pc", null);
@@ -47,7 +47,7 @@ public interface IndicatorService {
         }
     };
 
-    static final ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = new ObjectMapper();
 
     /***************************************************************************
      *
@@ -77,5 +77,6 @@ public interface IndicatorService {
      *
      ***************************************************************************/
 
-    public List getSWHeadlineList(int pid);
+    List getSWHeadlineList(int pid);
+
 }

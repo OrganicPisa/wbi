@@ -3,14 +3,14 @@ package com.broadcom.wbi.model.mysql;
 import com.broadcom.wbi.util.ProjectConstant;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
@@ -27,23 +27,24 @@ public class Link extends AbstractDomainClass implements Serializable {
     @GeneratedValue(generator = "link")
     private Integer id;
 
-    @NotEmpty
+    @NotBlank
     @Column(name = "display_name", nullable = false)
     private String display_name = "link";
 
-    @NotEmpty
+    @NotBlank
     @Column(name = "type", nullable = false)
     private String type = "type";
 
-    @NotEmpty
+    @NotBlank
     @Column(name = "url", nullable = false)
     private String url = "";
 
+    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false)
     private ProjectConstant.EnumLinkCategory category = ProjectConstant.EnumLinkCategory.LINK;
 
-    @NonNull
+    @Min(value = 0L, message = "Order value should be positive")
     @Column(name = "order_num", columnDefinition = "int default 0", nullable = false)
     private Integer orderNum = 0;
 

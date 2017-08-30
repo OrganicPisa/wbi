@@ -70,7 +70,7 @@ public class SegmentController {
                 }
                 String value = (String) redis.get(redisk);
                 try {
-                    segments = (List) mapper.readValue(value, new TypeReference<ArrayList>() {
+                    segments = mapper.readValue(value, new TypeReference<ArrayList>() {
                     });
                     return segments;
                 } catch (IOException e) {
@@ -92,12 +92,12 @@ public class SegmentController {
                 if (seg.trim().isEmpty())
                     throw new CustomGenericException("Segment Name can not be empty");
                 final List<HashMap<String, Object>> ret = Collections.synchronizedList(new ArrayList());
-                String username = SecurityContextHolder.getContext().getAuthentication().getName();
+                final String username = SecurityContextHolder.getContext().getAuthentication().getName();
                 Employee user = employeeService.findByAccountName(username);
                 if (user == null && username.matches(".*\\d+.*")) {
-                    username = username.substring(3);
+                    String id = username.substring(3);
                     try {
-                        user = employeeService.findById(Integer.parseInt(username));
+                        user = employeeService.findById(Integer.parseInt(id));
                     } catch (NumberFormatException e) {
                         e.printStackTrace();
                     }
@@ -108,9 +108,14 @@ public class SegmentController {
                 final Employee employee = user;
                 final List<Integer> bookmarkRevivions = revisionService.findByEmployee(employee);
                 String redisk1 = seg.toLowerCase() + "_" + status + "_frontPageSegment";
-                String redisk2 = username + "_" + seg.toLowerCase() + "_" + status + "_frontPageSegment";
-                if (reload == 1 || !redis.hasKey(redisk2)) {
-                    if (reload == 1 || !redis.hasKey(redisk1)) {
+                String redisk2 = seg.toLowerCase() + "_" + username + "_" + status + "_frontPageSegment";
+                System.out.println(redisk2);
+                if (reload == 1) {
+                    redis.delete(redisk1);
+                    redis.delete(redisk2);
+                }
+                if (!redis.hasKey(redisk2)) {
+                    if (!redis.hasKey(redisk1)) {
                         ProjectConstant.EnumProgramType ptype = ProjectConstant.EnumProgramType.valueOf("CHIP");
                         Segment segment = segmentService.findByName(seg);
                         if (segment == null)
@@ -150,7 +155,7 @@ public class SegmentController {
                             }
                             executor.shutdown();
                             try {
-                                executor.awaitTermination(10, TimeUnit.MINUTES);
+                                executor.awaitTermination(2, TimeUnit.MINUTES);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -168,7 +173,7 @@ public class SegmentController {
                     } else {
                         String value = (String) redis.get(redisk1);
                         try {
-                            List list = (List) mapper.readValue(value, new TypeReference<ArrayList>() {
+                            List list = mapper.readValue(value, new TypeReference<ArrayList>() {
                             });
                             ret.addAll(list);
                         } catch (IOException e) {
@@ -206,7 +211,7 @@ public class SegmentController {
                 } else {
                     String value = (String) redis.get(redisk2);
                     try {
-                        List list = (List) mapper.readValue(value, new TypeReference<ArrayList>() {
+                        List list = mapper.readValue(value, new TypeReference<ArrayList>() {
                         });
                         ret.addAll(list);
                     } catch (IOException e) {
@@ -216,6 +221,6 @@ public class SegmentController {
                 return ret;
             }
         };
-        return new WebAsyncTask<List>(1800000, callable);
+        return new WebAsyncTask<List>(120000, callable);
     }
 }

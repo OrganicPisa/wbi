@@ -545,9 +545,6 @@ a.bg-gray-lighter:hover, a.bg-gray-lighter:focus {
 
 pre {
     white-space: pre-wrap; /* CSS 3 */
-    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
-    white-space: -pre-wrap; /* Opera 4-6 */
-    white-space: -o-pre-wrap; /* Opera 7 */
     word-wrap: break-word; /* Internet Explorer 5.5+ */
     margin-bottom: 0px;
     padding: 0px;
@@ -582,11 +579,6 @@ pre {
     background-color: #f5f6f7 !important;
 }
 
-.tred {
-    color: rgb(255, 0, 0) !important;
-    font-weight: bold;
-}
-
 .bold {
     font-weight: bold !important;
 }
@@ -595,26 +587,31 @@ pre {
     text-transform: uppercase;
 }
 
-.torange {
+.text-red {
+    color: rgb(255, 0, 0) !important;
+    font-weight: bold;
+}
+
+.text-orange {
     color: rgb(255, 165, 0) !important;
     font-weight: bold;
 }
 
-.tblack {
+.text-black {
     color: rgb(0, 0, 0) !important;
     font-weight: bold;
 }
 
-.tgreen {
+.text-green {
     color: rgb(0, 128, 0) !important;
     font-weight: bold;
 }
 
-.tgrey {
+.text-grey {
     color: grey !important;
 }
 
-td > p.thistory {
+.text-history {
     text-decoration: line-through;
     color: grey !IMPORTANT;
 }

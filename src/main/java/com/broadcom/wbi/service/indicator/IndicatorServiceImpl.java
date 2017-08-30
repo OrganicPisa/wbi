@@ -171,20 +171,20 @@ public class IndicatorServiceImpl implements IndicatorService {
                                 }
                                 Date dhts = ids.getLast_updated_date();
                                 dttemp = new DateTime(dhts);
-                                String dstatus = "tblack";
+                                String dstatus = "text-black";
 
                                 if (ddt.getMillis() < currentdt.getMillis()) {
-                                    dstatus = "tgrey";
+                                    dstatus = "text-grey";
                                 } else {
                                     if (ids.getDate_name().equalsIgnoreCase("current_end")) {
-                                        dstatus = "t" + ids.getStatus();
+                                        dstatus = "text-" + ids.getStatus();
                                     }
                                 }
 
                                 if (dttemp.getMillis() < lastResetDate.getMillis()) {
-                                    dstatus = "tblack";
+                                    dstatus = "text-black";
                                     if (ddt.isBeforeNow()) {
-                                        dstatus = "tgrey";
+                                        dstatus = "text-grey";
                                     }
                                 }
                                 String ds = ddt.toString(dfmt);

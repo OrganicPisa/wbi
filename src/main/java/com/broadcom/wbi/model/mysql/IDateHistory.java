@@ -3,11 +3,11 @@ package com.broadcom.wbi.model.mysql;
 import com.broadcom.wbi.util.ProjectConstant;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -26,7 +26,6 @@ public class IDateHistory extends AbstractDomainClass implements Serializable {
     @GeneratedValue(generator = "indicatordateh")
     private Integer id;
 
-    @NonNull
     @Column(name = "value", nullable = false)
     @Temporal(TemporalType.DATE)
     private Date value;
@@ -35,7 +34,7 @@ public class IDateHistory extends AbstractDomainClass implements Serializable {
     @Column(name = "comment", columnDefinition = "TEXT")
     private String comment;
 
-    @NonNull
+    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ProjectConstant.EnumIndicatorStatus status = ProjectConstant.EnumIndicatorStatus.BLACK;

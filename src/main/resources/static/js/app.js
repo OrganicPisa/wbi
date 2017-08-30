@@ -13,12 +13,14 @@ var App = angular.module('app', [
     'oc.lazyLoad',
     'angular-loading-bar',
     'ngSanitize',
-    'ngMaterial'
+    'ngMaterial',
+    'ngMessages',
+    'blockUI'
 ]);
 
 // Router configuration
-App.config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider, cfpLoadingBarProvider,$qProvider,
-                    NotificationProvider, $mdDateLocaleProvider, $mdThemingProvider) {
+App.config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider, cfpLoadingBarProvider, $qProvider,
+                     NotificationProvider, $mdDateLocaleProvider, $mdThemingProvider, blockUIConfig) {
         $urlRouterProvider.otherwise('/');
     $qProvider.errorOnUnhandledRejections(false);
         var whiteMap = $mdThemingProvider.extendPalette('grey', {'500': '#ffffff', 'contrastDefaultColor': 'dark'});
@@ -28,14 +30,16 @@ App.config(function ($stateProvider, $urlRouterProvider, $locationProvider, $htt
             enabled: true,
             requireBase: true
         });
+
+    blockUIConfig.message = 'Please wait...';
         NotificationProvider.setOptions({
-            delay: 1000,
+            delay: 5000,
             startTop: 20,
             startRight: 10,
             verticalSpacing: 5,
             horizontalSpacing: 10,
-            positionX: 'right',
-            positionY: 'bottom',
+            positionX: 'center',
+            positionY: 'top',
             maxCount: 3
         });
         cfpLoadingBarProvider.includeSpinner = true;
@@ -113,7 +117,7 @@ var internalProgramState = {
             });
         }]
     }
-}
+};
 
 var customerProgramState = {
     name: 'customerProgram',
@@ -154,7 +158,7 @@ var customerProgramState = {
             });
         }]
     }
-}
+};
 
 
 App.run(function ($rootScope, $http, $localStorage) {
@@ -187,6 +191,30 @@ App.run(function ($rootScope, $http, $localStorage) {
     else{
         $rootScope.ipDropDownTemplate = $localStorage.ipDropDownTemplate;
     }
+
+    $rootScope.convertDateToString = function (d) {
+        if (d instanceof Date) {
+            var date = new Date(d);
+            var year = date.getFullYear();
+            var rawMonth = parseInt(date.getMonth()) + 1;
+            var month = rawMonth < 10 ? '0' + rawMonth : rawMonth;
+            var rawDay = parseInt(date.getDate());
+            var day = rawDay < 10 ? '0' + rawDay : rawDay;
+            return month + "/" + day + "/" + year;
+        }
+        return d;
+    };
+    $rootScope.convertStringToDate = function (ds) {
+        if (ds instanceof Date) {
+            return ds;
+        }
+        var parts = ds.split(/\//);
+        if (parts[2].match(/\d{4}/)) {
+            return new Date(parts[2], parts[0] - 1, parts[1]);
+        }
+        return new Date("20" + parts[2], parts[0] - 1, parts[1]);
+    };
+
 
     $rootScope.flaglist = [
         {value: 'On Track (Green/Black)', flag:'black', color:'no-color', order:2},
@@ -251,18 +279,18 @@ App.controller('HeaderCtrl', function ($scope, $rootScope, $window, $http, $loca
     };
     $scope.goLogout = function () {
         window.location = "/logout";
-    }
+    };
     $scope.clearAllCache = function () {
         $http.get('/admin/clearCache')
             .then(function (ret) {
                 location.reload();
             });
-    }
+    };
     $scope.selectedItemChange = function (item) {
         if (typeof item.url != 'undefined') {
             window.location = item.url;
         }
-    }
+    };
     $scope.changeHeaderClass = function () {
         var carr = document.getElementsByClassName("nav-header");
         if (carr.length > 0) {

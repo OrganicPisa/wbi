@@ -59,7 +59,7 @@ App.factory("contactFactory", function ($http, $filter, $q, Notification) {
         save: function (rid, contacts, callback) {
             var obj = {};
             obj.rid = rid;
-            obj.data = contacts
+            obj.data = contacts;
             $http.post('/api/revision/saveContact', obj)
                 .then(function (result) {
                     Notification.then({message: result.data, delay: 1000});
@@ -327,7 +327,7 @@ App.factory("headlineFactory", function ($http, $filter) {
             }
             return $http.post('/api/revision/saveHeadline', {'rid': rid, 'value': content});
         },
-        click: function (index, e, hl) {
+        parse: function (hl) {
             var headlineClickObj = {};
             //parse headline click string
             var $hl = angular.element("<span>" + hl + "</span>");
@@ -461,7 +461,7 @@ App.factory("milestoneFactory", function ($http, $timeout) {
             });
             callback(color);
         },
-        isRowClick: function (index, milestone, callback) {
+        parseRowClick: function (milestone, callback) {
             var clickObj = {};
             clickObj.milestonePlanStartDate = '';
             clickObj.milestonePlanStartComment = '';
@@ -604,7 +604,6 @@ App.factory("commonFactory", function ($http, $window) {
                     return key;
                 }
             }
-            ;
             return 'unknown';
         },
         findBackgroundColor: function (className) {

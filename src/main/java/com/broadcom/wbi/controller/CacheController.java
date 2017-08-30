@@ -1,7 +1,6 @@
 package com.broadcom.wbi.controller;
 
 import com.broadcom.wbi.exception.IDNotFoundException;
-import com.broadcom.wbi.model.elasticSearch.RevisionSearch;
 import com.broadcom.wbi.service.elasticSearch.RevisionSearchService;
 import com.broadcom.wbi.service.jpa.RedisCacheRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 @RestController
@@ -36,36 +34,9 @@ public class CacheController {
             public HashMap call() {
                 if (pid < 1)
                     throw new IDNotFoundException(pid, "program");
-                clearCache(pid, key, "program");
+                redisCacheRepository.clearCache(pid, key, "program");
                 return null;
             }
         };
-    }
-
-    private void clearCache(int id, String key, String resetType) {
-        if (!key.isEmpty()) {
-            redisCacheRepository.delete(id + "_" + key);
-        } else {
-            redisCacheRepository.multiDelete(id + "_*");
-            if (resetType.equalsIgnoreCase("program")) {
-                List<RevisionSearch> rsl = revisionSearchService.findByProgram(id);
-                if (rsl != null) {
-                    String type = "";
-                    String seg = "";
-                    for (RevisionSearch rs : rsl) {
-                        redisCacheRepository.multiDelete(rs.getId() + "_*");
-                        type = rs.getType().toLowerCase();
-                        seg = rs.getSegment().toLowerCase();
-                    }
-                    if (!type.trim().isEmpty()) {
-                        redisCacheRepository.multiDelete(type + "_*");
-                    }
-                    if (!seg.trim().isEmpty()) {
-                        redisCacheRepository.multiDelete("*" + seg + "_*");
-                    }
-                }
-            }
-
-        }
     }
 }

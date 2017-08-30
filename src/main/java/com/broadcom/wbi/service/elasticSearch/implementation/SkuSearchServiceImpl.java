@@ -67,7 +67,7 @@ public class SkuSearchServiceImpl implements SkuSearchService {
 
     @Override
     public List<SkuSearch> findBySkuNum(String term) {
-        SearchQuery searchQuery = new NativeSearchQueryBuilder().withPageable(new PageRequest(0, 100))
+        SearchQuery searchQuery = new NativeSearchQueryBuilder().withPageable(new PageRequest(0, 10))
                 .withQuery(QueryBuilders.boolQuery()
                         .should(QueryBuilders.wildcardQuery("skuNum", "*" + term + "*"))
                         .should(QueryBuilders.wildcardQuery("otherName", "*" + term + "*"))

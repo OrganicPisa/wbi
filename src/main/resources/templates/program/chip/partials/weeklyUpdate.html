@@ -1,63 +1,85 @@
 <style>
     .mce-tinymce {
         margin-top: 30px !important;
+        font-size: 10px !important;
+    }
+
+    .text-red {
+        color: rgb(255, 0, 0) !important;
+        font-weight: bold;
+    }
+
+    .text-orange {
+        color: rgb(255, 165, 0) !important;
+        font-weight: bold;
+    }
+
+    .text-black {
+        color: rgb(0, 0, 0) !important;
+        font-weight: bold;
+    }
+
+    .text-green {
+        color: rgb(0, 128, 0) !important;
+        font-weight: bold;
+    }
+
+    .text-grey {
+        color: grey !important;
+    }
+
+    .text-history {
+        text-decoration: line-through;
+        color: grey !IMPORTANT;
     }
 </style>
-<div class="row">
-    <div class='col-md-12 col-sm-12 col-xs-12'>
+<md-content class="md-padding" style="background-color: transparent">
+    <div flex layout="column">
         <div class="btn-group btn-group-justified">
-            <div class="btn-group" role="group" ng-repeat="cat in remark.categories | orderBy:['order', 'name']">
-                <a class='btn'
-                   ng-class="{'btn-danger' : (cat.status.toLowerCase()=='red'), 'btn-warning' : (cat.status.toLowerCase()=='orange'),
-					'btn-success' : (cat.status.toLowerCase()=='green' || cat.status.toLowerCase()=='black')}"
-                   ng-click="remarkeditform.$cancel(); clickCategory(cat);"
-                   ng-bind="cat.name|uppercase"></a>
+            <div class="btn-group " ng-repeat="cat in remark.categories">
+                <button class='btn catbtn' ng-class="{'btn-danger' : (cat.status.toLowerCase()=='red'),
+        'btn-warning' : (cat.status.toLowerCase()=='orange'),
+        'btn-success' : (cat.status.toLowerCase()=='green' || cat.status.toLowerCase()=='black')}"
+                        ng-click="remark.gid=cat.id;milestoneeditform.$cancel();"
+                        ng-bind="cat.name|uppercase"></button>
             </div>
         </div>
     </div>
-    <div class='col-md-12 col-sm-12 col-xs-12'>
-        <div class="block block-bordered" style="margin-left:0px; ">
-            <div class="block-header">
-                <ul class="block-options"
-                    ng-if="permission.authority=='pm' || permission.authority=='ipm' ||  permission.authority=='admin'">
-                    <li ng-show="!snapshotRemark" ng-show='!remarkeditform.$visible'>
-                        <button class='btn btn-info btn-xs' ng-click="$event.stopPropagation();refreshRemark();">
-                            Reload
-                        </button>
-                    </li>
-                    <li ng-show="!snapshotRemark" ng-show='!remarkeditform.$visible'>
-                        <button class='btn btn-info btn-xs'
-                                ng-click="$event.stopPropagation();tinymceRemark=remark; remarkeditform.$show();">Edit
-                        </button>
-                    </li>
-                    <li ng-show="remarkeditform.$visible">
-                        <a ng-disabled='remarkeditform.$waiting'
-                           ng-click='remarkeditform.$cancel();remark.tinymce=remark.content;'
-                           class='btn btn-xs pull-right'>Cancel</a>
-                    </li>
-                    <li ng-show="remarkeditform.$visible">
-                        <a ng-click='saveRemark();remarkeditform.$cancel();' ng-disabled='remarkeditform.$waiting'
-                           class='btn btn-xs pull-right'>Save</a>
-                    </li>
-                </ul>
-                <h3 class="block-title">{{remark.currentCategory}} Weekly Update
-                    <small>
-                        <select name="snapshotRemark" id="snapshotSelect" ng-model="remark.snapshotSelect">
-                            <option value="">---Latest---</option>
-                            <option ng-repeat="snapshot in snapshots track by $index" value="{{snapshot}}">
-                                {{snapshot}}
-                            </option>
-                        </select>
-                    </small>
-                    <small ng-show="(!remarkeditform.$visible && remarkloaded)"
-                           ng-bind-html="trustAsHtml(remark.ts)"></small>
-                    <small ng-show='!remarkloaded'>Loading...</small>
-                </h3>
-            </div>
-            <div class="block-content" ng-show="remarkloaded">
+    <div flex layout="column">
+        <md-card>
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">{{remark.currentCategory|myUpperCase}} Weekly Update Note</span>
+                        <span flex></span>
+
+                        <span ng-hide='remarkeditform.$visible'>
+                            <md-select ng-model='remark.snapshotSelect' placeholder="SNAPSHOT">
+                                <md-option value=''>--Latest--</md-option>
+                                <md-option ng-repeat="snapshot in snapshots track by $index" value="{{snapshot}}">{{snapshot}}</md-option>
+                            </md-select>
+                        </span>
+                        <span ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'"
+                              ng-hide='remarkeditform.$visible || snapshotRemark'>
+                            <a class='md-primary'
+                               ng-click="$event.stopPropagation();tinymceRemark=remark; remarkeditform.$show();"> Edit</a>
+                            <a class='md-primary' ng-click="$event.stopPropagation();refreshRemark();">Reload </a>
+                        </span>
+                        <span ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'"
+                              ng-show='remarkeditform.$visible'>
+                            <a ng-disabled='remarkeditform.$waiting'
+                               ng-click='remarkeditform.$cancel();remark.tinymce=remark.content;' class='md-primary'>Cancel</a>
+                            <a ng-click='saveRemark();remarkeditform.$cancel();' ng-disabled='remarkeditform.$waiting'
+                               class='md-primary'>Save</a>
+                        </span>
+                    </div>
+                </md-card-title-text>
+            </md-card-title>
+            <md-menu-divider></md-menu-divider>
+            <md-card-content flex>
                 <div ng-hide="remarkeditform.$visible" ng-bind-html="remark.content"></div>
                 <remark-edit-form></remark-edit-form>
-            </div>
-        </div>
+            </md-card-content>
+        </md-card>
     </div>
-</div>
+</md-content>

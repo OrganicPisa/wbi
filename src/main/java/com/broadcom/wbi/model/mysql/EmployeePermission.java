@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -26,12 +27,13 @@ public class EmployeePermission extends AbstractDomainClass implements Serializa
     @GeneratedValue(generator = "employeepermission")
     private Integer id;
 
+    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "permission_type", nullable = false)
     private ProjectConstant.EnumPermissionType permission;
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "employee_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Employee employee;

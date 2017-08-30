@@ -25,18 +25,21 @@ public class AbstractDomainClass {
     @LastModifiedBy
     @Column(name = "last_update_by", nullable = false)
     protected String lastModifiedBy;
+
     @CreatedBy
     @JsonIgnore
     @Column(name = "created_by", nullable = false)
     private String createdBy;
+
     @JsonIgnore
     @LastModifiedDate
-    @Column(name = "last_update_date", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    @Column(name = "last_update_date", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastUpdatedDate;
+
     @JsonIgnore
     @CreatedDate
-    @Column(name = "created_date", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "created_date", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
 }

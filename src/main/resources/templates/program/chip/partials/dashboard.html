@@ -1,6 +1,6 @@
-
-<div layout="row" >
-    <div flex-xs flex-gt-xs="70" layout="column" style="padding-left: 0px!important; padding-top: 0px!important; padding-bottom: 0px!important;">
+<div layout="row" layout-sm="column">
+    <div flex-sm flex-gt-sm="70" layout="column"
+         style="padding-left: 0px!important; padding-top: 0px!important; padding-bottom: 0px!important;">
         <md-card  ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
             <md-card-title>
                 <md-card-title-text>
@@ -27,17 +27,19 @@
                         <span class="md-title">Headline </span>
                         <span class='md-subhead' ng-bind-html="trustAsHtml(headline.timestamp)"></span>
                         <span flex></span>
-                        <md-select name="headlineSnapshot" id="headlineSnapshotSelect" ng-model="headline.snapshotSelect" placeholder="SNAPSHOT"
+                        <md-select name="headlineSnapshot" id="headlineSnapshotSelect"
+                                   ng-model="headline.snapshotSelect" placeholder="SNAPSHOT"
+                                   ng-hide="headlineeditform.$visible"
                                    aria-label="Headline Snapshot">
                             <md-option value="">---Latest---</md-option>
                             <md-option ng-repeat="snapshot in headline.snapshots track by $index" value="{{snapshot}}"> {{snapshot}}  </md-option>
                         </md-select>
                         <span ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
                             <a class='md-primary'
-                               ng-click="headlineeditform.$show();"
+                               ng-click="parseHeadline(); headlineeditform.$show();"
                                ng-hide='(headlineeditform.$visible || !showEditFeature || snapshotHeadline)'>Edit</a>
                             <a class='md-primary'
-                               ng-click="removeHeadline()"
+                               ng-click="parseHeadline(); removeHeadline()"
                                ng-hide='(headlineeditform.$visible || !showEditFeature || snapshotHeadline)'>Delete</a>
                             <a class='md-primary'
                                ng-click="newHeadline(); headlineeditform.$show(); "
@@ -54,8 +56,7 @@
                 <div ng-hide="headlineeditform.$visible">
                     <ul class="list-group" id='headline-issue-list'>
                         <li class="list-group-item" ng-repeat="headline in headline.content track by $index"
-                            ng-click='headlineClick($index, $event, headline)'
-                            ng-class="{active:$index == headlineSelected}">
+                            ng-click='headlineClick($index, $event, headline)'>
                             <span ng-bind-html="trustAsHtml(headline)"></span>
                         </li>
                     </ul>
@@ -162,7 +163,7 @@
         </md-card>
 
     </div>
-    <div flex-xs flex-gt-xs="30" layout="column">
+    <div flex-sm flex-gt-sm="30" layout="column">
         <md-card>
             <md-card-title>
                 <md-card-title-text>
@@ -214,7 +215,7 @@
             <md-card-content flex>
                 <table class='table table-bordered table-condensed'>
                     <tbody>
-                    <tr ng-repeat="milestone in milestones | orderBy: 'order'">
+                    <tr ng-repeat="milestone in milestones">
                         <td class='col-sm-6 col-md-6'><strong>{{milestone['key']|myUpperCase}}</strong></td>
                         <td style='text-align:center;' class='col-sm-6 col-md-6'
                             ng-bind-html="trustAsHtml(milestone['value'])"></td>

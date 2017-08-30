@@ -1,12 +1,12 @@
 package com.broadcom.wbi.model.mysql;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
@@ -23,7 +23,7 @@ public class Template extends AbstractDomainClass implements Serializable {
     @GeneratedValue(generator = "indicatortasktemplate")
     private Integer id;
 
-    @NotEmpty
+    @NotBlank
     @Column(name = "template_name", nullable = false)
     private String name;
 
@@ -33,7 +33,7 @@ public class Template extends AbstractDomainClass implements Serializable {
     @Column(name = "template_type")
     private String type;
 
-    @NonNull
+    @Min(value = 0L, message = "Order should be positive number")
     @Column(name = "order_num", columnDefinition = "int default 0", nullable = false)
     private Integer orderNum = 0;
 
@@ -43,31 +43,31 @@ public class Template extends AbstractDomainClass implements Serializable {
     @Column(name = "template_group")
     private String group;
 
-    @NonNull
+    @NotBlank
     @Column(name = "on_dashboard", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean onDashboard = false;
 
-    @NonNull
+    @NotBlank
     @Column(name = "available_ca", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean availableCA = false;
 
-    @NonNull
+    @NotBlank
     @Column(name = "available_pc", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean availablePC = false;
 
-    @NonNull
+    @NotBlank
     @Column(name = "available_ecr", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean availableECR = false;
 
-    @NonNull
+    @NotBlank
     @Column(name = "available_to", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean availableTO = false;
 
-    @NonNull
+    @NotBlank
     @Column(name = "available_current", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean availableCurrent = false;
 
-    @NonNull
+    @NotBlank
     @Column(name = "is_restricted", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean isRestrictedView = false;
 }

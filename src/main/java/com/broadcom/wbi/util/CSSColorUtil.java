@@ -48,4 +48,25 @@ public class CSSColorUtil {
         return cl;
 
     }
+
+    public static ProjectConstant.EnumIndicatorStatus compareColor(ProjectConstant.EnumIndicatorStatus c1, ProjectConstant.EnumIndicatorStatus c2) {
+        ProjectConstant.EnumIndicatorStatus ret = c1;
+        if (c1.equals(ProjectConstant.EnumIndicatorStatus.BLACK))
+            return c2;
+
+        if (c2.equals(ProjectConstant.EnumIndicatorStatus.RED))
+            return c2;
+        else if (c2.equals(ProjectConstant.EnumIndicatorStatus.ORANGE)) {
+            if (c1.equals(ProjectConstant.EnumIndicatorStatus.RED))
+                return c1;
+            return c2;
+        } else if (c2.equals(ProjectConstant.EnumIndicatorStatus.GREEN)) {
+            if (c1.equals(ProjectConstant.EnumIndicatorStatus.RED) ||
+                    c1.equals(ProjectConstant.EnumIndicatorStatus.ORANGE))
+                return c1;
+            return c2;
+        }
+        return ret;
+
+    }
 }

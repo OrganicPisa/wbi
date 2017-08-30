@@ -3,11 +3,11 @@ package com.broadcom.wbi.model.mysql;
 import com.broadcom.wbi.util.ProjectConstant;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -28,12 +28,12 @@ public class IDate extends AbstractDomainClass implements Serializable {
     @GeneratedValue(generator = "indicatordate")
     private Integer id;
 
-    @NonNull
+    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "end_date_type", nullable = false)
     private ProjectConstant.EnumIndicatorEndingDateType etype = ProjectConstant.EnumIndicatorEndingDateType.END;
 
-    @NonNull
+    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "track_date_type", nullable = false)
     private ProjectConstant.EnumIndicatorTrackingDateType ttype = ProjectConstant.EnumIndicatorTrackingDateType.CURRENT;

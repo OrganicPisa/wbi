@@ -20,15 +20,17 @@ public interface RedisCacheRepository<K, V> {
     void setExpire(K key, long ts);
 
     Boolean hasKey(K key);
+//
+//    void multiDelete(List<K> keylist);
+//
+//    void multiDelete(K name);
+//
+//    List<String> searchKey(K name);
 
-    void multiDelete(List<K> keylist);
-
-    void multiDelete(K name);
-
-    List<String> searchKey(K name);
-
-//    void clearCache(int id, String key, String resetType);
+    void clearCache(int id, String key, String resetType);
 
     RedisConnection getConnection();
+
+    void deleteWildCard(String wildcard);
 
 }
