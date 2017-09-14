@@ -1,89 +1,60 @@
-<div class='row'>
-    <div class="col-md-6 col-md-offset-4 col-lg-6 col-lg-offset-4">
-        <h2>Create New Internal Program</h2>
-    </div>
-</div>
-<div class="row">
-    <form class="form-horizontal" role="form" data-ng-submit="submitChipForm(chipForm.$valid)" novalidate
-          name='chipForm'>
-        <div class="col-md-12 col-lg-9 col-lg-offset-2">
-            <div class="block">
-                <div class="block-header">
-                    <h3 class="block-title">Program Information</h3>
+<div layout="column" layout-padding>
+    <md-card>
+        <md-card-title>
+            <md-card-title-text>
+                <div layout="row">
+                    <span class="md-title">New Internal Program</span>
                 </div>
-                <div class="block-content block-content-narrow">
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="pname">Program Name <span
-                                class="text-danger">*</span>
-                        </label>
-                        <div class="col-md-9"
-                             data-ng-class="{'has-error':chipForm.pname.$invalid && (chipForm.pname.$dirty || chipForm.$submitted)}">
-                            <input class='form-control' ng-model='chip.pname' name='pname' type='text'
-                                   placeholder='Program name' tabindex='1' autocomplete="off"
-                                   required minlength="3" maxlength="100" ng-unique-program="chip.pname">
-                            <p class="help-block"
-                               ng-show="chipForm.pname.$error.required && (chipForm.pname.$dirty || chipForm.$submitted)">
-                                Required</p>
-                            <p class="help-block"
-                               ng-show="chipForm.pname.$error.minlength && (chipForm.pname.$dirty || chipForm.$submitted)">
-                                Min 3 Characters</p>
-                            <p class="help-block"
-                               ng-show="chipForm.pname.$error.maxlength && (chipForm.pname.$dirty || chipForm.$submitted)">
-                                Max 100 characters</p>
-                            <p class="help-block"
-                               ng-show="chipForm.pname.$error.programUnique && (chipForm.pname.$dirty || chipForm.$submitted)">
-                                Already Registered</p>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content>
+            <form role="form" data-ng-submit="submitChipForm(chipForm.$valid)" novalidate name='chipForm'>
+                <div layout-gt-xs="column">
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <label>Program Name</label>
+                        <input ng-model='chip.pname' name='pname' type='text'
+                               autocomplete="off" required minlength="3" maxlength="128" ng-unique-program="chip.pname">
+                        <div ng-messages="chipForm.pname.$error">
+                            <p ng-message="required">Required</p>
+                            <p ng-message="minlength">Min 3 Characters</p>
+                            <p ng-message="maxlength">Max 128 Characters</p>
+                            <p ng-message="programUnique">Already registered</p>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="codeName">Code Name</label>
-                        <div class="col-md-9">
-                            <input class='form-control' name='codeName' ng-model='chip.codeName' type='text'
-                                   autocomplete="off" tabindex='2' placeholder="Code Name (ex.: Ramon for FE7200)">
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <label>Code Name</label>
+                        <input name='codeName' ng-model='chip.codeName' type='text'>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <label>AKA</label>
+                        <input name='aka' ng-model='chip.aka' type='text'>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <label>Base Die</label>
+                        <input ng-model='chip.basedie' name='basedie' type='text'
+                               autocomplete="off" required minlength="2" maxlength="128">
+                        <div ng-messages="chipForm.basedie.$error">
+                            <p ng-message="required">Required</p>
+                            <p ng-message="minlength">Min 2 Characters (Or NA if not assigned yet)</p>
+                            <p ng-message="maxlength">Max 128 Characters</p>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="aka">AKA</label>
-                        <div class="col-md-9">
-                            <input class='form-control' name='aka' ng-model='chip.aka' type='text' autocomplete="off"
-                                   tabindex='2' placeholder="Alternative name">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="baseDie">Base Die <span class="text-danger">*</span>
-                        </label>
-                        <div class="col-md-9"
-                             ng-class="{'has-error':chipForm.baseDie.$invalid && (chipForm.baseDie.$dirty || chipForm.$submitted)}">
-                            <input class='form-control' ng-model='chip.baseDie' name='baseDie' type='text'
-                                   placeholder='BCM568xx - NA if not assigned' tabindex='3'
-                                   autocomplete="off" required maxlength="100" ng-unique-program="chip.baseDie">
-                            <p class="help-block"
-                               ng-show="chipForm.baseDie.$error.required && (chipForm.baseDie.$dirty || chipForm.$submitted)">
-                                Required</p>
-                            <p class="help-block"
-                               ng-show="chipForm.baseDie.$error.maxlength && (chipForm.baseDie.$dirty || chipForm.$submitted)">
-                                Max 100 characters</p>
-                            <p class="help-block"
-                               ng-show="chipForm.baseDie.$error.programUnique && (chipForm.baseDie.$dirty || chipForm.$submitted)">
-                                Already Registered</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="segment">Segment<span class="text-danger">*</span>
-                        </label>
-                        <div class="col-md-3"
-                             ng-class="{'has-error':chipForm.segment.$invalid && (chipForm.segment.$dirty || chipForm.$submitted)}">
-                            <select tabindex='5' class='form-control' ng-model='chip.segment'
-                                    data-ng-options="segment.name for segment in segments |orderBy:'orderNum' track by segment.id"></select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary btn-block" data-ng-disabled="chipForm.$invalid"
-                                tabindex='25' data-ng-click='submitted=true'>Submit
-                        </button>
-                    </div>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+
+                        <label>Segment</label>
+                        <md-select name="type" ng-model="chip.segment" required aria-label="Segment">
+                            <md-option ng-repeat="segment in segments |orderBy:'orderNum' " ng-value="segment">
+                                {{segment.name}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <md-button type="submit" class="btn btn-primary btn-block" data-ng-disabled="chipForm.$invalid"
+                                   tabindex='25' data-ng-click='submitted=true'>Submit
+                        </md-button>
+                    </md-input-container>
                 </div>
-            </div>
-        </div>
-    </form>
+            </form>
+        </md-card-content>
+    </md-card>
 </div>

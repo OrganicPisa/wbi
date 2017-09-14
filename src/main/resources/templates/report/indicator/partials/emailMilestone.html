@@ -1,12 +1,14 @@
+
 <div class="row">
     <div class="block block-bordered">
         <md-toolbar md-colors="::{background: 'white'}">
             <div class="md-toolbar-tools">
-                <h1 flex>Internal Milestone Report
-                    <small ng-hide='internalMilestoneReportLoaded'>Generating...</small>
-                </h1>
-                <md-button ng-click="sendIndicatorReportEmail();"
-                           ng-show="internalMilestoneReportLoaded && customerMilestoneReportLoaded && ipMilestoneReportLoaded">
+
+                <button class="md-icon-button md-button" hide-gt-md ng-click="openSideMenu()" aria-label="Toggle Menu">
+                    <i class="material-icons">chrome_reader_mode</i>
+                </button>
+                <h1 flex>Internal Milestone Report </h1>
+                <md-button ng-click="sendIndicatorReportEmail();">
                     <md-icon class="material-icons" style="fill:black;color:black;">email</md-icon>
                     Export to Email
                 </md-button>
@@ -16,7 +18,7 @@
                 </md-button>
             </div>
         </md-toolbar>
-        <md-content ng-show='internalMilestoneReportLoaded' id='internalMilestoneTable'>
+        <md-content id='internalMilestoneTable'>
             <table class='table table-bordered table-condensed table-header-bg'
                    style='border-collapse: collapse;  border-spacing: 0px!important;' cellpadding="0" cellspacing="0">
                 <thead>
@@ -74,11 +76,10 @@
         <md-toolbar md-colors="::{background: 'white'}">
             <div class="md-toolbar-tools">
                 <h1 flex>IP Milestone Report
-                    <small ng-hide='ipMilestoneReportLoaded'>Generating...</small>
                 </h1>
             </div>
         </md-toolbar>
-        <md-content ng-show='ipMilestoneReportLoaded' id='ipMilestoneTable'>
+        <md-content id='ipMilestoneTable'>
             <table class='table table-bordered table-condensed table-header-bg'
                    style='border-collapse: collapse;  border-spacing: 0px!important;' cellpadding="0" cellspacing="0">
                 <thead>
@@ -130,11 +131,10 @@
         <md-toolbar md-colors="::{background: 'white'}">
             <div class="md-toolbar-tools">
                 <h1 flex>Customer Milestone Report
-                    <small ng-hide='customerMilestoneReportLoaded'>Generating...</small>
                 </h1>
             </div>
         </md-toolbar>
-        <md-content ng-show='customerMilestoneReportLoaded' id='customerMilestoneTable'>
+        <md-content id='customerMilestoneTable'>
             <table class='table table-bordered table-condensed table-header-bg'
                    style='border-collapse: collapse;  border-spacing: 0px!important;' cellpadding="0" cellspacing="0">
                 <thead>

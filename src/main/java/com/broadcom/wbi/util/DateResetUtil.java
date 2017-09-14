@@ -27,10 +27,7 @@ public class DateResetUtil {
         DateTime lastTuesdaydt = getResetDate(null);
         DateTime currentdt = new DateTime();
         long diff = (currentdt.getMillis() - lastTuesdaydt.getMillis()) / (1000 * 60 * 60);
-        if (diff < 24) {
-            return true;
-        }
-        return false;
+        return diff < 24;
     }
 
     public static boolean isResetProgramStatus(DateTime dt, DateTime lastWeek) {
@@ -39,8 +36,6 @@ public class DateResetUtil {
             resetDate = getResetDate(lastWeek);
         else
             resetDate = getResetDate(null);
-        if (dt.getMillis() < resetDate.getMillis())
-            return true;
-        return false;
+        return dt.getMillis() < resetDate.getMillis();
     }
 }

@@ -96,8 +96,7 @@ public class IDateServiceImpl implements IDateService {
     @Override
     @Transactional(readOnly = true)
     public IDate findByTaskAndType(ITask itask, ProjectConstant.EnumIndicatorTrackingDateType ttype, EnumIndicatorEndingDateType etype) {
-        List<IDate> idates = repo.findByITaskAndTtypeAndEtypeOrderByCreatedDateDesc(itask, ttype.toString().toUpperCase().trim(),
-                etype.toString().toUpperCase().trim());
+        List<IDate> idates = repo.findByITaskAndTtypeAndEtypeOrderByCreatedDateDesc(itask, ttype, etype);
         if (idates != null && !idates.isEmpty())
             return idates.get(0);
         return null;

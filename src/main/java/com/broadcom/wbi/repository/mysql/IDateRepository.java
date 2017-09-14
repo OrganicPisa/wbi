@@ -2,6 +2,7 @@ package com.broadcom.wbi.repository.mysql;
 
 import com.broadcom.wbi.model.mysql.IDate;
 import com.broadcom.wbi.model.mysql.ITask;
+import com.broadcom.wbi.util.ProjectConstant;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Date;
@@ -19,7 +20,7 @@ public interface IDateRepository extends JpaRepository<IDate, Integer> {
 
     List<IDate> findByCreatedDateAfterOrderByCreatedDateDesc(Date createdDate);
 
-    List<IDate> findByITaskAndTtypeAndEtypeOrderByCreatedDateDesc(ITask itask, String ttype, String etype);
+    List<IDate> findByITaskAndTtypeAndEtypeOrderByCreatedDateDesc(ITask itask, ProjectConstant.EnumIndicatorTrackingDateType ttype, ProjectConstant.EnumIndicatorEndingDateType etype);
 
     Long countAllByCreatedDateBefore(Date dt);
 }

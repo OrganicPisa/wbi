@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -26,27 +25,22 @@ public class Headline extends AbstractDomainClass implements Serializable {
     @GeneratedValue(generator = "headline")
     private Integer id;
 
-    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "schedule_flag", nullable = false)
     private ProjectConstant.EnumIndicatorStatus schedule_flag = ProjectConstant.EnumIndicatorStatus.BLACK;
 
-    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "budget_flag", nullable = false)
     private ProjectConstant.EnumIndicatorStatus budget_flag = ProjectConstant.EnumIndicatorStatus.BLACK;
 
-    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "resource_flag", nullable = false)
     private ProjectConstant.EnumIndicatorStatus resource_flag = ProjectConstant.EnumIndicatorStatus.BLACK;
 
-    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "prediction_flag", nullable = false)
     private ProjectConstant.EnumIndicatorStatus prediction_flag = ProjectConstant.EnumIndicatorStatus.BLACK;
 
-    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "is_active", nullable = false)
     private ProjectConstant.EnumProgramStatus isActive = ProjectConstant.EnumProgramStatus.ACTIVE;
@@ -55,10 +49,9 @@ public class Headline extends AbstractDomainClass implements Serializable {
     @Column(columnDefinition = "TEXT")
     private String headline;
 
-    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "stage", nullable = false)
-    private ProjectConstant.EnumHeadlineStage stage;
+    private ProjectConstant.EnumHeadlineStage stage = ProjectConstant.EnumHeadlineStage.PLANNING;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)

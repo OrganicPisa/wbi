@@ -12,9 +12,10 @@ import java.util.regex.PatternSyntaxException;
 public class TextUtil {
 
     public static String formatName(String d) {
-//		List<String> firstCapital = Arrays.asList("max", "for", "pre", "rom", "ngo", "die", "key", "lob", "zed", "lee", "kou", "kuo", "old",
+//		List<String> firstCapital = Arrays.asList("max", "for", "pre", "rom", "ngo", "die", "key", "lob", "zed", "lee", "kou", "kuo", "old", "rob", "box",
 //				"cao", "ver", "pin", "and", "red");
-        List<String> allCapital = Arrays.asList("ngsdk", "xldk", "umpte", "pcie", "pra", "aka", "npv", "p&r", "htol", "lob", "cmicm");
+        List<String> allCapital = Arrays.asList("ngsdk", "xldk", "umpte", "pcie", "pra", "aka", "npv", "p&r", "htol", "lob", "cmicm", "sdk", "phys",
+                "fcs", "phy", "hsip", "ae", "fae", "sw", "plm", "pm", "cpm");
 
         d = d.replaceAll("\\+", "plus");
         if (d.trim().length() > 0) {
@@ -23,13 +24,14 @@ public class TextUtil {
                 for (String ds : darr) {
                     String l = ds.replaceAll("\\d", "").replaceAll("\\.", "").replaceAll("[()]", "").replaceAll("(?i)x", "").trim();
                     int length = l.replaceAll("plus", "").length();
-                    if (length > 2) {
-                        if (allCapital.contains(l))
-                            l = ds.toUpperCase();
-                        else
-                            l = WordUtils.capitalizeFully(ds);
-                    } else {
+                    if (allCapital.contains(l))
                         l = ds.toUpperCase();
+                    else {
+                        if (length > 3) {
+                            l = WordUtils.capitalizeFully(ds);
+                        } else {
+                            l = ds.toUpperCase();
+                        }
                     }
                     try {
                         d = d.replaceFirst(ds, l);
@@ -38,20 +40,27 @@ public class TextUtil {
                     }
                 }
             } else {
-                String l = d.trim().replaceAll("[0-9]", "");
-                int length = l.replaceAll("plus", "").length();
+                String l = d.trim().replaceAll("[0-9]", "").replaceAll("plus", "");
+                int length = l.length();
                 String newl = l;
-                if (length > 3) {
-                    if (allCapital.contains(l))
-                        newl = l.toUpperCase();
-                    else
-                        newl = WordUtils.capitalizeFully(l);
-                } else
+                if (allCapital.contains(l))
                     newl = l.toUpperCase();
+                else {
+                    if (length > 3) {
+                        newl = WordUtils.capitalizeFully(l);
+                    } else
+                        newl = l.toUpperCase();
+                }
+
                 d = d.replace(l, newl);
             }
         }
         d = d.replaceAll("(?i)plus", "\\+");
+        if (!d.matches("\\s")) {
+            if (d.matches("/*?")) {
+                d = d.replaceAll("/", "<br/>");
+            }
+        }
         return d;
     }
 

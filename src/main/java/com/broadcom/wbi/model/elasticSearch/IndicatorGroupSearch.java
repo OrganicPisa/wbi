@@ -19,28 +19,28 @@ public class IndicatorGroupSearch implements Serializable {
     @Id
     private String id;
 
-    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, store = true)
     private Integer igroup_id;
 
-    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, store = true)
     private String igroup_name;
 
-    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, store = true)
     private Integer order_num;
 
-    @Field(type = FieldType.String, index = FieldIndex.analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.String, index = FieldIndex.analyzed, store = true)
     private String remark;
 
-    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, store = true)
     private String status;
 
-    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, store = true)
     private Integer revision_id;
 
-    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, store = true)
     private String revision_name;
 
-    @Field(type = FieldType.Date, index = FieldIndex.analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Date, index = FieldIndex.analyzed, store = true)
     private Date last_updated_date;
 
 }

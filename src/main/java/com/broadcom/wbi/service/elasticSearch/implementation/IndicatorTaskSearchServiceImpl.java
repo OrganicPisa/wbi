@@ -24,11 +24,15 @@ import java.util.*;
 @Service
 public class IndicatorTaskSearchServiceImpl implements IndicatorTaskSearchService {
 
-    @Autowired
-    private IndicatorTaskSearchRepository repo;
+    private final IndicatorTaskSearchRepository repo;
+
+    private final ElasticsearchTemplate template;
 
     @Autowired
-    private ElasticsearchTemplate template;
+    public IndicatorTaskSearchServiceImpl(IndicatorTaskSearchRepository repo, ElasticsearchTemplate template) {
+        this.repo = repo;
+        this.template = template;
+    }
 
     @Override
     public IndicatorTaskSearch saveOrUpdate(IndicatorTaskSearch itask) {

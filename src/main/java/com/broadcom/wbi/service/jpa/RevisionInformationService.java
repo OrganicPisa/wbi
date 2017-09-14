@@ -2,6 +2,8 @@ package com.broadcom.wbi.service.jpa;
 
 import com.broadcom.wbi.model.mysql.Revision;
 import com.broadcom.wbi.model.mysql.RevisionInformation;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -15,6 +17,11 @@ public interface RevisionInformationService extends CRUDService<RevisionInformat
     List<RevisionInformation> findByRevisionPhase(Revision rev, String phase);
 
     List<RevisionInformation> findByRevisionPhaseName(Revision rev, String phase, String name);
+
+    @Async
+    void cloneFromAnotherRevision(Revision oldRev, Revision rev, Authentication authentication);
+
+    void cloneFromTemplate(Revision rev, Authentication authentication);
 
 //    void initInfoNewRevision(Revision rev, String createtypestring, String username);
 //

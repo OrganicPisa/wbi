@@ -40,18 +40,22 @@ import java.util.concurrent.TimeUnit;
 public class SegmentController {
     final static DateTimeFormatter dfmt = DateTimeFormat.forPattern("MM/dd/yy");
     private static final ObjectMapper mapper = new ObjectMapper();
+    private final SegmentService segmentService;
+    private final RevisionService revisionService;
+    private final RevisionSearchService revisionSearchService;
+    private final EmployeeService employeeService;
+    private final RedisCacheRepository redis;
+    private final IndicatorService indicatorServ;
+
     @Autowired
-    private SegmentService segmentService;
-    @Autowired
-    private RevisionService revisionService;
-    @Autowired
-    private RevisionSearchService revisionSearchService;
-    @Autowired
-    private EmployeeService employeeService;
-    @Autowired
-    private RedisCacheRepository redis;
-    @Autowired
-    private IndicatorService indicatorServ;
+    public SegmentController(SegmentService segmentService, RevisionService revisionService, RevisionSearchService revisionSearchService, EmployeeService employeeService, RedisCacheRepository redis, IndicatorService indicatorServ) {
+        this.segmentService = segmentService;
+        this.revisionService = revisionService;
+        this.revisionSearchService = revisionSearchService;
+        this.employeeService = employeeService;
+        this.redis = redis;
+        this.indicatorServ = indicatorServ;
+    }
 
     @RequestMapping(value = {"/getActiveSegments"}, method = {RequestMethod.GET})
     public Callable<List> getSegment(HttpServletRequest req,
@@ -109,7 +113,6 @@ public class SegmentController {
                 final List<Integer> bookmarkRevivions = revisionService.findByEmployee(employee);
                 String redisk1 = seg.toLowerCase() + "_" + status + "_frontPageSegment";
                 String redisk2 = seg.toLowerCase() + "_" + username + "_" + status + "_frontPageSegment";
-                System.out.println(redisk2);
                 if (reload == 1) {
                     redis.delete(redisk1);
                     redis.delete(redisk2);
@@ -140,11 +143,11 @@ public class SegmentController {
                             for (final RevisionSearch rs : rsl) {
                                 executor.submit(new Runnable() {
                                     public void run() {
-                                        if (rs.getType().equalsIgnoreCase("software")
+                                        if (rs.getProgram_type().equalsIgnoreCase("software")
                                                 && !rs.getRev_name().toLowerCase().startsWith("program")) {
                                             return;
                                         }
-                                        if (rs.getType().equalsIgnoreCase("ip")
+                                        if (rs.getProgram_type().equalsIgnoreCase("ip")
                                                 && rs.getRev_name().toLowerCase().startsWith("head")) {
                                             return;
                                         }
@@ -164,7 +167,6 @@ public class SegmentController {
                             if (ret.size() > 0) {
                                 try {
                                     redis.put(redisk1, mapper.writeValueAsString(ret));
-                                    redis.setExpire(redisk1, ProjectConstant.CacheTimeout.HOUR.getSecond());
                                 } catch (JsonProcessingException e) {
                                     e.printStackTrace();
                                 }
@@ -199,7 +201,6 @@ public class SegmentController {
                         if (list.size() > 0) {
                             try {
                                 redis.put(redisk2, mapper.writeValueAsString(list));
-                                redis.setExpire(redisk2, ProjectConstant.CacheTimeout.HOUR.getSecond());
                                 return list;
                             } catch (JsonProcessingException e) {
                                 e.printStackTrace();

@@ -3,8 +3,11 @@ package com.broadcom.wbi.service.jpa.implementation;
 import com.broadcom.wbi.model.mysql.IDate;
 import com.broadcom.wbi.model.mysql.IDateHistory;
 import com.broadcom.wbi.repository.mysql.IDateHistoryRepository;
+import com.broadcom.wbi.service.event.IndicatorDateSaveEvent;
+import com.broadcom.wbi.service.event.IndicatorDateSaveEventPublisher;
 import com.broadcom.wbi.service.jpa.IDateHistoryService;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -21,13 +25,28 @@ public class IDateHistoryServiceImpl implements IDateHistoryService {
     @Resource
     private IDateHistoryRepository repo;
 
+    @Autowired
+    private IndicatorDateSaveEventPublisher indicatorDateSaveEventPublisher;
+
     @Override
     public IDateHistory saveOrUpdate(IDateHistory idateh) {
-        return repo.save(idateh);
+
+        IDateHistory iDateHistory = repo.save(idateh);
+        HashMap map = new HashMap();
+        map.put("action", "save");
+        map.put("data", iDateHistory);
+        indicatorDateSaveEventPublisher.publish(new IndicatorDateSaveEvent(map));
+
+        return iDateHistory;
+
     }
 
     @Override
     public void delete(Integer id) {
+        HashMap map = new HashMap();
+        map.put("action", "delete");
+        map.put("data", id);
+        indicatorDateSaveEventPublisher.publish(new IndicatorDateSaveEvent(map));
         repo.delete(id);
     }
 

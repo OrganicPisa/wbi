@@ -68,9 +68,9 @@ App.directive('ngUniqueProgram', function ($http) {
                         && elem[0].name.match(/basedie/i)) {
                         ctrl.$setValidity('programUnique', true);
                     } else {
-                        $http.get('/program/checkExist?program=' + elem.val().replace(/\+/g, 'plus').toLowerCase())
-                            .success(function (data, status, headers, config) {
-                                ctrl.$setValidity('programUnique', data.ret);
+                        $http.get('/api/program/checkExist?program=' + elem.val().replace(/\+/g, 'plus').toLowerCase())
+                            .then(function (data, status, headers, config) {
+                                ctrl.$setValidity('programUnique', !data.data.ret);
                             })
                     }
                 })
@@ -166,22 +166,22 @@ App
         function () {
             return {
                 restrict: 'ACE',
-                template: "<form editable-form name='ipsettingeditform' onaftersave='saveSettingDashboard(settingDashboard)' oncancel='cancel()'>"
+                template: "<form editable-form name='ipsettingeditform' onaftersave='saveSettings()' oncancel='cancel()'>"
                 + "<div class='btn-form' ng-show='ipsettingeditform.$visible'>"
                 + "<button type='submit' ng-disabled='ipsettingeditform.$waiting' class='btn btn-xs btn-link pull-right'>Save</button>"
                 + "<a ng-disabled='ipsettingeditform.$waiting' ng-click='ipsettingeditform.$cancel();' class='btn btn-xs pull-right'>Cancel</a></div>"
                 + "<table class='table table-condensed table-bordered'>"
                 + "<tbody>"
                 + "<tr ng-show='ipsettingeditform.$visible'><td><strong>Program</strong></td>"
-                + "<td><span editable-text='settingDashboard.program' e-form='ipsettingeditform' >{{settingDashboard.program}}</span></td></tr>"
+                + "<td><span editable-text='settings.program' e-form='ipsettingeditform' >{{settings.program}}</span></td></tr>"
                 + "<tr ng-show='ipsettingeditform.$visible'><td><strong>Revision</strong></td>"
-                + "<td><span editable-text='settingDashboard.revision' e-form='ipsettingeditform' >{{settingDashboard.revision}}</span></td></tr>"
+                + "<td><span editable-text='settings.revision' e-form='ipsettingeditform' >{{settings.revision}}</span></td></tr>"
                 + "<tr><td><strong>Stage</strong></td>"
-                + "<td><span editable-select='settingDashboard.stage' e-form='ipsettingeditform' e-ng-options='key for (key, value) in ipselecttemplate.stage'>{{settingDashboard.stage}}</span></td></tr>"
+                + "<td><span editable-select='settings.stage' e-form='ipsettingeditform' e-ng-options='key for (key, value) in ipselecttemplate.stage'>{{settings.stage}}</span></td></tr>"
                 + "<tr><td><strong>Status</strong></td>"
-                + "<td><span editable-select='settingDashboard.status' e-form='ipsettingeditform' e-ng-options='key for (key, value) in ipselecttemplate.status'>{{settingDashboard.status}}</span></td></tr>"
+                + "<td><span editable-select='settings.status' e-form='ipsettingeditform' e-ng-options='key for (key, value) in ipselecttemplate.status'>{{settings.status}}</span></td></tr>"
                 + "<tr><td><strong>Schedule Temperature</strong></td>"
-                + "<td><span editable-select='settingDashboard.scheduleFlag' e-form='ipsettingeditform' e-ng-options='item.value for item in flaglist'>{{settingDashboard.scheduleFlag.value}}</span></td></tr>"
+                + "<td><span editable-select='settings.scheduleFlag' e-form='ipsettingeditform' e-ng-options='item.value for item in flaglist'>{{settings.scheduleFlag.value}}</span></td></tr>"
                 + "</tbody></table></form>"
             }
         });
@@ -277,7 +277,7 @@ App
                 + "<td><p>[{{sw.ts}}]</p>"
                 + "<span editable-textarea='sw.headline' e-rows='7' e-cols='40' e-form='sweditform'><pre>{{ sw.headline }}</pre></span>"
                 + "</td>"
-                + "<td style='text-align:center'  ng-show='sweditform.$visible'><span editable-checkbox='sw.includeReport' ng-class='{text-green:sw.includeReport, text-grey:!sw.includeReport}' "
+                + "<td style='text-align:center'  ng-show='sweditform.$visible'><span editable-checkbox='sw.includeReport' "
                 + "e-ng-disabled='sw.headProgram' e-title='Include In Report?' >{{ sw.includeReport && 'Yes' || 'No' }} </span></td></tr>"
                 + "</tbody></table></form>"
             }
@@ -334,9 +334,9 @@ App
                 + "<table class='table table-condensed table-bordered' >"
                 + "<tbody>"
                 + "<tr><td><strong>Program Name</strong></td><td><span>{{informationDashboard.program_name}}</span></td></tr>"
-                + "<tr data-ng-if='category.toLowerCase()==isCustomerProgram'><td><strong>Customer Name</strong></td><td><span>{{informationDashboard.customer_name}}</span></td></tr>"
-                + "<tr data-ng-if='category.toLowerCase()==isChipProgram'><td><strong>Base Die</strong></td><td><span>{{informationDashboard.base_die}}</span></td></tr>"
-                + "<tr data-ng-if='category.toLowerCase()==isChipProgram'><td><strong>Segment</strong></td><td><span>{{informationDashboard.segment}}</span></td></tr>"
+                + "<tr data-ng-if='isCustomerProgram'><td><strong>Customer Name</strong></td><td><span>{{informationDashboard.customer_name}}</span></td></tr>"
+                + "<tr data-ng-if='isChipProgram'><td><strong>Base Die</strong></td><td><span>{{informationDashboard.base_die}}</span></td></tr>"
+                + "<tr data-ng-if='isChipProgram'><td><strong>Segment</strong></td><td><span>{{informationDashboard.segment}}</span></td></tr>"
                 + "<tr ng-repeat='info in informationDashboard.data | orderBy:[infopredicate1, infopredicate2] | filter:filterInfo'>"
                 + "<td><strong editable-text='info.key' e-form='infoeditform' edit-disabled='true'>{{ info.key }}</strong></td>"
                 + "<td><span editable-text='info.value' e-form='infoeditform' edit-disabled='!info.editable' >{{ info.value }}</span></td>"
@@ -439,7 +439,7 @@ App
                 + "<tbody><tr ng-repeat='contact in contacts | filter:filterContact'><td style='word-wrap:break-word;'>"
                 + "<strong editable-text='contact.key' e-form='contacteditform' e-required>{{ contact.key | myUpperCase }}</strong></td>"
                 + "<td style='word-wrap:break-word;'>"
-                + "<span editable-text='contact.value' e-form='contacteditform' e-required>{{ contact.value}}</span>"
+                + "<span editable-text='contact.value' e-form='contacteditform'>{{ contact.value}}</span>"
                 + "</td>"
                 + "<td  ng-show='contacteditform.$visible'>"
                 + "<a ng-click='deleteContact(contact)' class='btn btn-xs pull-right'><strong class='text-danger'>Delete</strong></a></td></tr>"
@@ -457,21 +457,31 @@ App
                 template: "<form editable-form name='ipchipeditform' onaftersave='saveIPChipTable()' oncancel='cancel()'>"
                 + "<div class='btn-form' ng-show='ipchipeditform.$visible'>"
                 + "<a ng-disabled='ipchipeditform.$waiting' ng-click='addNewIPChipTable(ipChipTable)' class='btn btn-xs pull-right'>New</a>"
-                + "<button type='submit' ng-disabled='ipchipeditform.$waiting' class='btn btn-xs btn-link pull-right'>Save</button>"
+                + "<button type='submit' ng-disabled='ipchipeditform.$waiting || !ipchipeditform.$valid' class='btn btn-xs btn-link pull-right'>Save</button>"
                 + "<a ng-disabled='ipchipeditform.$waiting' ng-click='ipchipeditform.$cancel(); cancelSaveIPChipTable()' class='btn btn-xs pull-right'>Cancel</button></div>"
                 + "<table class='table table-condensed table-bordered' >"
-                + "<tbody><tr ng-repeat='ip in ipChipTable | filter:filterIPChipTable'>"
+                + "<tbody>"
+                + "<tr ng-repeat='ip in ipChipTable'>"
                 + "<td data-ng-hide='ipchipeditform.$visible' ng-class='ip.schedule_flag'></td>"
                 + "<td style='word-wrap:break-word;'>"
                 //	+ "<strong editable-text='contact.key' e-form='ipchipeditform'>{{ ip.key | myUpperCase }}</strong></td>"
                 + "<a ng-href='{{ip.url}}' data-ng-hide='ipchipeditform.$visible'>{{ip.displayName}}</a>"
-                + "<span data-ng-show='ipchipeditform.$visible' editable-text='ip.displayName' "
-                + "e-uib-typeahead='item as p.formated for p in searchIPProgram($viewValue)' e-form='ipchipeditform' e-typeahead-on-select='selectIP($item, $model,ip)' e-required></span></td>"
+                + "<md-autocomplete flex required ng-show='ipchipeditform.$visible' md-input-name='displayName' md-input-minlength='2' md-input-maxlength='64' md-delay='10'"
+                + "md-selected-item='selectedIP' md-search-text='ip.displayName' md-item-text='item.pname'"
+                + "md-selected-item-change='selectIP(item, ip)' md-items='item in searchIPProgram(ip.displayName)'>"
+                + "<span md-highlight-text='ip.displayName'> {{item.pname + ' '+ item.rname}} </span>"
+                + "</md-autocomplete> "
                 + "<td style='word-wrap:break-word;'>"
-                + "<span editable-number='ip.instances' e-form='ipchipeditform' e-min='1' e-max='100' e-required>{{ ip.instances}}</span>"
+                + "<span ng-hide='ipchipeditform.$visible'>{{ip.instances}}</span>"
+                + "<md-input-container class='md-block' ng-show='ipchipeditform.$visible'>"
+                + "<input required type='number' name='instances' ng-model='ip.instances' min='0' max='100' aria-label='instances'/>"
+                + "<div ng-messages='ipchipeditform.instances.$error' multiple >"
+                + "<div ng-message='required'>Required field</div>"
+                + "<div ng-message='min'>Should be greater than 0</div>"
+                + "</div></md-input-container>"
                 + "</td>"
-                + "<td  ng-show='ipchipeditform.$visible'>"
-                + "<a ng-click='deleteIPChipTable(ip)' class='btn btn-xs pull-right'><strong class='text-danger'>Delete</strong></a></td></tr>"
+                + "<td ng-show='ipchipeditform.$visible'>"
+                + "<a ng-click='deleteIPChipTable(ip)' ng-disabled='ipchipeditform.$waiting || !ipchipeditform.$valid' class='btn btn-xs pull-right'><strong class='text-danger'>Delete</strong></a></td></tr>"
                 + "</tbody></table></form>"
             }
         });
@@ -553,7 +563,7 @@ App
                 + "<th class='theader' style='width:15%;'>Actual</th>"
                 + "<th class='theader noexport' style='width:50%;'>Note</th></tr></thead>"
                 + "<tbody >"
-                + "<tr ng-repeat='milestone in milestones track by $index' ng-click='milestoneRowClick($index, $event,milestone); resetActiveRowClass();' ng-class='{active:$index == milestoneSelected.index}'>"
+                + "<tr ng-repeat='milestone in milestones track by $index' ng-click='milestoneRowClick($index, $event,milestone);' >"
                 + "<td ng-class='(milestone.tstatus|lowercase)'></td>"
                 + "<td id='milestone.id'>"
                 + "<strong>{{milestone.tname|myUpperCase}}</strong>"
@@ -584,7 +594,7 @@ App
                 + "<th class='theader' style='width:10%;'>Actual</th>"
                 + "<th class='theader noexport' style='width:55%;'>Note</th></tr></thead>"
                 + "<tbody>"
-                + "<tr ng-repeat='milestone in milestones track by $index' ng-click='milestoneRowClick($index, $event,milestone); resetActiveRowClass();' ng-class='{active:$index == milestoneSelected.index}'>"
+                + "<tr ng-repeat='milestone in milestones track by $index' ng-click='milestoneRowClick($index, $event,milestone);' >"
                 + "<td ng-class='(milestone.tstatus|lowercase)'></td>"
                 + "<td id='milestone.id'>"
                 + "<strong>{{milestone.tname|myUpperCase}}</strong>"
@@ -772,8 +782,8 @@ App
 
                 + "<div layout-gt-md='row'>"
 
-                + "<md-input-container class='md-block' flex-gt-sm>"
-                + "<label>Plan : Last Updated {{milestoneSelected.currentEnd.snapshot}}</label>"
+                + "<div class='md-block' flex-gt-sm>"
+                + "<label>Plan</label>"
                 + "<span layout='column'>"
                 + "<md-radio-group ng-model='milestoneSelected.currentEnd.optionModel'  layout='row'>"
                 + "<md-radio-button value='NA'>NA</md-radio-button>"
@@ -792,9 +802,9 @@ App
                 + "<span layout='column'>"
                 + "<textarea ng-model='milestoneSelected.currentEnd.comment' maxlength='256' rows='3' md-select-on-focus placeholder='comment (256 char max)'></textarea>"
                 + "</span>"
-                + "</md-input-container>"
+                + "</div>"
 
-                + "<md-input-container class='md-block' flex-gt-sm>"
+                + "<div class='md-block' flex-gt-sm>"
                 + "<label>Actual </label>"
                 + "<span layout='column'>"
                 + "<md-radio-group layout='row' ng-model='milestoneSelected.actualEnd.optionModel' >"
@@ -808,13 +818,13 @@ App
                 + "<span layout='column'>"
                 + "<textarea ng-model='milestoneSelected.actualEnd.comment' maxlength='256' rows='3' md-select-on-focus placeholder='comment (256 char max)'></textarea>"
                 + "</span>"
-                + "</md-input-container>"
+                + "</div>"
 
                 + "</div>"
 
-                + "<div layout-gt-md='row'>"
+                + "<div layout-gt-xs='row'>"
+                + "<md-input-container class='md-block' flex-gt-xs>"
                 + "<label>Note</label> "
-                + "<md-input-container class='md-block' flex-gt-sm>"
                 + "<span layout='column'>"
                 + "<textarea flex ng-model='milestoneSelected.note' maxlength='512' rows='5' md-select-on-focus placeholder='Note (512 char max)'></textarea>"
                 + "</span>"
@@ -839,11 +849,11 @@ App
                 + "</md-input-container>"
                 + "</div>"
 
-                + "<div layout-gt-md='row'>"
+                + "<div layout-gt-xs='row'>"
                 + "<md-input-container class='md-block' flex-gt-xs>"
                 + "<label>Milestone Name</label>"
-                + "<input ng-model='milestoneSelected.name' name='milestoneName' class='form-control' ng-disabled='ms.currentCategory.toLowerCase()==projectCatName' required" +
-                " ng-minlength='2' ng-maxlength='256'>"
+                + "<input ng-model='milestoneSelected.name' name='milestoneName' class='form-control' required" +
+                " ng-minlength='2' ng-maxlength='256' />"
                 + "<div ng-messages='milestoneeditform.milestoneSelected.name.$error'>"
                 + "<div ng-message='required'>Milestone name is required.</div>"
                 + "<div ng-message='minlength'>Milestone name is too short.</div>"
@@ -853,9 +863,9 @@ App
 
                 + "<md-input-container>"
                 + "<label>Order Number</label>"
-                + "<input class='form-control' type='number' ng-model='milestoneSelected.order' name='milestoneOrder' ng-disabled='ms.currentCategory.toLowerCase()==projectCatName' " +
-                "required type='number' min='1' max='10000'>"
-                + "<div ng-messages='milestoneeditform.milestoneSelected.order.$error'>"
+                + "<input class='form-control' type='number' ng-model='milestoneSelected.order' name='milestoneOrder' " +
+                "required type='number' min='0' max='10000'>"
+                + "<div ng-messages='milestoneeditform.milestoneSelected.order.$error' md-auto-hide='false'>"
                 + "<div ng-message='required'>Milestone Order is required!</div>"
                 + "<div ng-message='min'>Must be greater than 0</div>"
                 + "<div ng-message='max'>Out of range</div>"
@@ -863,9 +873,9 @@ App
                 + "</md-input-container>"
                 + "</div>"
 
-                + "<div layout-gt-md='row'>"
+                + "<div layout-gt-xs='row'>"
 
-                + "<md-input-container class='md-block' flex-gt-sm>"
+                + "<div class='md-block' flex-gt-xs>"
                 + "<label>Plan</label>"
                 + "<span layout='column'>"
                 + "<md-radio-group ng-model='milestoneSelected.actualStart.optionModel' layout='row'>"
@@ -878,12 +888,13 @@ App
                 + "<md-datepicker flex ng-focus=milestoneSelected.actualStart.optionModel='DATE' ng-model='milestoneSelected.actualStart.date' md-placeholder='Plan Date'></md-datepicker>"
                 + "</span>"
                 + "<span layout='column'>"
-                + "<textarea ng-model='milestoneSelected.actualStart.comment' maxlength='256' rows='3' md-select-on-focus placeholder='comment (256 char max)'></textarea>"
+                + "<textarea ng-model='milestoneSelected.actualStart.comment' maxlength='256' rows='2' md-select-on-focus placeholder='comment (256 char max)'></textarea>"
                 + "</span>"
-                + "</md-input-container>"
+                + "</div>"
 
-                + "<md-input-container class='md-block' flex-gt-sm>"
-                + "<label>Current : Last Updated {{milestoneSelected.currentEnd.snapshot}}</label>"
+
+                + "<div class='md-block' flex-gt-xs>"
+                + "<label> Current : {{milestoneSelected.currentEnd.snapshot}}</label>"
                 + "<span layout='column'>"
                 + "<md-radio-group ng-model='milestoneSelected.currentEnd.optionModel'  layout='row'>"
                 + "<md-radio-button value='NA'>NA</md-radio-button>"
@@ -900,11 +911,12 @@ App
                 + "</md-checkbox>"
                 + "</span>"
                 + "<span layout='column'>"
-                + "<textarea ng-model='milestoneSelected.currentEnd.comment' maxlength='256' rows='3' md-select-on-focus placeholder='comment (256 char max)'></textarea>"
+                + "<textarea ng-model='milestoneSelected.currentEnd.comment' maxlength='256' rows='2' md-select-on-focus placeholder='comment (256 char max)'></textarea>"
                 + "</span>"
-                + "</md-input-container>"
+                + "</div>"
 
-                + "<md-input-container class='md-block' flex-gt-sm>"
+
+                + "<div class='md-block' flex-gt-xs>"
                 + "<label>Actual</label>"
                 + "<span layout='column'>"
                 + "<md-radio-group layout='row' ng-model='milestoneSelected.actualEnd.optionModel' >"
@@ -916,15 +928,15 @@ App
                 + "<md-datepicker flex ng-focus=milestoneSelected.actualEnd.optionModel='DATE' ng-model='milestoneSelected.actualEnd.date' md-placeholder='Actual Date'></md-datepicker>"
                 + "</span>"
                 + "<span layout='column'>"
-                + "<textarea ng-model='milestoneSelected.actualEnd.comment' maxlength='256' rows='3' md-select-on-focus placeholder='comment (256 char max)'></textarea>"
+                + "<textarea ng-model='milestoneSelected.actualEnd.comment' maxlength='256' rows='2' md-select-on-focus placeholder='comment (256 char max)'></textarea>"
                 + "</span>"
-                + "</md-input-container>"
+                + "</div>"
 
                 + "</div>"
 
-                + "<div layout-gt-md='row'>"
+                + "<div layout-gt-xs='row'>"
+                + "<md-input-container class='md-block' flex-gt-xs>"
                 + "<label>Note</label> "
-                + "<md-input-container class='md-block' flex-gt-sm>"
                 + "<span layout='column'>"
                 + "<textarea flex ng-model='milestoneSelected.note' maxlength='512' rows='5' md-select-on-focus placeholder='Note (512 char max)'></textarea>"
                 + "</span>"

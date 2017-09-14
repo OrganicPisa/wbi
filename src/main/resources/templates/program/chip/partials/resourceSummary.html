@@ -1,83 +1,82 @@
-<div class="row">
-    <div class="block block-bordered">
-        <div class="block-header">
-            <ul class="block-options" data-ng-show="resourceloaded"
-                data-ng-if="permission.authority=='pm' || permission.authority=='ipm' ||  permission.authority=='admin'">
-                <li>
+<div layout="column">
+    <md-card>
+        <md-card-title>
+            <md-card-title-text>
+                <div layout="row">
+                    <span class="md-title">Detail Resource Summary</span>
+                    <span flex></span>
                     <a data-ng-click="openNewTab('http://confluence.broadcom.com/display/SWITCHPM/Detailed+Resources')">
-                        <i class="fa fa-question-circle fa-fw fa-2x"></i>
+                        <i class="material-icons">help_outline</i>
                     </a>
-                </li>
-                <li ng-show='milestoneResourceValid' style='margin-right:10px'>
-                    <button type='button' class='btn btn-info btn-xs' ngf-select ngf-change="uploadResource($files)"
-                            ngf-multiple="multiple"><strong>Upload Resource File</strong></button>
-                </li>
-                <li style='margin-right:10px'>
-                    <a type='button' class='btn btn-xs'
+                    <a type='button' class='md-primary' ngf-select ngf-change="uploadResource($files)"
+                       ng-if="authority=='pm' || authority=='ipm' || authority=='admin'"
+                       ngf-multiple="multiple"><strong>Upload Resource File</strong></a>
+                    <a type='button' class='md-primary'
                        href="http://confluence.broadcom.com/download/attachments/373374404/resource_template.xlsx?api=v2">Download
                         Template</a>
-                </li>
-            </ul>
-            <h3 class="block-title">Detail Resource Summary
-                <small data-ng-hide='resourceloaded'>Loading...</small>
-                <small data-ng-show='resourceloaded' data-ng-bind-html="trustAsHtml(resourceTimestamp)"></small>
-            </h3>
-        </div>
-        <div class="block-content" data-ng-show='resourceloaded'>
-            <div data-ng-show='milestoneResourceValid'>
-                <div class="row">
-                    <table class='table table-bordered table-condensed table-header-bg'>
-                        <thead>
-                        <tr>
-                            <th style='width: 10%'>&nbsp;</th>
-                            <th style='width: 18%'>Pre PC</th>
-                            <th style='width: 18%'>PC-T/O</th>
-                            <th style='width: 18%'>T/O - PRA</th>
-                            <th style='width: 18%'>Post PRA</th>
-                            <th style='width: 18%'>Total</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr data-ng-repeat="(type, arr) in resources">
-                            <td data-ng-repeat="r in arr | orderBy: 'order'" ng-bind-html='trustAsHtml(r.value)'></td>
-                        </tr>
-                        </tbody>
-                    </table>
                 </div>
-                <div class="row">
-                    <highchart id="resourceDashboardTrendChart" config="resourceMonthlyChartConfig"
-                               style="height: 400px; margin: 0 auto"></highchart>
-                </div>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content>
+            <div ng-show='milestoneResourceValid'>
+                <table class='table table-bordered table-condensed table-header-bg'>
+                    <thead>
+                    <tr>
+                        <th style='width: 10%'>&nbsp;</th>
+                        <th style='width: 18%'>Pre PC</th>
+                        <th style='width: 18%'>PC-T/O</th>
+                        <th style='width: 18%'>T/O - PRA</th>
+                        <th style='width: 18%'>Post PRA</th>
+                        <th style='width: 18%'>Total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr data-ng-repeat="(type, arr) in resources">
+                        <td data-ng-repeat="r in arr | orderBy: 'order'" ng-bind-html='trustAsHtml(r.value)'></td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
-            <div data-ng-hide='milestoneResourceValid || !resourceloaded'>
+            <div ng-hide='milestoneResourceValid'>
                 <div class="alert alert-info">
                     <strong>INFO: </strong> the plot cannot be displayed because some dates are missing in the Milestone
                     table.
                     See this <a
-                        data-ng-click="openNewTab('http://confluence.broadcom.com/display/SWITCHPM/No+resource+plot ')">link</a>
+                        ng-click="openNewTab('http://confluence.broadcom.com/display/SWITCHPM/No+resource+plot')">link</a>
                     for more info.
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="block block-bordered">
-        <div class="block-header">
-            <ul class="block-options" data-ng-show="resourceloaded">
-                <li>
-                    <button class='btn btn-info btn-xs' ng-click="exportResourceSkillTableData()">To Excel</button>
-                </li>
-            </ul>
-            <h3 class="block-title">By Skill
-                <small data-ng-hide='resourceloaded'>Loading...</small>
-            </h3>
-        </div>
-        <div class="block-content" data-ng-show='resourceloaded'>
-            <div data-ng-show='milestoneResourceValid'>
-                <div class="row">
-                    <table class="table table-bordered table-condensed table-header-bg" id='resourceSkillCompareTable'>
-                        <thead>
+        </md-card-content>
+    </md-card>
+    <md-card ng-show='milestoneResourceValid'>
+        <md-card-title>
+            <md-card-title-text>
+                <div layout="row">
+                    <span class="md-title">Chart</span>
+                </div>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content>
+            <div>
+                <highchart id="resourceDashboardTrendChart" config="resourceMonthlyChartConfig"
+                           style="height: 400px; margin: 0 auto"></highchart>
+            </div>
+        </md-card-content>
+    </md-card>
+    <md-card ng-show='milestoneResourceValid'>
+        <md-card-title>
+            <md-card-title-text>
+                <div layout="row">
+                    <span class="md-title">Skill Report</span>
+                    <span flex></span>
+                    <a class='md-primary' ng-click="exportResourceSkillTableData()">To Excel</a>
+                </div>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content>
+            <div>
+                <table class="table table-bordered table-condensed table-header-bg" id='resourceSkillCompareTable'>
+                    <thead>
                         <tr>
                             <th rowspan="2" style='text-align:center; width:10%;'>Skill</th>
                             <th colspan="3" style='text-align:center; width: 45%;'>Current Month</th>
@@ -91,18 +90,125 @@
                             <th style='text-align:center;width:15%;'>POR</th>
                             <th style='text-align:center;width:15%;'>DELTA</th>
                         </tr>
-                        </thead>
-                        <tbody>
+                    </thead>
+                    <tbody>
                         <tr ng-repeat="(key, arr) in skillTable  track by $index">
                             <th>{{key|formatResourceSkillName}}</th>
                             <td ng-repeat="(k, v) in arr['data'] track by $index" style='text-align:center;'
                                 data-ng-bind-html="trustAsHtml(v)">
                             </td>
                         </tr>
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
-        </div>
-    </div>
+        </md-card-content>
+    </md-card>
 </div>
+<!--<div class="row">-->
+<!--<div class="block block-bordered">-->
+<!--<div class="block-header">-->
+<!--<ul class="block-options" data-ng-show="resourceloaded"-->
+<!--data-ng-if="permission.authority=='pm' || permission.authority=='ipm' ||  permission.authority=='admin'">-->
+<!--<li>-->
+<!--<a data-ng-click="openNewTab('http://confluence.broadcom.com/display/SWITCHPM/Detailed+Resources')">-->
+<!--<i class="fa fa-question-circle fa-fw fa-2x"></i>-->
+<!--</a>-->
+<!--</li>-->
+<!--<li ng-show='milestoneResourceValid' style='margin-right:10px'>-->
+<!--<button type='button' class='btn btn-info btn-xs' ngf-select ngf-change="uploadResource($files)"-->
+<!--ngf-multiple="multiple"><strong>Upload Resource File</strong></button>-->
+<!--</li>-->
+<!--<li style='margin-right:10px'>-->
+<!--<a type='button' class='btn btn-xs'-->
+<!--href="http://confluence.broadcom.com/download/attachments/373374404/resource_template.xlsx?api=v2">Download-->
+<!--Template</a>-->
+<!--</li>-->
+<!--</ul>-->
+<!--<h3 class="block-title">Detail Resource Summary-->
+<!--<small data-ng-hide='resourceloaded'>Loading...</small>-->
+<!--<small data-ng-show='resourceloaded' data-ng-bind-html="trustAsHtml(resourceTimestamp)"></small>-->
+<!--</h3>-->
+<!--</div>-->
+<!--<div class="block-content" data-ng-show='resourceloaded'>-->
+<!--<div data-ng-show='milestoneResourceValid'>-->
+<!--<div class="row">-->
+<!--<table class='table table-bordered table-condensed table-header-bg'>-->
+<!--<thead>-->
+<!--<tr>-->
+<!--<th style='width: 10%'>&nbsp;</th>-->
+<!--<th style='width: 18%'>Pre PC</th>-->
+<!--<th style='width: 18%'>PC-T/O</th>-->
+<!--<th style='width: 18%'>T/O - PRA</th>-->
+<!--<th style='width: 18%'>Post PRA</th>-->
+<!--<th style='width: 18%'>Total</th>-->
+<!--</tr>-->
+<!--</thead>-->
+<!--<tbody>-->
+<!--<tr data-ng-repeat="(type, arr) in resources">-->
+<!--<td data-ng-repeat="r in arr | orderBy: 'order'" ng-bind-html='trustAsHtml(r.value)'></td>-->
+<!--</tr>-->
+<!--</tbody>-->
+<!--</table>-->
+<!--</div>-->
+<!--<div class="row">-->
+<!--<highchart id="resourceDashboardTrendChart" config="resourceMonthlyChartConfig"-->
+<!--style="height: 400px; margin: 0 auto"></highchart>-->
+<!--</div>-->
+<!--</div>-->
+<!--<div data-ng-hide='milestoneResourceValid || !resourceloaded'>-->
+<!--<div class="alert alert-info">-->
+<!--<strong>INFO: </strong> the plot cannot be displayed because some dates are missing in the Milestone-->
+<!--table.-->
+<!--See this <a-->
+<!--data-ng-click="openNewTab('http://confluence.broadcom.com/display/SWITCHPM/No+resource+plot ')">link</a>-->
+<!--for more info.-->
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->
+<!--<div class="row">-->
+<!--<div class="block block-bordered">-->
+<!--<div class="block-header">-->
+<!--<ul class="block-options" data-ng-show="resourceloaded">-->
+<!--<li>-->
+<!--<button class='btn btn-info btn-xs' ng-click="exportResourceSkillTableData()">To Excel</button>-->
+<!--</li>-->
+<!--</ul>-->
+<!--<h3 class="block-title">By Skill-->
+<!--<small data-ng-hide='resourceloaded'>Loading...</small>-->
+<!--</h3>-->
+<!--</div>-->
+<!--<div class="block-content" data-ng-show='resourceloaded'>-->
+<!--<div data-ng-show='milestoneResourceValid'>-->
+<!--<div class="row">-->
+<!--<table class="table table-bordered table-condensed table-header-bg" id='resourceSkillCompareTable'>-->
+<!--<thead>-->
+<!--<tr>-->
+<!--<th rowspan="2" style='text-align:center; width:10%;'>Skill</th>-->
+<!--<th colspan="3" style='text-align:center; width: 45%;'>Current Month</th>-->
+<!--<th colspan="3" style='text-align:center; width:45%;'>Accumulative</th>-->
+<!--</tr>-->
+<!--<tr>-->
+<!--<th style='text-align:center; width:15%;'>Actual</th>-->
+<!--<th style='text-align:center;width:15%;'>POR</th>-->
+<!--<th style='text-align:center;width:15%;'>DELTA</th>-->
+<!--<th style='text-align:center;width:15%;'>Actual</th>-->
+<!--<th style='text-align:center;width:15%;'>POR</th>-->
+<!--<th style='text-align:center;width:15%;'>DELTA</th>-->
+<!--</tr>-->
+<!--</thead>-->
+<!--<tbody>-->
+<!--<tr ng-repeat="(key, arr) in skillTable  track by $index">-->
+<!--<th>{{key|formatResourceSkillName}}</th>-->
+<!--<td ng-repeat="(k, v) in arr['data'] track by $index" style='text-align:center;'-->
+<!--data-ng-bind-html="trustAsHtml(v)">-->
+<!--</td>-->
+<!--</tr>-->
+<!--</tbody>-->
+<!--</table>-->
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->

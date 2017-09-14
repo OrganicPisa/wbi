@@ -24,11 +24,15 @@ import java.util.*;
 @Service
 public class IndicatorGroupSearchServiceImpl implements IndicatorGroupSearchService {
 
-    @Autowired
-    private IndicatorGroupSearchRepository repo;
+    private final IndicatorGroupSearchRepository repo;
+
+    private final ElasticsearchTemplate template;
 
     @Autowired
-    private ElasticsearchTemplate template;
+    public IndicatorGroupSearchServiceImpl(IndicatorGroupSearchRepository repo, ElasticsearchTemplate template) {
+        this.repo = repo;
+        this.template = template;
+    }
 
     @Override
     public IndicatorGroupSearch saveOrUpdate(IndicatorGroupSearch ig) {

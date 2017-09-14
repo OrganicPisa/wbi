@@ -153,7 +153,7 @@ App.controller('ReportCtrl', function ($scope, $rootScope, $filter, $http, $sce,
                     }
                 });
         }, 10)
-    }
+    };
 
     $scope.exportDataToExcel = function (id, title, fname) {
         var uri = 'data:application/vnd.ms-excel;base64,'
@@ -166,7 +166,7 @@ App.controller('ReportCtrl', function ($scope, $rootScope, $filter, $http, $sce,
                 return s.replace(/{(\w+)}/g, function (m, p) {
                     return c[p];
                 })
-            }
+            };
 
         var table = document.getElementById(id);
         var ctx = {worksheet: name || title, table: table.innerHTML};
@@ -188,7 +188,7 @@ App.controller('ReportCtrl', function ($scope, $rootScope, $filter, $http, $sce,
                 return s.replace(/{(\w+)}/g, function (m, p) {
                     return c[p];
                 })
-            }
+            };
 
         var ctx = {worksheet: name || title, table: html};
         var url = uri + base64(format(template, ctx));
@@ -1021,7 +1021,7 @@ App.controller('ReportCtrl', function ($scope, $rootScope, $filter, $http, $sce,
                         });
                 }, 100);
 
-            }
+            };
 
             function formatMilestone(ml) {
                 var ele = angular.element("<div>" + ml + "</div>");
@@ -1072,11 +1072,9 @@ App.controller('ReportCtrl', function ($scope, $rootScope, $filter, $http, $sce,
                                             }
                                             else if (angular.element(type[0]).text().match(/next steps/i)) {
                                                 obj['next step'] = angular.element(uls).text().replace(/(<([^>]+)>)/ig, '').replace(/\n/g, '');
-                                                ;
                                             }
                                             else if (angular.element(type[0]).text().match(/chip affect/i)) {
                                                 obj['chip'] = angular.element(uls).text().replace(/(<([^>]+)>)/ig, '').replace(/\n/g, '');
-                                                ;
                                             }
                                         }
                                     });

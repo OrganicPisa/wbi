@@ -20,10 +20,14 @@ import java.util.concurrent.Callable;
 @RequestMapping("/api/user")
 public class EmployeeController {
 
+    private final EmployeeService employeeService;
+    private final RevisionService revisionService;
+
     @Autowired
-    private EmployeeService employeeService;
-    @Autowired
-    private RevisionService revisionService;
+    public EmployeeController(EmployeeService employeeService, RevisionService revisionService) {
+        this.employeeService = employeeService;
+        this.revisionService = revisionService;
+    }
 
     @RequestMapping(value = {"/getBookmarks"}, method = {RequestMethod.GET})
     public Callable<List> getBookmarks(HttpServletRequest req) {

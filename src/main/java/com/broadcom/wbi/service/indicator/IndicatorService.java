@@ -1,9 +1,13 @@
 package com.broadcom.wbi.service.indicator;
 
+import com.broadcom.wbi.model.mysql.IGroup;
+import com.broadcom.wbi.model.mysql.Revision;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
 
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +61,7 @@ public interface IndicatorService {
 
     List getIndicatorByCategory(int gid, DateTime dt);
 
-    Map<String, String> getKeyProjectDate(int rid);
+    Map<String, DateTime> getKeyProjectDate(int rid);
 
     /***************************************************************************
      *
@@ -78,5 +82,20 @@ public interface IndicatorService {
      ***************************************************************************/
 
     List getSWHeadlineList(int pid);
+
+    /***************************************************************************
+     *
+     * Create new
+     *
+     ***************************************************************************/
+
+    void createNewIndicatorFromTemplate(Revision rev, String programType);
+
+    void cloneIndicatorFromAnotherRevision(Revision oldRev, Revision rev);
+
+    void cloneIndicatorFromAnotherCategory(IGroup iGroup, Revision rev);
+
+    @Async
+    void cloneAsyncIndicatorFromAnotherCategory(IGroup iGroup, Revision rev, Authentication authentication);
 
 }

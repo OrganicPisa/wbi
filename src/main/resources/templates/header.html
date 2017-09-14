@@ -27,9 +27,45 @@
                             </md-menu-divider>
                             <md-menu-item
                                     ng-show="authority=='admin' || authority=='pm' || authority =='ipm' || authority=='cpm' || authority=='ippm'">
-                                <md-button ui-sref="program({ptype:'new',pid:0, rid:0, page:'select'})">
-                                    <span>Create New</span>
-                                </md-button>
+                                <md-menu>
+                                    <md-button ng-click="$mdMenu.open()">
+                                        Create New
+                                    </md-button>
+                                    <md-menu-content width="2">
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="newProgram({ page:'internalprogram'})">
+                                                Internal Program
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="newProgram({page:'internalrevision'})">
+                                                Internal Revision
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-divider></md-menu-divider>
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="newProgram({ page:'customerprogram'})">
+                                                Customer Program
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-divider></md-menu-divider>
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="newProgram({ page:'ipprogram'})">
+                                                IP Program
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button
+                                                    ui-sref="newProgram({page:'iprevision'})">
+                                                IP Revision
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
                             </md-menu-item>
                         </md-menu-content>
                     </md-menu>
@@ -39,7 +75,7 @@
                         </button>
                         <md-menu-content width="4">
                             <md-menu-item>
-                                <md-button ui-sref="report({rtype:'indicator',type:'milestone', page:'email'})">
+                                <md-button ui-sref="indicatorReport({page:'email', type: 'milestone'})">
                                     Weekly Indicator Email
                                 </md-button>
                             </md-menu-item>
@@ -52,18 +88,18 @@
                                     <md-menu-content width="2">
                                         <md-menu-item>
                                             <md-button
-                                                    ui-sref="report({rtype:'indicator',type:'headline', page:'internal'})">
+                                                    ui-sref="indicatorReport({ page:'internal', type:'headline'})">
                                                 Internal Projects
                                             </md-button>
                                         </md-menu-item>
                                         <md-menu-item>
                                             <md-button
-                                                    ui-sref="report({rtype:'indicator',type:'headline', page:'customer'})">
+                                                    ui-sref="indicatorReport({page:'customer', type:'headline'})">
                                                 Customer Projects
                                             </md-button>
                                         </md-menu-item>
                                         <md-menu-item>
-                                            <md-button ui-sref="report({rtype:'indicator',type:'headline', page:'ip'})">
+                                            <md-button ui-sref="indicatorReport({page:'ip', type:'headline'})">
                                                 IP Projects
                                             </md-button>
                                         </md-menu-item>
@@ -78,19 +114,19 @@
                                     <md-menu-content width="2">
                                         <md-menu-item>
                                             <md-button
-                                                    ui-sref="report({rtype:'indicator',type:'milestone', page:'internal'})">
+                                                    ui-sref="indicatorReport({page:'internal', type:'milestone'})">
                                                 Internal Projects
                                             </md-button>
                                         </md-menu-item>
                                         <md-menu-item>
                                             <md-button
-                                                    ui-sref="report({rtype:'indicator',type:'milestone', page:'customer'})">
+                                                    ui-sref="indicatorReport({page:'customer', type:'milestone'})">
                                                 Customer Projects
                                             </md-button>
                                         </md-menu-item>
                                         <md-menu-item>
                                             <md-button
-                                                    ui-sref="report({rtype:'indicator',type:'milestone', page:'ip'})">
+                                                    ui-sref="indicatorReport({page:'ip', type:'milestone'})">
                                                 IP Projects
                                             </md-button>
                                         </md-menu-item>
@@ -105,13 +141,13 @@
                                     <md-menu-content width="2">
                                         <md-menu-item>
                                             <md-button
-                                                    ui-sref="report({rtype:'indicator',type:'milestone', page:'pra'})">
+                                                    ui-sref="indicatorReport({page:'pra', type:'milestone'})">
                                                 PRA Milestones
                                             </md-button>
                                         </md-menu-item>
                                         <md-menu-item>
                                             <md-button
-                                                    ui-sref="report({rtype:'indicator',type:'milestone', page:'htol'})">
+                                                    ui-sref="indicatorReport({page:'htol', type:'milestone'})">
                                                 HTOL Milestones
                                             </md-button>
                                         </md-menu-item>
@@ -127,13 +163,13 @@
                                     <md-menu-content width="2">
                                         <md-menu-item>
                                             <md-button
-                                                    ui-sref="report({rtype:'indicator',type:'information', page:'internal'})">
+                                                    ui-sref="indicatorReport({page:'internal', type:'information'})">
                                                 Internal Projects
                                             </md-button>
                                         </md-menu-item>
                                         <md-menu-item>
                                             <md-button
-                                                    ui-sref="report({rtype:'indicator',type:'information', page:'customer'})">
+                                                    ui-sref="indicatorReport({page:'customer', type:'information'})">
                                                 Customer Projects
                                             </md-button>
                                         </md-menu-item>
@@ -148,13 +184,13 @@
                         </button>
                         <md-menu-content width="4">
                             <md-menu-item>
-                                <md-button ui-sref="report({rtype:'resource',type:'collect', page:'dashboard'})">
+                                <md-button ui-sref="resourceReport({page:'dashboard'})">
                                     Dashboard
                                 </md-button>
                             </md-menu-item>
                             <md-menu-divider></md-menu-divider>
                             <md-menu-item>
-                                <md-button ui-sref="report({rtype:'resource',type:'collect', page:'projectgrouping'})">
+                                <md-button ui-sref="resourceReport({page:'projectgrouping'})">
                                     AOP
                                 </md-button>
                             </md-menu-item>
@@ -167,19 +203,19 @@
                                     <md-menu-content width="2">
                                         <md-menu-item>
                                             <md-button
-                                                    ui-sref="report({rtype:'resource',type:'collect', page:'project'})">
+                                                    ui-sref="resourceReport({page:'project'})">
                                                 By Projects
                                             </md-button>
                                         </md-menu-item>
                                         <md-menu-item>
                                             <md-button
-                                                    ui-sref="report({rtype:'resource',type:'collect', page:'skill'})">
+                                                    ui-sref="resourceReport({ page:'skill'})">
                                                 By Skill
                                             </md-button>
                                         </md-menu-item>
                                         <md-menu-item>
                                             <md-button
-                                                    ui-sref="report({rtype:'resource',type:'collect', page:'manager'})">
+                                                    ui-sref="resourceReport({page:'manager'})">
                                                 By Manager
                                             </md-button>
                                         </md-menu-item>
@@ -195,7 +231,7 @@
                                     <md-menu-content width="2">
                                         <md-menu-item>
                                             <md-button
-                                                    ui-sref="report({rtype:'resource',type:'collect', page:'settings'})">
+                                                    ui-sref="resourceReport({page:'settings'})">
                                                 Project Grouping Settings
                                             </md-button>
                                         </md-menu-item>
@@ -209,6 +245,32 @@
                             </md-menu-item>
                         </md-menu-content>
                     </md-menu>
+                    <md-menu>
+                        <button ng-click="$mdMenu.open()">
+                            <span style='font-size:16px;'>Help</span>
+                        </button>
+                        <md-menu-content width="4">
+                            <md-menu-item>
+                                <md-button
+                                        ng-click="openNewTab('http://confluence.broadcom.com/display/SWITCHPM/WBI+3.0')">
+                                    <span>Document</span>
+                                </md-button>
+                            </md-menu-item>
+                            <md-menu-item>
+                                <md-button
+                                        ng-click="openNewTab('http://confluence.broadcom.com/display/SWITCHPM/WBI+3.0')">
+                                    <span>Release Notes</span>
+                                </md-button>
+                            </md-menu-item>
+                            <md-menu-divider></md-menu-divider>
+                            <md-menu-item>
+                                <md-button
+                                        ng-click="openNewTab('http://ingjira.sj.broadcom.com/secure/CreateIssue!default.jspa')">
+                                    <span>Feedback (Bug / Idea)</span>
+                                </md-button>
+                            </md-menu-item>
+                        </md-menu-content>
+                    </md-menu>
                 </md-menu-bar>
             </div>
         </div>
@@ -217,7 +279,7 @@
                 <md-autocomplete md-input-name="autocomplete"
                                  md-input-minlength="3" md-input-maxlength="128"
                                  md-delay="10" md-selected-item="selectedItem"
-                                 md-search-text="searchText" md-item-text="item.num"
+                                 md-search-text="searchText" md-item-text="item.pname"
                                  md-menu-class="autocomplete-custom-template"
                                  md-selected-item-change="selectedItemChange(item)"
                                  md-items="item in searchProgram(searchText)"

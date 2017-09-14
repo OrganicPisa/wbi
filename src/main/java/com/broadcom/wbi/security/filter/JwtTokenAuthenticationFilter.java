@@ -9,7 +9,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -18,11 +17,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -67,12 +63,10 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
     public Authentication buildAuthenticationFromJwt(String token, HttpServletRequest request) {
 
-
-        Claims claims = JwtTokenHandler.getClaimsFromToken(token);
-        //get username
-        String username = claims.getSubject();
-
         try {
+            Claims claims = JwtTokenHandler.getClaimsFromToken(token);
+            //get username
+            String username = claims.getSubject();
             //get roles
 
             Collection<? extends GrantedAuthority> authorities = JwtTokenHandler.parseRolesFromToken(claims);

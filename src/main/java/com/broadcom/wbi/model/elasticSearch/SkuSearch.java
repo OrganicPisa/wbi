@@ -12,7 +12,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-@Document(indexName = "skuidx", type = "skusearch", refreshInterval = "-1")
+@Document(indexName = "skuidx", type = "skusearch", refreshInterval = "-1", shards = 1, replicas = 0)
 public class SkuSearch implements Serializable {
     @Id
     private String id;
@@ -23,7 +23,7 @@ public class SkuSearch implements Serializable {
     @Field(type = FieldType.String, index = FieldIndex.not_analyzed)
     private String programName;
 
-    @Field(type = FieldType.Integer)
+    @Field(type = FieldType.Long)
     private Integer program;
 
     @Field(type = FieldType.String, index = FieldIndex.analyzed)

@@ -1,92 +1,82 @@
 <!-- Sidebar Scroll Container -->
-<div id="sidebar-scroll">
-    <div class="sidebar-content">
-        <!-- Side Content -->
-        <div class="side-content">
-            <ul class="nav-main">
-                <li class="nav-main-heading"><span class="sidebar-mini-hide">Headlines</span></li>
-                <li>
-                    <a ui-sref="report({rtype:'indicator', type:'headline', page:'internal'})">
-                        <i class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Internal</span>
-                    </a>
-                </li>
-                <li>
-                    <a ui-sref="report({rtype:'indicator',type:'headline', page:'customer'})">
-                        <i class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Customer</span>
-                    </a>
-                </li>
-                <li>
-                    <a ui-sref="report({rtype:'indicator',type:'headline', page:'ip'})">
-                        <i class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">IP</span>
-                    </a>
-                </li>
-                <li class="nav-main-heading"><span class="sidebar-mini-hide">Milestones</span></li>
-                <li>
-                    <a ui-sref="report({rtype:'indicator',type:'milestone', page:'email'})">
-                        <i class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">All (Email)</span>
-                    </a>
-                </li>
-                <li>
-                    <a ui-sref="report({rtype:'indicator',type:'milestone', page:'internal'})">
-                        <i class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Internal</span>
-                    </a>
-                </li>
-                <li>
-                    <a ui-sref="report({rtype:'indicator',type:'milestone', page:'customer'})">
-                        <i class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Customer</span>
-                    </a>
-                </li>
-                <li>
-                    <a ui-sref="report({rtype:'indicator',type:'milestone', page:'ip'})">
-                        <i class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">IP</span>
-                    </a>
-                </li>
-                <li class="nav-main-heading"><span class="sidebar-mini-hide">Others</span></li>
-                <li>
-                    <a ui-sref="report({rtype:'indicator',type:'milestone', page:'pra'})">
-                        <i class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">PRA</span>
-                    </a>
-                </li>
-                <li>
-                    <a ui-sref="report({rtype:'indicator',type:'milestone', page:'htol'})">
-                        <i class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">HTOL</span>
-                    </a>
-                </li>
-                <li ng-if="permission.authority=='cpm' || permission.authority=='ipm' || permission.authority=='pm' || permission.authority=='admin'"
-                    class="nav-main-heading"><span class="sidebar-mini-hide">Information</span></li>
-                <li ng-if="permission.authority=='ipm' || permission.authority=='pm' || permission.authority=='admin'">
-                    <a ui-sref="report({rtype:'indicator', type:'information', page:'internal'})">
-                        <i class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Internal</span>
-                    </a>
-                </li>
-                <li ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
-                    <a ui-sref="report({rtype:'indicator',type:'information', page:'customer'})">
-                        <i class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Customer</span>
-                    </a>
-                </li>
-                <li ng-if="permission.authority=='pm' || permission.authority=='admin'" class="nav-main-heading"><span
-                        class="sidebar-mini-hide">Outlook</span></li>
-                <li ng-if="permission.authority=='pm' || permission.authority=='admin'">
-                    <a ui-sref="report({rtype:'indicator',type:'outlook', page:'internal'})">
-                        <i class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Internal</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <!-- END Side Content -->
-    </div>
-    <!-- Sidebar Content -->
-</div>
-<!-- END Sidebar Scroll Container -->
+<style type="text/css">
+    md-list-item, md-list-item .md-list-item-inner {
+        max-height: 30px !important;
+    }
+</style>
+<md-content>
+    <md-list flex>
+        <md-subheader><h6>Headline</h6></md-subheader>
+        <md-list-item>
+            <a ui-sref="indicatorReport({page:'internal', type:'headline'})">
+                <p>Internal</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="indicatorReport({page:'customer', type:'headline'})">
+                <p>Customer</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="indicatorReport({page:'ip', type:'headline'})">
+                <p>IP</p>
+            </a>
+        </md-list-item>
+
+        <md-subheader><h6>Milestones</h6></md-subheader>
+        <md-list-item>
+            <a ui-sref="indicatorReport({page:'email', type:'milestone'})">
+                <p>All (Email)</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="indicatorReport({page:'internal', type:'milestone'})">
+                <p>Internal</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="indicatorReport({page:'customer', type:'milestone'})">
+                <p>Customer</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="indicatorReport({page:'ip', type:'milestone'})">
+                <p>IP</p>
+            </a>
+        </md-list-item>
+
+        <md-subheader><h6>Others</h6></md-subheader>
+        <md-list-item>
+            <a ui-sref="indicatorReport({page:'pra', type:'milestone'})">
+                <p>PRA</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="indicatorReport({page:'htol', type:'milestone'})">
+                <p>HTOL</p>
+            </a>
+        </md-list-item>
+        <md-subheader><h6>Information</h6></md-subheader>
+        <md-list-item>
+            <a ui-sref="indicatorReport({page:'internal', type:'information'})">
+                <p>Internal</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="indicatorReport({page:'customer', type:'information'})">
+                <p>Customer</p>
+            </a>
+        </md-list-item>
+        <md-subheader><h6>Outlook</h6></md-subheader>
+        <md-list-item>
+            <a ui-sref="indicatorReport({page:'internal', type:'outlook'})">
+                <p>Internal</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="indicatorReport({page:'customer', type:'outlook'})">
+                <p>Customer</p>
+            </a>
+        </md-list-item>
+    </md-list>
+</md-content>

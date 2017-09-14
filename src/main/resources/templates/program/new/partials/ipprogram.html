@@ -1,82 +1,65 @@
-<div class='row'>
-    <div class="col-md-6 col-md-offset-4 col-lg-6 col-lg-offset-4">
-        <h2>Create New IP Program</h2>
-    </div>
-</div>
-<div class="row">
-    <form class="form-horizontal" role="form" data-ng-submit="submitIPForm(ipForm.$valid)" novalidate name='ipForm'>
-        <div class="col-md-12 col-lg-9 col-lg-offset-2">
-            <div class="block">
-                <div class="block-header">
-                    <h3 class="block-title">IP Information</h3>
+<div layout="column" layout-padding>
+    <md-card>
+        <md-card-title>
+            <md-card-title-text>
+                <div layout="row">
+                    <span class="md-title">New IP Program</span>
                 </div>
-                <div class="block-content block-content-narrow">
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="name">IP Name <span
-                                class="text-danger">*</span></label>
-                        <div class="col-md-6"
-                             data-ng-class="{'has-error':ipForm.name.$invalid && (ipForm.name.$dirty || ipForm.$submitted)}">
-                            <input class='form-control' ng-model='ip.pname' name='name' type='text'
-                                   placeholder='IP name' tabindex='1' autocomplete="off"
-                                   required minlength="2" maxlength="100" ng-unique-program="ip.pname">
-                            <p class="help-block"
-                               ng-show="ipForm.name.$error.required && (ipForm.name.$dirty || ipForm.$submitted)">
-                                Required</p>
-                            <p class="help-block"
-                               ng-show="ipForm.name.$error.minlength && (ipForm.name.$dirty || ipForm.$submitted)">Min 2
-                                Characters</p>
-                            <p class="help-block"
-                               ng-show="ipForm.name.$error.maxlength && (ipForm.name.$dirty || ipForm.$submitted)">Max
-                                100 characters</p>
-                            <p class="help-block"
-                               ng-show="ipForm.name.$error.programUnique && (ipForm.name.$dirty || ipForm.$submitted)">
-                                Already Registered</p>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content>
+            <form role="form" data-ng-submit="submitIPForm(ipForm.$valid)" novalidate name='ipForm'>
+                <div layout-gt-xs="column">
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <label>Program Name</label>
+                        <input ng-model='ip.pname' name='pname' type='text'
+                               autocomplete="off" required minlength="3" maxlength="128" ng-unique-program="ip.pname">
+                        <div ng-messages="ipForm.pname.$error">
+                            <p ng-message="required">Required</p>
+                            <p ng-message="minlength">Min 3 Characters</p>
+                            <p ng-message="maxlength">Max 128 Characters</p>
+                            <p ng-message="programUnique">Already registered</p>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="rev">Revision Name <span class="text-danger">*</span></label>
-                        <div class="col-md-6"
-                             ng-class="{'has-error':ipForm.rev.$invalid && (ipForm.rev.$dirty || ipForm.$submitted)}">
-                            <input class='form-control' ng-model='ip.rname' name='rev' type='text'
-                                   placeholder='IP Revision name' tabindex='2'
-                                   autocomplete="off" required minlength="1">
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <label>Revision</label>
+                        <input name='rev' ng-model='ip.rname' type='text' required ng-minlength="1" ng-maxlength="128">
+                        <div ng-messages="ipForm.rname.$error">
+                            <p ng-message="required">Required</p>
+                            <p ng-message="minlength">Min 1 Character</p>
+                            <p ng-message="maxlength">Max 128 Characters</p>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="technology">Technology <span
-                                class="text-danger">*</span></label>
-                        <div class="col-md-3"
-                             ng-class="{'has-error':ipForm.technology.$invalid && (ipForm.technology.$dirty || ipForm.$submitted)}">
-                            <select tabindex='5' class='form-control' ng-model='ip.info.technology'
-                                    data-ng-options="key for (key, value) in ipselecttemplate.technology"
-                                    required></select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="category">Category <span class="text-danger">*</span></label>
-                        <div class="col-md-3"
-                             ng-class="{'has-error':ipForm.category.$invalid && (ipForm.category.$dirty || ipForm.$submitted)}">
-                            <select tabindex='5' class='form-control' ng-model='ip.info.category'
-                                    data-ng-options="key for (key, value) in ipselecttemplate.category"
-                                    required></select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="type">Type <span class="text-danger">*</span></label>
-                        <div class="col-md-3"
-                             ng-class="{'has-error':ipForm.type.$invalid && (ipForm.type.$dirty || ipForm.$submitted)}">
-                            <select tabindex='5' class='form-control' ng-model='ip.info.type'
-                                    data-ng-options="key for (key, value) in ipselecttemplate.type" required></select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary btn-block" data-ng-disabled="ipForm.$invalid"
-                                tabindex='25' data-ng-click='submitted=true'>Submit
-                        </button>
-                    </div>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <label>Technology</label>
+                        <md-select name="type" ng-model="ip.info.technology" required aria-label="technology">
+                            <md-option ng-repeat="(key,value) in ipDropDownTemplate.technology " ng-value="value">
+                                {{key}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <label>Category</label>
+                        <md-select name="type" ng-model="ip.info.category" required aria-label="category">
+                            <md-option ng-repeat="(key,value) in ipDropDownTemplate.category " ng-value="value">
+                                {{key}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <label>Technology</label>
+                        <md-select name="type" ng-model="ip.info.type" required aria-label="type">
+                            <md-option ng-repeat="(key,value) in ipDropDownTemplate.type " ng-value="value">{{key}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <md-button type="submit" class="btn btn-primary btn-block" data-ng-disabled="ipForm.$invalid"
+                                   tabindex='25' data-ng-click='submitted=true'>Submit
+                        </md-button>
+                    </md-input-container>
                 </div>
-            </div>
-        </div>
-    </form>
+            </form>
+        </md-card-content>
+    </md-card>
 </div>

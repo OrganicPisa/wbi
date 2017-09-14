@@ -16,6 +16,13 @@
         color: blue
     }
 </style>
+<md-toolbar md-scroll-shrink class="md-menu-toolbar" hide-gt-md>
+    <div class="md-toolbar-tools">
+        <button class="md-icon-button md-button" ng-click="openSideMenu()" aria-label="Toggle Menu">
+            <i class="material-icons">chrome_reader_mode</i>
+        </button>
+    </div>
+</md-toolbar>
 <div class="md-padding">
     <md-card>
         <md-card-content>
@@ -38,6 +45,21 @@
                     </md-select>
                 </md-input-container>
                 <md-input-container>
+                    <label>Employee Type</label>
+                    <md-select ng-model='rs.employeeType'>
+                        <md-option value='all'>ALL</md-option>
+                        <md-option value='fte'>FTE</md-option>
+                        <md-option value='contractor'>Contractor</md-option>
+                    </md-select>
+                </md-input-container>
+                <md-input-container>
+                    <md-checkbox ng-model="rs.filterChargedFrom" aria-label="Charged From Filter"
+                                 ng-true-value="'XGS,DNX,NWSOFT'"
+                                 ng-false-value="'None'" flex>
+                        Filter: {{rs.filterChargedFrom}}
+                    </md-checkbox>
+                </md-input-container>
+                <md-input-container>
                     <md-button ng-click='generateMonthlyProjectReport()'>Submit</md-button>
                 </md-input-container>
             </div>
@@ -48,8 +70,8 @@
             <h1 class="md-title">Project Data</h1>
             <div layout="row">
                 <div id="site-div" class='table-responsive gridWidthWrapper'>
-                    <div ui-grid="monthlyGridOptions" ui-grid-grouping ui-grid-exporter ui-grid-resize-columns
-                         ui-grid-move-columns ui-grid-auto-resize class="gridStyle"></div>
+                    <div ui-grid="monthlyGridOptions" ui-grid-exporter ui-grid-resize-columns ui-grid-auto-resize
+                         class="gridStyle"></div>
                 </div>
             </div>
         </md-card-content>

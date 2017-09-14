@@ -5,6 +5,7 @@ import com.broadcom.wbi.model.mysql.Program;
 import com.broadcom.wbi.model.mysql.Revision;
 import org.joda.time.DateTime;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface RevisionService extends CRUDService<Revision> {
@@ -24,5 +25,7 @@ public interface RevisionService extends CRUDService<Revision> {
     boolean isEmployeeBookmark(Revision rev, Employee empl);
 
     List<Revision> findByUpdateTime(DateTime dt);
+
+    Revision createNewRevision(final HashMap map, final Program program);
 
 }

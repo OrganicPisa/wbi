@@ -21,10 +21,10 @@ public class ResourcePlanSearch implements Serializable {
     @Field(type = FieldType.Integer, store = true)
     Integer program;
 
-    @Field(type = FieldType.String, index = FieldIndex.analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.String, index = FieldIndex.analyzed, store = true)
     String skill;
 
-    @Field(type = FieldType.String, index = FieldIndex.analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.String, index = FieldIndex.analyzed, store = true)
     String plan_type;
 
     @Field(type = FieldType.Date, index = FieldIndex.analyzed, store = true)

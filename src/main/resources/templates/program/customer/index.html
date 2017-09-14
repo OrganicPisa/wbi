@@ -1,53 +1,133 @@
-<nav data-ng-include="'/program/customer/sidebar'" id="sidebar"></nav>
-<main id="main-container">
-    <div class="content bg-gray-lighter">
-        <div class="row">
-            <div class="col-sm-7">
-                <h3 class="page-heading">
-					<span style='font-size: 18px;'>
-						<a href="/">CUSTOMER</a>
+<!--<nav ng-include="'/program/chip/sidebar'" id="sidebar"></nav>-->
+<!-- Buttons Variations -->
+<style type="text/css">
+    a {
+        padding-left: 10px;
+    }
+
+    md-card-title {
+        padding-top: 10px !important;
+        padding-left: 10px !important;
+        max-height: 40px !important;
+
+    }
+
+    md-card {
+        margin-bottom: 1px !important;
+        margin-left: 1px !important;
+    }
+
+    md-card-content {
+        padding-bottom: 1px !important;
+    }
+
+    md-card-actions {
+        margin-bottom: 1px !important;
+        margin-top: 1px !important;
+    }
+
+    p {
+        margin-bottom: 1px !important;
+    }
+
+    .editable-wrap {
+        display: block;
+        white-space: nowrap;
+        margin: 0;
+        width: 100%;
+    }
+
+    .editable-wrap .editable-controls, .editable-wrap .editable-error {
+        width: 100% !important;
+        margin: 0px !important;
+    }
+
+    .editable-wrap .editable-controls > input {
+        margin-bottom: 0;
+        margin-top: 2px;
+        width: -moz-calc(100% - 2px);
+        width: -webkit-calc(100% - 2px);
+        width: calc(100% - 2px);
+    }
+
+    .editable-wrap .editable-controls > textarea {
+        margin-bottom: 0;
+        margin-top: 5px;
+        width: -moz-calc(100% - 20px);
+        width: -webkit-calc(100% - 20px);
+        width: calc(100% - 20px);
+    }
+
+    .editable-error {
+        text-color: red;
+    }
+
+    md-select {
+        margin-top: 0px !important;
+    }
+
+    .md-subhead {
+        padding-top: 5px !important;
+        padding-left: 10px !important;
+    }
+</style>
+
+<section layout="row" flex>
+    <md-sidenav class="md-sidenav-left"
+                md-component-id="left"
+                md-is-locked-open="$mdMedia('gt-md')" style="width:200px!important;"
+                md-whiteframe="4" ng-include="'/program/customer/sidebar'">
+    </md-sidenav>
+    <div layout="column" flex>
+        <md-toolbar md-scroll-shrink class="md-menu-toolbar">
+            <div class="md-toolbar-tools">
+                <button class="md-icon-button md-button" hide-gt-md ng-click="openSideMenu()" aria-label="Toggle Menu">
+                    <i class="material-icons">chrome_reader_mode</i>
+                </button>
+                <h4 flex md-truncate>
+                    <span style='font-size: 18px;'>
+						<a href="/">{{(segment|uppercase)}}</a>
 						<i class="glyphicon glyphicon-chevron-right"></i>
 					</span>
-                    <a href="/program/{{category}}/{{pid}}/{{rid}}/dashboard">{{(basedie + '
-                        '+programName|uppercase)}}</a>
-                </h3>
+                    <a href="/program/customer/{{pid}}/{{rid}}/dashboard">{{(basedie +" "+programName|uppercase)}}</a>
+                    <span>
+                        <i class="glyphicon glyphicon-chevron-right"></i>
+                        <a href="">{{(page|uppercase)}}</a>
+                    </span>
+                </h4>
+                <md-button type="button"
+                           md-colors="{background: '{{currentRevision.revision_btn_color.toLowerCase()}}'}"> SCHEDULE
+                </md-button>
+                <md-button type="button"
+                           md-colors="{background: '{{currentRevision.escalation_btn_color.toLowerCase()}}'}">
+                    ESCALATION
+                </md-button>
             </div>
-            <div class="col-sm-5 text-right">
-                <div class="pull-right" role="group" id='revisionList' style='padding-top:7px;'>
-					<span class="label" ng-class="{'label-danger' : (revisions[0].schedule_flag.toLowerCase()=='red') , 
-						'label-warning' : (revisions[0].schedule_flag.toLowerCase()=='orange'),
-						'label-success' : (revisions[0].schedule_flag.toLowerCase()=='green' || revisions[0].schedule_flag.toLowerCase()=='black')}"
-                          style='font-size:12px;'>Schedule</span>
-
-                    <span class="label" ng-class="{'label-danger' : (revisions[0].prediction_flag.toLowerCase()=='red') ,
-						'label-warning' : (revisions[0].prediction_flag.toLowerCase()=='orange'),
-						'label-success' : (revisions[0].prediction_flag.toLowerCase()=='green' || revisions[0].prediction_flag.toLowerCase()=='black')}"
-                          style='font-size:12px;'>Escalation</span>
+        </md-toolbar>
+        <md-content class="md-padding" style="padding-top:1px!important;">
+            <div flex ng-switch on="page" style="padding-bottom: 40px!important;">
+                <div ng-switch-default>
+                    <div ng-include="'/program/customer/dashboard'"></div>
+                </div>
+                <div ng-switch-when="info">
+                    <div ng-include="'/program/customer/info'"></div>
+                </div>
+                <div ng-switch-when="dashboard">
+                    <div ng-include="'/program/customer/dashboard'"></div>
+                </div>
+                <div ng-switch-when="milestone">
+                    <div ng-include="'/program/customer/milestone'"></div>
+                </div>
+                <div ng-switch-when="weeklyUpdate">
+                    <div ng-include="'/program/customer/weeklyUpdate'"></div>
+                </div>
+                <div ng-switch-when="settings"
+                     ng-if="authority=='admin' || authority=='pm' || authority=='cpm'">
+                    <div ng-include="'/program/customer/settings'"></div>
                 </div>
             </div>
-        </div>
+        </md-content>
     </div>
-    <div class="content">
-        <div ng-switch on="page">
-            <div ng-switch-default>
-                <div ng-include="'/program/customer/dashboard'"></div>
-            </div>
-            <div ng-switch-when="info">
-                <div ng-include="'/program/customer/info'"></div>
-            </div>
-            <div ng-switch-when="dashboard">
-                <div ng-include="'/program/customer/dashboard'"></div>
-            </div>
-            <div ng-switch-when="milestone">
-                <div ng-include="'/program/customer/milestone'"></div>
-            </div>
-            <div ng-switch-when="weeklyUpdate">
-                <div ng-include="'/program/customer/weeklyUpdate'"></div>
-            </div>
-            <div ng-switch-when="settings"
-                 data-ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
-                <div ng-include="'/program/customer/settings'"></div>
-            </div>
-        </div>
-    </div>
-</main>
+</section>
+
+

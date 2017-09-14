@@ -29,17 +29,16 @@ public class Link extends AbstractDomainClass implements Serializable {
 
     @NotBlank
     @Column(name = "display_name", nullable = false)
-    private String display_name = "link";
+    private String display_name;
 
     @NotBlank
     @Column(name = "type", nullable = false)
-    private String type = "type";
+    private String type;
 
     @NotBlank
     @Column(name = "url", nullable = false)
-    private String url = "";
+    private String url;
 
-    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false)
     private ProjectConstant.EnumLinkCategory category = ProjectConstant.EnumLinkCategory.LINK;

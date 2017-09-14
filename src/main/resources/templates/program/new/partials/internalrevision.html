@@ -1,76 +1,77 @@
-<div class='row'>
-    <div class="col-md-8 col-md-offset-3 col-lg-8 col-lg-offset-3">
-        <h2>Create New Revision (For Internal Program Only)</h2>
-    </div>
-</div>
-<div class="row">
-    <form class="form-horizontal" role="form" data-ng-submit="submitRevisionForm(revForm.$valid)" novalidate
-          name='revForm'>
-        <div class="col-md-12 col-lg-9 col-lg-offset-2">
-            <div class="block">
-                <div class="block-header">
-                    <h3 class="block-title">New Revision</h3>
+<div layout="column" layout-padding>
+    <md-card>
+        <md-card-title>
+            <md-card-title-text>
+                <div layout="row">
+                    <span class="md-title">New Internal Revision</span>
                 </div>
-                <div class="block-content block-content-narrow">
-                    <div class="form-group">
-                        <label class="col-md-4 control-label" for="pname">Search Program Name <span class="text-danger">*</span></label>
-                        <div class="col-md-6">
-                            <input autocomplete="off" class='form-control' type="text" ng-model="rev.pname"
-                                   placeholder="Search Program"
-                                   typeahead-min-length="3" typeahead-wait-ms='5' typeahead-loading="loadingPrograms"
-                                   typeahead-no-results="noResults"
-                                   uib-typeahead="item as p.formated for p in searchProgram($viewValue, 'chip')"
-                                   typeahead-on-select="onProjectSelect($item, $model, $label)" tabindex='1'>
-                            <i ng-show="loadingPrograms" class="glyphicon glyphicon-refresh"></i>
-                            <div ng-show="noResults">
-                                <i class="glyphicon glyphicon-remove"></i> No Internal Program Found
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content>
+            <form role="form" data-ng-submit="submitRevisionForm(revForm.$valid)" novalidate name='revForm'>
+                <div layout-gt-xs="column">
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <md-autocomplete flex required md-input-name="pname"
+                                         md-input-minlength="2" md-input-maxlength="18"
+                                         md-delay="10"
+                                         md-selected-item="selectedItem"
+                                         md-search-text="searchText"
+                                         md-item-text="item.pname"
+                                         md-no-cache="false"
+                                         md-require-match
+                                         md-menu-class="autocomplete-custom-template"
+                                         md-selected-item-change="selectedProgramChange(item)"
+                                         md-items="item in searchProgram(searchText, 'chip')"
+                                         md-floating-label="Search Program Name"
+                                         md-clear-button="true">
+                            <md-item-template>
+                                <span class="item-title">
+                                    <strong> {{item.pname + ' '+ item.num}} </strong>
+                                </span>
+                            </md-item-template>
+                            <div ng-messages="revForm.pname.$error" ng-if="revForm.pname.$touched">
+                                <div ng-message="required">Project Field <b>missing</b>.</div>
+                                <div ng-message="md-require-match">Please select project.</div>
+                                <div ng-message="minlength">Your entry is not long enough.</div>
+                                <div ng-message="maxlength">Your entry is too long.</div>
                             </div>
+                        </md-autocomplete>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <label>New Revision Name</label>
+                        <input name='rname' ng-model='rev.rname' type='text' required
+                               ng-change="checkDuplicateRevision(rev);"
+                               autocomplete="off" required minlength="1" maxlength="128">
+                        <div ng-messages="revForm.rname.$error">
+                            <p ng-message="required">Required</p>
+                            <p ng-message="minlength">Min 1 Character</p>
+                            <p ng-message="maxlength">Max 128 Characters</p>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-4 control-label" for="rname">New Revision Name<span
-                                class="text-danger">*</span></label>
-                        <div class="col-md-6"
-                             ng-class="{'has-error':revForm.rname.$invalid && (revForm.rname.$dirty || revForm.$submitted)}">
-                            <input class='form-control' ng-model='rev.rname' name='rname' type='text'
-                                   placeholder='Revision name' tabindex='2'
-                                   autocomplete="off" required minlength="1" ng-change="checkRevision()">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-4 control-label" for="cloneRev">Clone From Revision<span
-                                class="text-danger"></span></label>
-                        <div class="col-md-6">
-                            <select name="revisionList" ng-model="rev.oldRev"
-                                    ng-options="revision.revision for revision in revisionList track by revision.revision"
-                                    tabindex='3' name='cloneRev'>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-md-4 control-label" for="info">Clone Information<span
-                                class="text-danger"></span></label>
-                        <div class="col-md-6">
-                            <input type="checkbox" ng-model="rev.clone.info" tabindex='4' name='info'>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-4 control-label" for="milestone">Clone Milestones<span
-                                class="text-danger"></span></label>
-                        <div class="col-md-6">
-                            <input type="checkbox" ng-model="rev.clone.milestone" tabindex='7' name='milestone'>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary btn-block"
-                                data-ng-disabled="revForm.$invalid || duplicateRev" tabindex='25'
-                                data-ng-click='submitted=true'>Submit
-                        </button>
-                    </div>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <label>Clone From Another Revision</label>
+                        <md-select name="type" ng-model="rev.oldRev" aria-label="cloneRevision">
+                            <md-option ng-repeat="revision in revisionList |orderBy:'revision' " ng-value="revision">
+                                {{revision.revision|uppercase}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs ng-hide="rev.oldRev==''">
+                        <md-checkbox ng-model="rev.clone.info" aria-label="cloneinfo">
+                            Clone Information
+                        </md-checkbox>
+                        <md-checkbox class="md-block" ng-model="rev.clone.milestone" aria-label="clonemilestone">
+                            Clone Milestone
+                        </md-checkbox>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <md-button type="submit" class="btn btn-primary btn-block"
+                                   data-ng-disabled="revForm.$invalid || duplicateRev"
+                                   tabindex='25' data-ng-click='submitted=true'>Submit
+                        </md-button>
+                    </md-input-container>
                 </div>
-            </div>
-        </div>
-    </form>
+            </form>
+        </md-card-content>
+    </md-card>
 </div>

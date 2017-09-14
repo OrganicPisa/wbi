@@ -1,12 +1,15 @@
 package com.broadcom.wbi.service.jpa.implementation;
 
-import com.broadcom.wbi.model.mysql.Employee;
-import com.broadcom.wbi.model.mysql.Program;
-import com.broadcom.wbi.model.mysql.Revision;
+import com.broadcom.wbi.model.mysql.*;
 import com.broadcom.wbi.repository.mysql.RevisionRepository;
+import com.broadcom.wbi.service.event.RevisionSaveEvent;
+import com.broadcom.wbi.service.event.RevisionSaveEventPublisher;
+import com.broadcom.wbi.service.jpa.HeadlineService;
+import com.broadcom.wbi.service.jpa.ProgramService;
 import com.broadcom.wbi.service.jpa.RevisionService;
 import com.broadcom.wbi.util.ProjectConstant;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -24,10 +28,26 @@ public class RevisionServiceImpl implements RevisionService {
 
     @Resource
     private RevisionRepository repo;
+    private final RevisionSaveEventPublisher revisionSaveEventPublisher;
+    @Autowired
+    private ProgramService programService;
+    @Autowired
+    private HeadlineService headlineService;
+
+
+    @Autowired
+    public RevisionServiceImpl(RevisionSaveEventPublisher revisionSaveEventPublisher) {
+        this.revisionSaveEventPublisher = revisionSaveEventPublisher;
+    }
 
     @Override
     public Revision saveOrUpdate(Revision revision) {
-        return repo.save(revision);
+        Revision rev = repo.save(revision);
+        HashMap map = new HashMap<>();
+        map.put("action", "save");
+        map.put("data", revision);
+        revisionSaveEventPublisher.publish(new RevisionSaveEvent(map));
+        return rev;
     }
 
     @Override
@@ -56,6 +76,10 @@ public class RevisionServiceImpl implements RevisionService {
 
     @Override
     public void delete(Integer id) {
+        HashMap map = new HashMap<>();
+        map.put("action", "save");
+        map.put("data", id);
+        revisionSaveEventPublisher.publish(new RevisionSaveEvent(map));
         repo.delete(id);
     }
 
@@ -109,6 +133,78 @@ public class RevisionServiceImpl implements RevisionService {
         }
         return false;
     }
+
+    @Override
+    public Revision createNewRevision(HashMap map, Program program) {
+        final Segment seg = program.getSegments().iterator().next();
+        final ProjectConstant.EnumProgramStatus status = ProjectConstant.EnumProgramStatus.ACTIVE;
+        final ProjectConstant.EnumIndicatorStatus flag = ProjectConstant.EnumIndicatorStatus.BLACK;
+        //handle ip program
+        if (program.getType().equals(ProjectConstant.EnumProgramType.IP)) {
+            if (map.containsKey("info")) {
+                HashMap infomap = (HashMap) map.get("info");
+                if (infomap.containsKey("category")) {
+                    String catname = infomap.get("category").toString() + "_hidden";
+                    List<Program> cat_pl = programService.findByName(catname.toLowerCase());
+                    if (cat_pl != null && !cat_pl.isEmpty()) {
+                        Program cat_p = cat_pl.get(0);
+                        if (cat_p != null) {
+                            Revision rev = findByProgramName(cat_p, "head_ip");
+                            if (rev == null) {
+                                rev = new Revision();
+                                rev.setIpRelated("");
+                                rev.setIsActive(status);
+                                rev.setIsRevisionIncludeInReport(true);
+                                rev.setName("head_ip");
+                                rev.setOrderNum(1);
+                                rev.setProgram(cat_p);
+                                rev.setIsProtected(false);
+                                rev = saveOrUpdate(rev);
+
+                                Headline hl = new Headline();
+                                hl.setBudget_flag(flag);
+                                hl.setHeadline("");
+                                hl.setIsActive(status);
+                                hl.setPrediction_flag(flag);
+                                hl.setResource_flag(flag);
+                                hl.setSchedule_flag(flag);
+                                hl.setBudget_flag(flag);
+                                hl.setRevision(rev);
+                                hl.setStage(ProjectConstant.EnumHeadlineStage.PLANNING);
+                                hl = headlineService.saveOrUpdate(hl);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        try {
+            // insert new revision
+            String rname = "A0";
+            if (map.containsKey("rname")) {
+                rname = map.get("rname").toString().toUpperCase();
+            }
+            Revision rev = findByProgramName(program, rname);
+            if (rev == null) {
+                rev = new Revision();
+                rev.setIpRelated("");
+                rev.setIsActive(status);
+                rev.setIsRevisionIncludeInReport(true);
+                rev.setName(rname);
+                rev.setOrderNum(1);
+                rev.setProgram(program);
+                rev.setIsProtected(false);
+                rev = saveOrUpdate(rev);
+            }
+
+            return rev;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
 
 //	@Override
 //	public List<Integer> findBySegment(Segment segment, String name, ProjectConstant.EnumProgramType type) {

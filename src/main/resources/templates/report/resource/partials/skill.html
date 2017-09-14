@@ -12,6 +12,13 @@
         max-height: 800px;
     }
 </style>
+<md-toolbar md-scroll-shrink class="md-menu-toolbar" hide-gt-md>
+    <div class="md-toolbar-tools">
+        <button class="md-icon-button md-button" ng-click="openSideMenu()" aria-label="Toggle Menu">
+            <i class="material-icons">chrome_reader_mode</i>
+        </button>
+    </div>
+</md-toolbar>
 <div class="md-padding">
     <md-card>
         <md-card-content>
@@ -32,6 +39,21 @@
                         <md-option value='quarter'>Quarter</md-option>
                         <md-option value='year'>Year</md-option>
                     </md-select>
+                </md-input-container>
+                <md-input-container>
+                    <label>Employee Type</label>
+                    <md-select ng-model='rs.employeeType'>
+                        <md-option value='all'>ALL</md-option>
+                        <md-option value='fte'>FTE</md-option>
+                        <md-option value='contractor'>Contractor</md-option>
+                    </md-select>
+                </md-input-container>
+                <md-input-container>
+                    <md-checkbox ng-model="rs.filterChargedFrom" aria-label="Charged From Filter"
+                                 ng-true-value="'XGS,DNX,NWSOFT'"
+                                 ng-false-value="'None'" flex>
+                        Filter: {{rs.filterChargedFrom}}
+                    </md-checkbox>
                 </md-input-container>
                 <md-input-container>
                     <md-button ng-click='generateSkillReport()'>Submit</md-button>
@@ -60,71 +82,3 @@
         </md-card-content>
     </md-card>
 </div>
-<!-- <div class="row"> -->
-<!-- 	<div class="col-lg-2 col-md-2 col-sm-2" > -->
-<!-- 		<p class="input-group">             -->
-<!-- 			<input type='text' class='form-control' ng-model='resourceDate.fromDate' name='fromDate' ng-animate='fade' datepicker-options='resourceDatePickerOptions'   -->
-<!-- 				placeholder='From Date' uib-datepicker-popup='MM/yyyy' datepicker-append-to-body='true' show-button-bar='false' -->
-<!-- 				is-open='startDateOpenStatus' close-text='Close' ng-readonly='true'> -->
-<!-- 			<span class='input-group-btn'> -->
-<!-- 				<button type='button' class='btn btn-default' ng-click='openStartDatePicker($event)'> -->
-<!-- 					<i class='glyphicon glyphicon-calendar'></i> -->
-<!-- 				</button> -->
-<!-- 			</span> -->
-<!-- 		</p> -->
-<!-- 	</div> -->
-<!-- 	<div class="col-lg-2 col-md-2 col-sm-2" > -->
-<!-- 		<p class="input-group"> -->
-<!-- 			<input type='text' class='form-control' ng-model='resourceDate.toDate' name='toDate' ng-animate='fade' datepicker-options='resourceDatePickerOptions'  -->
-<!-- 				placeholder='Until Date' uib-datepicker-popup='MM/yyyy' datepicker-append-to-body='true' show-button-bar='false' -->
-<!-- 				is-open='toDateOpenStatus' close-text='Close' ng-readonly='true'> -->
-<!-- 			<span class='input-group-btn'> -->
-<!-- 				<button type='button' class='btn btn-default' ng-click='openEndDatePicker($event)'> -->
-<!-- 					<i class='glyphicon glyphicon-calendar'></i> -->
-<!-- 				</button> -->
-<!-- 			</span> -->
-<!-- 		</p> -->
-<!-- 	</div> -->
-<!-- 	<div class="col-lg-2 col-md-2 col-sm-2" > -->
-<!-- 		<div class="input-group">       -->
-<!-- 			<select ng-model='resourceDate.intervalGroup' class='form-control'> -->
-<!-- 				<option value='month'>Month</option> -->
-<!-- 				<option value='quarter'>Quarter</option> -->
-<!-- 				<option value='year'>Year</option> -->
-<!-- 			</select> -->
-<!-- 		</div> -->
-<!-- 	</div> -->
-<!-- 	<div class="col-lg-2 col-md-2 col-sm-2" > -->
-<!-- 		<div class="form-group"> -->
-<!-- 			<button type="button" class="btn btn-success from-control" ng-click='generateSkillReport()'>Submit</button> -->
-<!-- 		</div> -->
-<!-- 	</div> -->
-<!-- </div> -->
-<!-- <div class="row"> -->
-<!-- 	<div class="col-lg-12 col-md-12 col-sm-12" > -->
-<!-- 		<div class="row"> -->
-<!-- 			<!-- Default Buttons --> -->
-<!-- 			<div class="block block-bordered"> -->
-<!-- 				<div class="block-header"> -->
-<!-- 					<h3 class="block-title">Chart</h3> -->
-<!-- 				</div> -->
-<!-- 				<div class="block-content">				 -->
-<!-- 					<highchart id="resourceTrendSkillStatusChart" config="skillTrendColumnChartConfig" style="height: 400px;"></highchart> -->
-<!-- 				</div> -->
-<!-- 			</div> -->
-<!-- 		</div> -->
-<!-- 		<div class="row"> -->
-<!-- 			<!-- Default Buttons --> -->
-<!-- 			<div class="block block-bordered"> -->
-<!-- 				<div class="block-header"> -->
-<!-- 					<h3 class="block-title">Skill Month Data</h3> -->
-<!-- 				</div> -->
-<!-- 				<div class="block-content"> -->
-<!-- 					<div id="site-div" class='table-responsive gridWidthWrapper'> -->
-<!-- 						<div ui-grid="skillGridOptions" ui-grid-exporter ui-grid-resize-columns ui-grid-move-columns ui-grid-auto-resize class="gridStyle"></div> -->
-<!-- 					</div> -->
-<!-- 				</div> -->
-<!-- 			</div> -->
-<!-- 		</div> -->
-<!-- 	</div> -->
-<!-- </div> -->

@@ -12,17 +12,21 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Iterator;
 import java.util.List;
 
 @Service
 public class RevisionContactSearchServiceImpl implements RevisionContactSearchService {
 
-    @Autowired
+    private final ElasticsearchTemplate template;
+    @Resource
     private RevisionContactSearchRepository repo;
 
     @Autowired
-    private ElasticsearchTemplate template;
+    public RevisionContactSearchServiceImpl(ElasticsearchTemplate template) {
+        this.template = template;
+    }
 
     @Override
     public RevisionContactSearch saveOrUpdate(RevisionContactSearch contact) {
@@ -82,7 +86,7 @@ public class RevisionContactSearchServiceImpl implements RevisionContactSearchSe
 
     @Override
     public List<RevisionContactSearch> findByRevision(Integer rid, String title) {
-        SearchQuery searchQuery = new NativeSearchQueryBuilder().withPageable(new PageRequest(0, 100))
+        SearchQuery searchQuery = new NativeSearchQueryBuilder().withPageable(new PageRequest(0, 10))
                 .withQuery(QueryBuilders.boolQuery()
                         .must(QueryBuilders.termQuery("revision", rid))
                         .must(QueryBuilders.wildcardQuery("name", "*" + title.toLowerCase().trim() + "*"))

@@ -2,8 +2,6 @@ App.controller('HomeCtrl', function ($scope, $rootScope, $log, $filter, $http, $
                                      $stateParams, $location, $localStorage, $interval,
                                      Notification, uiGridConstants) {
     $scope.tabs = [];
-    $scope.segmentloaded = false;
-    $scope.dataloaded = false;
     $scope.ptype = "chip";
     $scope.status = $stateParams.status.replace(/^(home|index|active)/i, "true").replace(/archived/i, "false");
     $scope.rowCollection = [];
@@ -55,15 +53,15 @@ App.controller('HomeCtrl', function ($scope, $rootScope, $log, $filter, $http, $
         {
             field: 'schedule_flag', name: 'I', width: '5%', enableFiltering: false,
             cellClass: function (grid, row, col, rowRenderIndex, colRenderIndex) {
-                if (grid.getCellValue(row, col).toLowerCase().match(/(delay|red)i/)) {
-                    return 'delay';
+                var color = "normal";
+                if (grid.getCellValue(row, col).toLowerCase().match(/(delay|red)/i)) {
+
+                    color = 'delay';
                 }
-                else if (grid.getCellValue(row, col).toLowerCase().match(/(risk|orange)i/)) {
-                    return 'risk';
+                else if (grid.getCellValue(row, col).toLowerCase().match(/(risk|orange)/i)) {
+                    color = 'risk';
                 }
-                else {
-                    return 'normal';
-                }
+                return color;
             }
         },
         {
@@ -188,15 +186,14 @@ App.controller('HomeCtrl', function ($scope, $rootScope, $log, $filter, $http, $
     $http.get("/api/segment/getActiveSegments")
         .then(function (result) {
             $scope.tabs = $filter('orderBy')(result.data, 'orderNum');
-            $scope.segmentloaded = true;
-            if (angular.isDefined($rootScope.currentDashboardSegmentClicked)) {
-                $scope.selectedTab = $rootScope.currentDashboardSegmentClicked;
+            if (angular.isDefined($localStorage.currentDashboardSegmentClicked)) {
+                $scope.selectedIndex = $localStorage.currentDashboardSegmentClicked;
             }
             else{
-                $scope.selectedTab = $filter('filter')($scope.tabs, {orderNum:1})[0];
+                $scope.selectedIndex = 0;
             }
+            $scope.selectedTab = $scope.tabs[$scope.selectedIndex];
         }, function (data, status) {
-            $scope.segmentloaded = true;
             Notification.error({message: data, title: 'Error', replaceMessage: true});
         });
 
@@ -204,7 +201,6 @@ App.controller('HomeCtrl', function ($scope, $rootScope, $log, $filter, $http, $
         $scope.selectedTab = tab;
     };
     $scope.refreshTab = function () {
-        $scope.dataloaded = false;
         $http.get("/api/segment/getPrograms?segment=" + $scope.selectedTab.name + "&status=" + $scope.status + "&reload=1")
             .then(function (result) {
                 $scope.rowCollection = [];
@@ -233,9 +229,7 @@ App.controller('HomeCtrl', function ($scope, $rootScope, $log, $filter, $http, $
                         $scope.gridOptions.data = result.data;
                     }
                 }
-                $scope.dataloaded = true;
             }, function (data, status) {
-                $scope.dataloaded = true;
                 Notification.error({message: data, title: 'Error', replaceMessage: true});
             });
     };
@@ -243,8 +237,7 @@ App.controller('HomeCtrl', function ($scope, $rootScope, $log, $filter, $http, $
     $scope.$watch('selectedTab', function(tab){
         if(typeof tab.name != 'undefined') {
             $scope.selectedIndex = $scope.tabs.indexOf(tab);
-            $scope.dataloaded = false;
-            $rootScope.currentDashboardSegmentClicked = tab;
+            $localStorage.currentDashboardSegmentClicked = $scope.selectedIndex;
             if (tab.name.match(/^customer/i)) {
                 $scope.ptype = "Customer";
             }
@@ -286,9 +279,7 @@ App.controller('HomeCtrl', function ($scope, $rootScope, $log, $filter, $http, $
                             $scope.gridOptions.data = result.data;
                         }
                     }
-                    $scope.dataloaded = true;
                 }, function (data, status) {
-                    $scope.dataloaded = true;
                     Notification.error({message: data, title: 'Error', replaceMessage: true});
                 });
         }

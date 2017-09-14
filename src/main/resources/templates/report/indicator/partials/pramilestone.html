@@ -1,22 +1,25 @@
-<div class="row">
-    <div class="block block-bordered">
-        <div class="block-header">
-            <ul class="block-options" ng-show="praMilestoneReportLoaded">
-                <li ng-if="permission.authority=='ipm' || permission.authority=='pm' || permission.authority=='admin'">
-                    <button class="btn btn-sm btn-info" type="button" ng-click="refreshPRAMilestoneReport();">Refresh
-                    </button>
-                </li>
-            </ul>
-            <h3 class="block-title">PRA Milestone Report
-                <small ng-hide='praMilestoneReportLoaded'>Generating...</small>
-            </h3>
-        </div>
-        <div class="block-content" ng-show='praMilestoneReportLoaded'>
-            <div id="praReport-div" ng-show='praMilestoneReportLoaded' class='gridWidthWrapper'>
-                <div ui-grid="praGridOptions" ui-grid-exporter ui-grid-resize-columns ui-grid-save-state
-                     ui-grid-move-columns ui-grid-auto-resize class="gridStyle"></div>
-            </div>
-
-        </div>
+<md-toolbar md-scroll-shrink class="md-menu-toolbar">
+    <div class="md-toolbar-tools">
+        <button class="md-icon-button md-button" hide-gt-md ng-click="openSideMenu()" aria-label="Toggle Menu">
+            <i class="material-icons">chrome_reader_mode</i>
+        </button>
+        <h4>
+            <span style='font-size: 18px;'>
+                <a href="/">PRA Report</a>
+            </span>
+        </h4>
+        <span flex></span>
+        <span>
+            <md-button ng-click="refreshPRAMilestoneReport();">
+                <md-icon class="material-icons" style="fill:black;color:black;">autorenew</md-icon>
+                Reload
+            </md-button>
+        </span>
     </div>
+</md-toolbar>
+
+<div id="praReport-div" class='gridWidthWrapper'>
+    <div ui-grid="praGridOptions" ui-grid-exporter ui-grid-resize-columns ui-grid-save-state
+         ui-grid-move-columns ui-grid-auto-resize class="gridStyle"></div>
 </div>
+

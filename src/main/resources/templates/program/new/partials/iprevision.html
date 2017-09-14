@@ -1,77 +1,76 @@
-<div class='row'>
-    <div class="col-md-6 col-md-offset-4 col-lg-6 col-lg-offset-4">
-        <h2>Create New IP Revision</h2>
-    </div>
-</div>
-<div class="row">
-    <form class="form-horizontal" role="form" data-ng-submit="submitIPRevForm(ipForm.$valid)" novalidate name='ipForm'>
-        <div class="col-md-12 col-lg-9 col-lg-offset-2">
-            <div class="block">
-                <div class="block-header">
-                    <h3 class="block-title">IP Information</h3>
+<div layout="column" layout-padding>
+    <md-card>
+        <md-card-title>
+            <md-card-title-text>
+                <div layout="row">
+                    <span class="md-title">New IP Revision</span>
                 </div>
-                <div class="block-content block-content-narrow">
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="ipname">IP Name <span
-                                class="text-danger">*</span></label>
-                        <div class="col-md-9"
-                             data-ng-class="{'has-error':ipForm.ipname.$invalid && (ipForm.ipname.$dirty || ipForm.$submitted)}">
-                            <input autocomplete="off" class='form-control' type="text" ng-model="ip.pname"
-                                   placeholder="Search Program"
-                                   typeahead-min-length="3" typeahead-wait-ms='5' typeahead-loading="loadingPrograms"
-                                   typeahead-no-results="noResults"
-                                   uib-typeahead="item as p.formated for p in searchProgram($viewValue, 'ip')"
-                                   typeahead-on-select="onProjectSelect($item, $model, $label)" tabindex='1'>
-                            <i ng-show="loadingPrograms" class="glyphicon glyphicon-refresh"></i>
-                            <div ng-show="noResults">
-                                <i class="glyphicon glyphicon-remove"></i> No IP Results Found
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content>
+            <form role="form" data-ng-submit="submitIPRevForm(ipRevForm.$valid)" novalidate name='ipRevForm'>
+                <div layout-gt-xs="column">
+                    <md-input-container flex-gt-xs>
+                        <md-autocomplete flex required md-input-name="pname"
+                                         md-input-minlength="2" md-input-maxlength="18"
+                                         md-delay="10"
+                                         md-selected-item="selectedItem"
+                                         md-search-text="searchText"
+                                         md-item-text="item.pname"
+                                         md-no-cache="false"
+                                         md-require-match
+                                         md-menu-class="autocomplete-custom-template"
+                                         md-selected-item-change="selectedIPProgramChange(item)"
+                                         md-items="item in searchProgram(searchText, 'ip')"
+                                         md-floating-label="Search Program Name"
+                                         md-clear-button="true">
+                            <md-item-template>
+                                <span class="item-title">
+                                    <strong> {{item.pname}} </strong>
+                                </span>
+                            </md-item-template>
+                            <div ng-messages="ipRevForm.pname.$error" ng-if="ipRevForm.pname.$touched">
+                                <div ng-message="required">Project Field <b>missing</b>.</div>
+                                <div ng-message="md-require-match">Please select project.</div>
+                                <div ng-message="minlength">Your entry is not long enough.</div>
+                                <div ng-message="maxlength">Your entry is too long.</div>
                             </div>
+                        </md-autocomplete>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <label>Revision</label>
+                        <input name='rev' ng-model='ip.rname' type='text' required ng-minlength="1" autocomplete="off"
+                               ng-maxlength="128" ng-change="checkDuplicateRevision(ip);">
+                        <div ng-messages="ipRevForm.rname.$error">
+                            <p ng-message="required">Required</p>
+                            <p ng-message="minlength">Min 1 Character</p>
+                            <p ng-message="maxlength">Max 128 Characters</p>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="rname">New Revision Name<span
-                                class="text-danger">*</span></label>
-                        <div class="col-md-6"
-                             ng-class="{'has-error':ipForm.rname.$invalid && (ipForm.rname.$dirty || ipForm.$submitted)}">
-                            <input class='form-control' ng-model='ip.rname' name='rname' type='text'
-                                   placeholder='new IP Revision name' tabindex='2'
-                                   autocomplete="off" required minlength="1" ng-change="checkRevision()">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="cloneRev">Clone From Revision<span
-                                class="text-danger"></span></label>
-                        <div class="col-md-6">
-                            <select name="revisionList" ng-model="ip.oldRev"
-                                    ng-options="revision.revision for revision in revisionList track by revision.revision"
-                                    tabindex='3' name='cloneRev'>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="info">Clone Information<span
-                                class="text-danger"></span></label>
-                        <div class="col-md-6">
-                            <input type="checkbox" ng-model="ip.clone.info" tabindex='4' name='info'>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="milestone">Clone Milestones<span
-                                class="text-danger"></span></label>
-                        <div class="col-md-6">
-                            <input type="checkbox" ng-model="ip.clone.milestone" tabindex='7' name='milestone'>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary btn-block"
-                                data-ng-disabled="ipForm.$invalid || duplicateRev" tabindex='25'
-                                data-ng-click='submitted=true'>Submit
-                        </button>
-                    </div>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <label>Clone From Another Revision</label>
+                        <md-select name="type" ng-model="ip.oldRev" aria-label="cloneRevision">
+                            <md-option ng-repeat="revision in revisionList |orderBy:'revision' " ng-value="revision">
+                                {{revision.revision|uppercase}}
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs ng-hide="ip.oldRev==''">
+                        <md-checkbox ng-model="ip.clone.info" aria-label="cloneinfo">
+                            Clone Information
+                        </md-checkbox>
+                        <md-checkbox class="md-block" ng-model="ip.clone.milestone" aria-label="clonemilestone">
+                            Clone Milestone
+                        </md-checkbox>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <md-button type="submit" class="btn btn-primary btn-block"
+                                   data-ng-disabled="ipRevForm.$invalid || duplicateRev"
+                                   tabindex='25' data-ng-click='submitted=true'>Submit
+                        </md-button>
+                    </md-input-container>
                 </div>
-            </div>
-        </div>
-    </form>
+            </form>
+        </md-card-content>
+    </md-card>
 </div>

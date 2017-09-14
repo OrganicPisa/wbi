@@ -38,18 +38,20 @@ public interface ResourceActualSearchService {
      *
      ********************************************************************************/
 
-    TreeMap getCurrentReportGroup(List<String> charged_from, List<String> charged_to, String group_by);
+    TreeMap getCurrentReportGroup(String group_by, Boolean isCSGOnly, String employeeType);
 
-    TreeMap getTrendReport1Group(List<String> charged_from, List<String> charged_to, String groupBy, String interval, DateTime startDate, DateTime stopDate);
+    TreeMap getTrendReport1Group(String groupBy, String interval, DateTime startDate, DateTime stopDate, Boolean isCSGOnly, String employeeType);
 
-    TreeMap getTrendReport2Group(List<String> charged_from, List<String> charged_to, String groupBy1, String groupBy2, String interval, DateTime startdt, DateTime stopdt);
+    TreeMap getTrendReport2Group(String groupBy1, String groupBy2, String interval, DateTime startdt, DateTime stopdt, Boolean isCSGOnly, String employeeType);
 
-    TreeMap getTrendReport3Group(List<String> charged_from, List<String> charged_to, String groupBy1, String groupBy2, String groupBy3, String interval, DateTime startdt, DateTime stopdt);
+    TreeMap getTrendReport3Group(String groupBy1, String groupBy2, String groupBy3, String interval, DateTime startdt, DateTime stopdt, Boolean isCSGOnly, String employeeType);
 
-    TreeMap getProjectReportGroup(List<String> list, String interval, DateTime fromdt, DateTime todt);
+    TreeMap getProjectReportGroup(List<String> list, String interval, DateTime fromdt, DateTime todt, Boolean isCSGOnly, String employeeType);
 
-    List<Map> getActualEmployeeData(List<String> charged_from, List<String> charged_to, DateTime startdt, DateTime stopdt);
+    TreeMap getProjectSkillReportGroup(List<String> list, String interval, DateTime fromdt, DateTime todt, Boolean isCSGOnly, String employeeType);
 
-    Set<String> getDistinctValue(List<String> charged_from, String colName, DateTime startDate, DateTime stopDate);
+    List<Map> getActualEmployeeData(DateTime startdt, DateTime stopdt, Boolean isCSGOnly);
+
+    Set<String> getDistinctValue(String colName, DateTime startDate, DateTime stopDate, Boolean isCSGOnly);
 
 }

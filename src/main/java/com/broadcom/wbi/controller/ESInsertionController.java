@@ -12,12 +12,19 @@ import java.util.Date;
 @RequestMapping("/api/admin/index")
 public class ESInsertionController {
 
+    private final IndexSearchService indexSearchService;
+
     @Autowired
-    private IndexSearchService indexSearchService;
+    public ESInsertionController(IndexSearchService indexSearchService) {
+        this.indexSearchService = indexSearchService;
+    }
 
     @RequestMapping(value = {"/sku"}, method = {RequestMethod.GET})
-    public int indexSku(@RequestParam(value = "reload", defaultValue = "0") final int reload) {
-        indexSearchService.indexAllSku(reload);
+    public int indexSku(@RequestParam(value = "ts", defaultValue = "01/01/1990") @DateTimeFormat(pattern = "MM/dd/yyyy") final Date da) {
+        DateTime dt = new DateTime(da);
+        if (dt.getYear() == 1990)
+            dt = null;
+        indexSearchService.indexAllSku(dt);
         return 0;
     }
 
@@ -27,6 +34,16 @@ public class ESInsertionController {
         if (dt.getYear() == 1990)
             dt = null;
         indexSearchService.indexAllRevision(dt);
+        return 0;
+    }
+
+    @RequestMapping(value = {"/resource/plan"}, method = {RequestMethod.GET})
+    @ResponseBody
+    public int indexPlanResource(@RequestParam(value = "ts", defaultValue = "01/01/1990") @DateTimeFormat(pattern = "MM/dd/yyyy") final Date da) {
+        DateTime dt = new DateTime(da);
+        if (dt.getYear() == 1990)
+            dt = null;
+        indexSearchService.indexAllResourcePlan(dt);
         return 0;
     }
 
@@ -96,8 +113,11 @@ public class ESInsertionController {
     }
 
     @RequestMapping(value = {"/template"}, method = {RequestMethod.GET})
-    public int indexTemplate(@RequestParam(value = "reload", defaultValue = "0") final int reload) {
-        indexSearchService.indexAllTemplate(reload);
+    public int indexTemplate(@RequestParam(value = "ts", defaultValue = "01/01/1990") @DateTimeFormat(pattern = "MM/dd/yyyy") final Date da) {
+        DateTime dt = new DateTime(da);
+        if (dt.getYear() == 1990)
+            dt = null;
+        indexSearchService.indexAllTemplate(dt);
         return 0;
     }
 }

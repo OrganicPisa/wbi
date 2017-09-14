@@ -3,9 +3,12 @@ package com.broadcom.wbi.service.jpa.implementation;
 import com.broadcom.wbi.model.mysql.IGroup;
 import com.broadcom.wbi.model.mysql.IGroupHistory;
 import com.broadcom.wbi.repository.mysql.IGroupHistoryRepository;
+import com.broadcom.wbi.service.event.IndicatorGroupSaveEvent;
+import com.broadcom.wbi.service.event.IndicatorGroupSaveEventPublisher;
 import com.broadcom.wbi.service.jpa.IGroupHistoryService;
 import com.broadcom.wbi.util.ProjectConstant;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -23,13 +27,25 @@ public class IGroupHistoryServiceImpl implements IGroupHistoryService {
     @Resource
     private IGroupHistoryRepository repo;
 
+    @Autowired
+    private IndicatorGroupSaveEventPublisher indicatorGroupSaveEventPublisher;
+
     @Override
     public IGroupHistory saveOrUpdate(IGroupHistory igrouph) {
-        return repo.save(igrouph);
+        IGroupHistory iGroupHistory = repo.save(igrouph);
+        HashMap map = new HashMap();
+        map.put("action", "save");
+        map.put("data", iGroupHistory);
+        indicatorGroupSaveEventPublisher.publish(new IndicatorGroupSaveEvent(map));
+        return iGroupHistory;
     }
 
     @Override
     public void delete(Integer id) {
+        HashMap map = new HashMap();
+        map.put("action", "delete");
+        map.put("data", id);
+        indicatorGroupSaveEventPublisher.publish(new IndicatorGroupSaveEvent(map));
         repo.delete(id);
     }
 
@@ -71,7 +87,7 @@ public class IGroupHistoryServiceImpl implements IGroupHistoryService {
     @Override
     public List<IGroupHistory> findByGroup(IGroup igroup, DateTime dt) {
         if (dt == null)
-            repo.findByIGroupOrderByCreatedDateDesc(igroup);
+            return repo.findByIGroupOrderByCreatedDateDesc(igroup);
         return repo.findByIGroupAndCreatedDateAfterOrderByCreatedDateDesc(igroup, dt.toDate());
     }
 

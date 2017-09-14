@@ -6,6 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
@@ -35,7 +36,7 @@ public class ResourceProgramClassification extends AbstractDomainClass implement
     @Column(name = "content", length = 4000)
     private String programList;
 
-    @NotBlank
+    @NotNull
     @Column(name = "status", nullable = false, columnDefinition = "INT(11)")
     private Boolean status = true;
 

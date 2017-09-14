@@ -26,12 +26,16 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping({"/api/search"})
 public class SearchController {
     final static DateTimeFormatter dfmt1 = DateTimeFormat.forPattern("MM/dd/yy");
+    private final SkuSearchService skuSearchServ;
+    private final RevisionInformationSearchService riSearchServ;
+    private final RevisionSearchService revSearchServ;
+
     @Autowired
-    private SkuSearchService skuSearchServ;
-    @Autowired
-    private RevisionInformationSearchService riSearchServ;
-    @Autowired
-    private RevisionSearchService revSearchServ;
+    public SearchController(SkuSearchService skuSearchServ, RevisionInformationSearchService riSearchServ, RevisionSearchService revSearchServ) {
+        this.skuSearchServ = skuSearchServ;
+        this.riSearchServ = riSearchServ;
+        this.revSearchServ = revSearchServ;
+    }
 
     @RequestMapping(value = {"/program"}, method = {RequestMethod.GET})
     public WebAsyncTask<List> searchSku(@RequestParam("term") final String term,
@@ -41,6 +45,7 @@ public class SearchController {
             public List call() {
                 List ret = Collections.synchronizedList(new ArrayList());
                 List<SkuSearch> skulist = skuSearchServ.findBySkuNum(term);
+                final Set<String> programNameSet = Collections.synchronizedSet(new HashSet<>());
                 if (skulist != null) {
                     ExecutorService executor = Executors.newFixedThreadPool(5);
                     for (final SkuSearch sku : skulist) {
@@ -50,6 +55,12 @@ public class SearchController {
                                         || sku.getProgramType().toLowerCase().indexOf(type.toLowerCase()) == 0) {
                                     if (sku.getProgramDisplayName().toLowerCase().indexOf("_hidden") != -1)
                                         return;
+                                    if (!type.isEmpty()) {
+                                        if (programNameSet.contains(sku.getProgramDisplayName().toLowerCase().trim())) {
+                                            return;
+                                        }
+                                        programNameSet.add(sku.getProgramDisplayName().toLowerCase().trim());
+                                    }
                                     HashMap<String, String> hm = new HashMap<String, String>();
                                     if (sku.getUrl() == null || sku.getUrl().trim().isEmpty()) {
                                         RevisionSearch rs = revSearchServ.findByProgram(sku.getProgram(), "a0");
@@ -57,6 +68,7 @@ public class SearchController {
                                             return;
                                         hm.put("url", "/program/" + sku.getProgramType().toLowerCase() + "/"
                                                 + sku.getProgram() + "/" + rs.getId() + "/dashboard");
+                                        hm.put("rid", rs.getId());
                                     } else {
                                         hm.put("url", sku.getUrl());
                                     }
@@ -67,15 +79,8 @@ public class SearchController {
                                     } else {
                                         name.append("</strong></span>");
                                     }
-//                                    hm.put("formated", "<span><strong>" + TextUtil.formatName(sku.getAka()) + " "
-//                                            + sku.getSkuNum() + "</strong></span>");
-//                                    if (sku.getDescription().length() > 2) {
-//                                        name.append("<span><strong>" + TextUtil.formatName(sku.getAka()) + " "
-//                                                + sku.getSkuNum() + "</strong><p>" + sku.getDescription()
-//                                                + "</p></span>");
-//                                    }
-//                                    hm.put("formated", name.toString());
                                     hm.put("pname", TextUtil.formatName(sku.getProgramDisplayName()));
+                                    hm.put("pid", Integer.toString(sku.getProgram()));
                                     hm.put("aka", TextUtil.formatName(sku.getAka()));
                                     hm.put("num", sku.getSkuNum());
                                     hm.put("description", sku.getDescription());
@@ -140,13 +145,13 @@ public class SearchController {
                                     for (RevisionSearch rs : rslist) {
                                         if (rs.getRev_name().toLowerCase().indexOf("head") == -1) {
                                             if (type.trim().isEmpty()
-                                                    || rs.getType().toLowerCase().indexOf(type.toLowerCase()) == 0) {
+                                                    || rs.getProgram_type().toLowerCase().indexOf(type.toLowerCase()) == 0) {
                                                 HashMap hm = new HashMap();
-                                                hm.put("url", "/program/" + rs.getType().toLowerCase() + "/"
+                                                hm.put("url", "/program/" + rs.getProgram_type().toLowerCase() + "/"
                                                         + rs.getProgram_id() + "/" + rs.getId() + "/dashboard");
                                                 String pname = TextUtil.formatName(rs.getProgram_name())
                                                         + " " + rs.getRev_name().toUpperCase();
-                                                if (rs.getType().equalsIgnoreCase("ip")) {
+                                                if (rs.getProgram_type().equalsIgnoreCase("ip")) {
                                                     List<RevisionInformationSearch> risl = riSearchServ.findByRevisionPhaseName(Integer.parseInt(rs.getId()),
                                                             "current", "category");
                                                     if (risl != null && !risl.isEmpty()) {

@@ -1,15 +1,18 @@
 package com.broadcom.wbi.service.indicator;
 
+import com.broadcom.wbi.exception.CustomGenericException;
 import com.broadcom.wbi.model.elasticSearch.*;
-import com.broadcom.wbi.model.mysql.Revision;
-import com.broadcom.wbi.model.mysql.RevisionIP;
+import com.broadcom.wbi.model.mysql.*;
 import com.broadcom.wbi.service.elasticSearch.*;
-import com.broadcom.wbi.service.jpa.RevisionIPService;
-import com.broadcom.wbi.service.jpa.RevisionService;
+import com.broadcom.wbi.service.jpa.*;
 import com.broadcom.wbi.util.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
 
@@ -38,6 +41,20 @@ public class IndicatorServiceImpl implements IndicatorService {
     private IndicatorDateSearchService indicatorDateSearchService;
     @Autowired
     private IndicatorGroupSearchService indicatorGroupSearchService;
+    @Autowired
+    private TemplateSearchService templateSearchService;
+    @Autowired
+    private IGroupService iGroupService;
+    @Autowired
+    private IGroupHistoryService iGroupHistoryService;
+    @Autowired
+    private ITaskService iTaskService;
+    @Autowired
+    private ITaskHistoryService iTaskHistoryService;
+    @Autowired
+    private IDateService iDateService;
+    @Autowired
+    private IDateHistoryService iDateHistoryService;
 
     /***************************************************************************
      *
@@ -52,7 +69,7 @@ public class IndicatorServiceImpl implements IndicatorService {
         IndicatorTaskSearch fcs = null;
         final DateTime currentdt = new DateTime().withTimeAtStartOfDay();
         RevisionSearch rs = revisionSearchService.findById(Integer.toString(igs.getRevision_id()));
-        if ((igs.getIgroup_name().toLowerCase().indexOf("project") == 0) && (rs.getType().equalsIgnoreCase("customer"))) {
+        if ((igs.getIgroup_name().toLowerCase().indexOf("project") == 0) && (rs.getProgram_type().equalsIgnoreCase("customer"))) {
             try {
                 IndicatorGroupSearch fcsgs = indicatorGroupSearchService.findByRevision(igs.getRevision_id(), "fcs", dt);
                 if (fcsgs != null) {
@@ -405,19 +422,17 @@ public class IndicatorServiceImpl implements IndicatorService {
      *PC - T/O - PRA - ENG SAMPLE
      **************************************************************/
     @Override
-    public Map<String, String> getKeyProjectDate(int rid) {
-        Map<String, String> ret = new HashMap<String, String>();
+    public Map<String, DateTime> getKeyProjectDate(int rid) {
+        Map<String, DateTime> ret = new HashMap<String, DateTime>();
         RevisionSearch rs = revisionSearchService.findById(Integer.toString(rid));
         ret = formatKeyProjectDate(rs);
         if (!rs.getRev_name().equalsIgnoreCase("a0")) {
             if (ret.containsKey("pc")) {
-                if (ret.get("pc").isEmpty()) {
+                if (ret.get("pc") == null) {
                     RevisionSearch a0rs = revisionSearchService.findByProgram(rs.getProgram_id(), "a0");
-                    Map<String, String> a0map = formatKeyProjectDate(a0rs);
-                    if (a0map.containsKey("pc")) {
-                        if (!a0map.get("pc").isEmpty()) {
-                            ret.put("pc", a0map.get("pc"));
-                        }
+                    Map<String, DateTime> a0map = formatKeyProjectDate(a0rs);
+                    if (a0map.containsKey("pc") && a0map.get("pc") != null) {
+                        ret.put("pc", a0map.get("pc"));
                     }
                 }
             }
@@ -425,14 +440,14 @@ public class IndicatorServiceImpl implements IndicatorService {
         return ret;
     }
 
-    private Map<String, String> formatKeyProjectDate(RevisionSearch rs) {
-        Map<String, String> ret = new HashMap<String, String>();
+    private Map<String, DateTime> formatKeyProjectDate(RevisionSearch rs) {
+        Map<String, DateTime> ret = new HashMap<String, DateTime>();
         List frontPageMilestones = getFrontPageMilestone(Integer.parseInt(rs.getId()));
         if (frontPageMilestones != null && !frontPageMilestones.isEmpty()) {
             msloop:
             for (Object mstone : frontPageMilestones) {
                 HashMap hm = (HashMap) mstone;
-                if (rs.getType().equalsIgnoreCase("chip")) {
+                if (rs.getProgram_type().equalsIgnoreCase("chip")) {
                     String key = "";
                     String value = "";
                     if (hm.containsKey("key")) {
@@ -449,7 +464,12 @@ public class IndicatorServiceImpl implements IndicatorService {
                     if (!key.trim().isEmpty()) {
                         for (String keyTask : chipKeyMilestones) {
                             if (key.equalsIgnoreCase(keyTask)) {
-                                ret.put(keyTask, value);
+                                DateTime dt = null;
+                                if (!value.isEmpty()) {
+                                    dt = DateUtil.toDate(value);
+                                    if (dt.getYear() < 2000) dt = null;
+                                }
+                                ret.put(keyTask, dt);
                                 continue msloop;
                             }
                         }
@@ -500,7 +520,7 @@ public class IndicatorServiceImpl implements IndicatorService {
             hm.put("prediction_flag", "black");
         }
         Boolean isSoftware = false;
-        if (rs.getType().toLowerCase().indexOf("software") != -1) {
+        if (rs.getProgram_type().toLowerCase().indexOf("software") != -1) {
             isSoftware = true;
         }
         if (!rs.getIs_active()) {
@@ -539,9 +559,9 @@ public class IndicatorServiceImpl implements IndicatorService {
 
         String viewState = "internalProgram";
         ///get view state for ui click
-        if(rs.getType().equalsIgnoreCase("customer"))
+        if (rs.getProgram_type().equalsIgnoreCase("customer"))
             viewState = "customerProgram";
-        else if(rs.getType().equalsIgnoreCase("software"))
+        else if (rs.getProgram_type().equalsIgnoreCase("software"))
             viewState = "softwareProgram";
 
         hm.put("headline", headline);
@@ -555,11 +575,10 @@ public class IndicatorServiceImpl implements IndicatorService {
                 + " " + rs.getRev_name().toUpperCase());
         hm.put("reportName", TextUtil.formatName(rs.getProgram_name().toLowerCase().replaceAll("^program", "").replaceAll("_hidden", "").trim())
                 + " " + rs.getRev_name().toUpperCase());
-        hm.put("category", TextUtil.formatName(rs.getType().toString()));
+        hm.put("category", TextUtil.formatName(rs.getProgram_type().toString()));
         hm.put("base", TextUtil.formatName(rs.getBase_num()));
         hm.put("rev", generateRevisionURLforView(rs));
-
-        if (rs.getType().equalsIgnoreCase("software")) {
+        if (rs.getProgram_type().equalsIgnoreCase("software")) {
             int order = rs.getProgram_order_num() * 100;
             order += rs.getRev_order_num();
             if (rs.getRev_name().toLowerCase().indexOf("program") != 0)
@@ -569,7 +588,7 @@ public class IndicatorServiceImpl implements IndicatorService {
             hm.put("reportName", TextUtil.formatName(rs.getRev_name().toLowerCase().replaceAll("^program", "").trim()));
             hm.put("displayName",generateRevisionURLforView(rs));
 
-        } else if (rs.getType().equalsIgnoreCase("customer")) {
+        } else if (rs.getProgram_type().equalsIgnoreCase("customer")) {
             hm.put("displayName", TextUtil.formatName(rs.getProgram_name().toLowerCase().replaceAll("^program", "").trim()));
             hm.put("rev", generateRevisionURLforView(rs));
             hm.put("reportName", TextUtil.formatName(rs.getProgram_name().toLowerCase().replaceAll("^program", "").trim()));
@@ -588,7 +607,7 @@ public class IndicatorServiceImpl implements IndicatorService {
                         hm.put("switch_chip", chip.toUpperCase());
                     } else if (pi.getName().equalsIgnoreCase("current sdk")) {
                         hm.put("sdk_current", pi.getValue().toUpperCase());
-                    } else if (pi.getName().equalsIgnoreCase("sdk for fcs")) {
+                    } else if (pi.getName().equalsIgnoreCase("sdk for next fcs")) {
                         hm.put("sdk_fcs", pi.getValue().toUpperCase());
                     }
                 }
@@ -605,12 +624,12 @@ public class IndicatorServiceImpl implements IndicatorService {
                         milestonehm = (HashMap) obj;
                     if (milestonehm.containsKey("key")
                             && milestonehm.get("key").toString().toLowerCase().indexOf("fcs") != -1) {
-                        hm.put("milestone", milestonehm.get("value"));
+                        hm.put("fcs", milestonehm.get("value"));
                         break milestoneloop;
                     }
                 }
             }
-        } else if (rs.getType().equalsIgnoreCase("ip")) {
+        } else if (rs.getProgram_type().equalsIgnoreCase("ip")) {
             int order = 1;
             if (rs.getRev_name().toLowerCase().indexOf("head") != 0)
                 order = 0;
@@ -624,12 +643,14 @@ public class IndicatorServiceImpl implements IndicatorService {
             }
             Revision iprev = revisionService.findById(rid);
             List<RevisionIP> riplist = revisionIPService.findByRevisionIP(iprev);
-            StringBuilder sb = new StringBuilder();
             if (riplist != null && !riplist.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
                 for (RevisionIP rip : riplist) {
                     Revision rev = rip.getRevision();
                     RevisionSearch rs1 = revisionSearchService.findById(Integer.toString(rev.getId()));
-                    sb.append(generateRevisionURLforView(rs1)+ " (" + rip.getInstanceNum() + ")<br>");
+                    sb.append("<a ui-sref=\"internalProgram({pid:" + rs1.getProgram_id() + ", rid: " + rs1.getId() + ", page:'dashboard'})\">" +
+                            TextUtil.formatName(rs1.getProgram_name()) + " " +
+                            rs1.getRev_name().toUpperCase() + "</a>" + " (" + rip.getInstanceNum() + ")<br>");
                 }
                 if (sb.length() > 0) {
                     sb.setLength(sb.length() - 4);
@@ -637,40 +658,45 @@ public class IndicatorServiceImpl implements IndicatorService {
                 }
             }
 
-        } else if (rs.getType().equalsIgnoreCase("chip")) {
-            Map<String, String> tm = getKeyProjectDate(Integer.parseInt(rs.getId()));
+        } else if (rs.getProgram_type().equalsIgnoreCase("chip")) {
+            Map<String, DateTime> tm = getKeyProjectDate(Integer.parseInt(rs.getId()));
             if (tm != null && tm.keySet().size() > 0) {
                 StringBuilder sb = new StringBuilder();
                 if (hls.getStage().equalsIgnoreCase("planning")
                         || hls.getStage().equalsIgnoreCase("design")) {
                     sb.append("<p><strong>PC</strong> : ");
-                    if (tm.containsKey("pc")) {
-                        sb.append(tm.get("pc") + "</p>");
+                    if (tm.containsKey("pc") && tm.get("pc") != null) {
+                        DateTime dt = tm.get("pc");
+                        sb.append(DateUtil.toString(dt.toDate()) + "</p>");
                     } else {
                         sb.append("</p>");
                     }
                     sb.append("<p><strong>T/O</strong> : ");
-                    if (tm.containsKey("t/o")) {
-                        sb.append(tm.get("t/o") + "</p>");
+                    if (tm.containsKey("t/o") && tm.get("t/o") != null) {
+                        DateTime dt = tm.get("t/o");
+                        sb.append(DateUtil.toString(dt.toDate()) + "</p>");
                     } else {
                         sb.append("</p>");
                     }
                 } else {
                     sb.append("<p><strong>1st SI</strong> : ");
-                    if (tm.containsKey("eng sample")) {
-                        sb.append(tm.get("eng sample") + "</p>");
+                    if (tm.containsKey("eng sample") && tm.get("eng sample") != null) {
+                        DateTime dt = tm.get("eng sample");
+                        sb.append(DateUtil.toString(dt.toDate()) + "</p>");
                     } else {
                         sb.append("</p>");
                     }
                     sb.append("<p><strong>Qual Complete</strong> : ");
-                    if (tm.containsKey("qual complete")) {
-                        sb.append(tm.get("qual complete") + "</p>");
+                    if (tm.containsKey("qual complete") && tm.get("qual complete") != null) {
+                        DateTime dt = tm.get("qual complete");
+                        sb.append(DateUtil.toString(dt.toDate()) + "</p>");
                     } else {
                         sb.append("</p>");
                     }
                     sb.append("<p><strong>PRA</strong> : ");
-                    if (tm.containsKey("pra")) {
-                        sb.append(tm.get("pra") + "</p>");
+                    if (tm.containsKey("pra") && tm.get("pra") != null) {
+                        DateTime dt = tm.get("pra");
+                        sb.append(DateUtil.toString(dt.toDate()) + "</p>");
                     } else {
                         sb.append("</p>");
                     }
@@ -683,12 +709,16 @@ public class IndicatorServiceImpl implements IndicatorService {
         if (!rs.getIs_active()) {
             hm.put("schedule_flag", "grey");
         }
-
         hm.put("revision_btn_color", hm.get("schedule_flag"));
+        hm.put("escalation_btn_color", hm.get("prediction_flag"));
         if(hm.get("schedule_flag").toString().equalsIgnoreCase("black"))
             hm.put("revision_btn_color", "green");
 
-        if (!rs.getType().equalsIgnoreCase("ip")) {
+        if (hm.get("prediction_flag").toString().equalsIgnoreCase("black"))
+            hm.put("escalation_btn_color", "green");
+        else if (hm.get("prediction_flag").toString().trim().isEmpty())
+            hm.put("escalation_btn_color", "green");
+        if (!rs.getProgram_type().equalsIgnoreCase("ip")) {
             hm.put("outlookts", new DateTime(rs.getLast_updated_outlook_date()).toString(dfmt));
             if (rs.getOutlook() != null) {
                 hm.put("outlook", rs.getOutlook().replaceAll("\\[\\d{2}\\/\\d{2}\\/\\d{2,4}\\]", "")
@@ -719,11 +749,16 @@ public class IndicatorServiceImpl implements IndicatorService {
                 String name = st.trim();
                 String[] arr = name.split("\\s");
                 String reducename = arr[0].trim();
-                employeeStr.append(TextUtil.formatName(arr[0].trim() + " " + arr[arr.length - 1].trim()) + "<br>");
+                if (arr.length > 1)
+                    employeeStr.append(TextUtil.formatName(arr[0].trim() + " " + arr[arr.length - 1].trim()) + "<br>");
+                else
+                    employeeStr.append(TextUtil.formatName(arr[0].trim()) + "<br>");
+
                 if (reducename.length() > 8)
                     reducename = reducename.substring(0, 4);
                 reducepm.append(TextUtil.formatName(reducename) + "<br>");
             }
+
             hm.put("pm", employeeStr.toString().replaceAll("<br>$", "").replaceAll("\\s+", " ").trim());
             hm.put("reduced_pm", reducepm.toString().replaceAll("<br>$", "").replaceAll("\\s+", " ").trim());
         }
@@ -734,31 +769,35 @@ public class IndicatorServiceImpl implements IndicatorService {
     private String generateRevisionURLforView(RevisionSearch rs){
         String viewState = "internalProgram";
         ///get view state for ui click
-        if(rs.getType().equalsIgnoreCase("customer"))
+        if (rs.getProgram_type().equalsIgnoreCase("customer"))
             viewState = "customerProgram";
-        else if(rs.getType().equalsIgnoreCase("software"))
+        else if (rs.getProgram_type().equalsIgnoreCase("software"))
             viewState = "softwareProgram";
+        else if (rs.getProgram_type().equalsIgnoreCase("ip"))
+            viewState = "ipProgram";
 
         String ret = "<a ui-sref=\""+viewState+"({pid:" + rs.getProgram_id() + ", rid: " + rs.getId() + ", page:'dashboard'})\">" + rs.getRev_name().toUpperCase() + "</a>";
-        if (rs.getType().equalsIgnoreCase("software")) {
+        if (rs.getProgram_type().equalsIgnoreCase("software")) {
             if (rs.getProgram_name().toLowerCase().indexOf(rs.getRev_name().toLowerCase()) != -1) {
-               ret =
-                        "<a ui-sref=\""+viewState+"({pid:" + rs.getProgram_id() + ", rid: " +
-                                rs.getId() + ", page:'dashboard'})\">"
-                                + TextUtil.formatName(
-                                rs.getProgram_name().toLowerCase().replaceAll("^program", "").trim())
+                ret = "<a ui-sref=\"" + viewState + "({pid:" + rs.getProgram_id() + ", rid: " + rs.getId() + ", page:'dashboard'})\">"
+                        + TextUtil.formatName(rs.getProgram_name().toLowerCase().replaceAll("^program", "").trim())
                                 + "</a>";
             } else if (rs.getRev_name().toLowerCase().indexOf(rs.getProgram_name().toLowerCase()) != -1) {
-                ret = "<a ui-sref=\""+viewState+"({pid:" + rs.getProgram_id() + ", rid: " +
-                        rs.getId() + ", page:'dashboard'})\">"
+                ret = "<a ui-sref=\"" + viewState + "({pid:" + rs.getProgram_id() + ", rid: " + rs.getId() + ", page:'dashboard'})\">"
                         + TextUtil.formatName(rs.getRev_name().toLowerCase().replaceAll("^program", "").trim())
                         + "</a>";
             }
-        } else if (rs.getType().equalsIgnoreCase("customer")) {
+        } else if (rs.getProgram_type().equalsIgnoreCase("customer")) {
             ret =  "<a ui-sref=\""+viewState+"({pid:" + rs.getProgram_id() + ", rid: " +
                     rs.getId() + ", page:'dashboard'})\"'>" + TextUtil.formatName(rs.getProgram_name()) + "</a>";
         }
         return ret;
+    }
+
+    private String generateProgramURLforView(RevisionSearch rs) {
+        return "<a ui-sref=\"internalProgram({pid:" + rs.getProgram_id() + ", rid: " + rs.getId() + ", page:'dashboard'})\">" +
+                TextUtil.formatName(rs.getProgram_name()) + " " +
+                rs.getRev_name().toUpperCase() + "</a>";
     }
 
     /**************************************************************
@@ -837,6 +876,265 @@ public class IndicatorServiceImpl implements IndicatorService {
                 return ret;
         }
         return null;
+    }
+
+    @Override
+    public void createNewIndicatorFromTemplate(Revision rev, String ptype) {
+        List<TemplateSearch> templateSearchList = templateSearchService.findByTypeCategory(ptype.toLowerCase(), "indicator", null);
+        if (templateSearchList != null && !templateSearchList.isEmpty()) {
+            final HashMap<String, List<TemplateSearch>> templateMap = new HashMap<>();
+            if ((templateSearchList != null) && (!templateSearchList.isEmpty())) {
+                for (TemplateSearch templateSearch : templateSearchList) {
+                    String gt = templateSearch.getGroup();
+                    List<TemplateSearch> tmplist = new ArrayList<>();
+                    if (templateMap.containsKey(gt)) {
+                        tmplist = templateMap.get(gt);
+                    }
+                    if (!tmplist.contains(templateSearch))
+                        tmplist.add(templateSearch);
+                    templateMap.put(gt, tmplist);
+                }
+            }
+            final ProjectConstant.EnumIndicatorStatus status = ProjectConstant.EnumIndicatorStatus.BLACK;
+            final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
+            ExecutorService executor = Executors.newFixedThreadPool(10);
+            for (final String gt : templateMap.keySet()) {
+                executor.submit(new Runnable() {
+                    public void run() {
+                        SecurityContext ctx = SecurityContextHolder.createEmptyContext();
+                        ctx.setAuthentication(currentAuthentication);
+                        SecurityContextHolder.setContext(ctx);
+
+                        List<TemplateSearch> templates = templateMap.get(gt);
+                        if (templates != null && !templates.isEmpty()) {
+                            IGroup g = new IGroup();
+                            g.setName(gt);
+                            int gorder = 1;
+                            if (gt.toLowerCase().indexOf("project") == 0) {
+                                gorder = 0;
+                            }
+                            g.setOrderNum(Integer.valueOf(gorder));
+                            g.setRevision(rev);
+                            g = iGroupService.saveOrUpdate(g);
+
+                            IGroupHistory gh = new IGroupHistory();
+                            gh.setIGroup(g);
+                            gh.setRemark("");
+                            gh.setStatus(status);
+                            iGroupHistoryService.saveOrUpdate(gh);
+
+                            for (TemplateSearch template : templates) {
+                                ITask t = new ITask();
+                                t.setIGroup(g);
+                                t.setName(template.getName());
+                                t.setNameInReport(template.getNameInReport());
+                                t.setOrderNum(template.getOrderNum());
+                                t = iTaskService.saveOrUpdate(t);
+
+                                ITaskHistory th = new ITaskHistory();
+                                th.setITask(t);
+                                th.setNote("");
+                                th.setStatus(status);
+                                iTaskHistoryService.saveOrUpdate(th);
+
+                                for (ProjectConstant.EnumIndicatorTrackingDateType ttype : ProjectConstant.EnumIndicatorTrackingDateType.values()) {
+                                    for (ProjectConstant.EnumIndicatorEndingDateType etype : ProjectConstant.EnumIndicatorEndingDateType.values()) {
+                                        IDate d = new IDate();
+                                        d.setEtype(etype);
+                                        d.setITask(t);
+                                        d.setTtype(ttype);
+                                        d = iDateService.saveOrUpdate(d);
+
+                                        IDateHistory dh = new IDateHistory();
+                                        dh.setComment("");
+                                        dh.setIDate(d);
+                                        dh.setStatus(status);
+                                        dh.setValue(emptydt.toDate());
+                                        iDateHistoryService.saveOrUpdate(dh);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            executor.shutdown();
+            try {
+                executor.awaitTermination(10, TimeUnit.MINUTES);
+            } catch (InterruptedException e) {
+                throw new CustomGenericException(e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void cloneIndicatorFromAnotherRevision(Revision oldRev, Revision rev) {
+        if ((oldRev == null) || (rev == null))
+            return;
+        List<IGroup> iGroupList = iGroupService.findByRevision(oldRev, null);
+        if (iGroupList != null && !iGroupList.isEmpty()) {
+            final ProjectConstant.EnumIndicatorStatus status = ProjectConstant.EnumIndicatorStatus.BLACK;
+            final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
+            ExecutorService executor = Executors.newFixedThreadPool(10);
+            for (final IGroup iGroup : iGroupList) {
+                executor.submit(new Runnable() {
+                    public void run() {
+                        SecurityContext ctx = SecurityContextHolder.createEmptyContext();
+                        ctx.setAuthentication(currentAuthentication);
+                        SecurityContextHolder.setContext(ctx);
+
+                        if (iGroup.getName().equalsIgnoreCase("project")) {
+                            cloneIndicatorFromAnotherCategory(iGroup, rev);
+                        } else
+                            cloneAsyncIndicatorFromAnotherCategory(iGroup, rev, currentAuthentication);
+                    }
+                });
+
+            }
+            executor.shutdown();
+            try {
+                executor.awaitTermination(10, TimeUnit.MINUTES);
+            } catch (InterruptedException e) {
+                throw new CustomGenericException(e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    @Async
+    public void cloneAsyncIndicatorFromAnotherCategory(IGroup iGroup, Revision rev, Authentication currentAuthentication) {
+        SecurityContext ctx = SecurityContextHolder.createEmptyContext();
+        ctx.setAuthentication(currentAuthentication);
+        SecurityContextHolder.setContext(ctx);
+        final ProjectConstant.EnumIndicatorStatus status = ProjectConstant.EnumIndicatorStatus.BLACK;
+        IGroup g = new IGroup();
+        g.setName(iGroup.getName());
+        g.setOrderNum(iGroup.getOrderNum());
+        g.setRevision(rev);
+        g = iGroupService.saveOrUpdate(g);
+
+        IGroupHistory gh = new IGroupHistory();
+        gh.setIGroup(g);
+        gh.setRemark("");
+        gh.setStatus(status);
+        iGroupHistoryService.saveOrUpdate(gh);
+
+        List<ITask> iTaskList = iTaskService.findByGroup(iGroup, null);
+        if (iTaskList != null && !iTaskList.isEmpty()) {
+            for (ITask iTask : iTaskList) {
+                ITaskHistory iTaskHistory = iTaskHistoryService.findByTask(iTask);
+                ITask t = new ITask();
+                t.setIGroup(g);
+                t.setName(iTask.getName());
+                t.setOrderNum(iTask.getOrderNum());
+                t = iTaskService.saveOrUpdate(t);
+
+                ITaskHistory th = new ITaskHistory();
+                th.setITask(t);
+                if (iTaskHistory != null)
+                    th.setNote(iTaskHistory.getNote());
+                else
+                    th.setNote("");
+                th.setStatus(status);
+                iTaskHistoryService.saveOrUpdate(th);
+
+                for (ProjectConstant.EnumIndicatorTrackingDateType ttype : ProjectConstant.EnumIndicatorTrackingDateType.values()) {
+                    for (ProjectConstant.EnumIndicatorEndingDateType etype : ProjectConstant.EnumIndicatorEndingDateType.values()) {
+                        IDate iDate = iDateService.findByTaskAndType(iTask, ttype, etype);
+                        DateTime vdt = emptydt;
+                        if (iDate != null) {
+                            IDateHistory iDateHistory = iDateHistoryService.findByDate(iDate);
+                            if (iDateHistory != null) {
+                                vdt = new DateTime(iDateHistory.getValue()).withTimeAtStartOfDay();
+                                if (vdt.getYear() == 1950)
+                                    vdt = nadt;
+                                else if ((vdt.getYear() > 1950) && (vdt.getYear() < 2000))
+                                    vdt = emptydt;
+                            }
+                        }
+                        IDate d = new IDate();
+                        d.setEtype(etype);
+                        d.setITask(t);
+                        d.setTtype(ttype);
+                        d = iDateService.saveOrUpdate(d);
+
+                        IDateHistory dh = new IDateHistory();
+                        dh.setIDate(d);
+                        dh.setComment("");
+                        dh.setStatus(status);
+                        dh.setValue(vdt.toDate());
+                        iDateHistoryService.saveOrUpdate(dh);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void cloneIndicatorFromAnotherCategory(IGroup iGroup, Revision rev) {
+        final ProjectConstant.EnumIndicatorStatus status = ProjectConstant.EnumIndicatorStatus.BLACK;
+
+        IGroup g = new IGroup();
+        g.setName(iGroup.getName());
+        g.setOrderNum(iGroup.getOrderNum());
+        g.setRevision(rev);
+        g = iGroupService.saveOrUpdate(g);
+
+        IGroupHistory gh = new IGroupHistory();
+        gh.setIGroup(g);
+        gh.setRemark("");
+        gh.setStatus(status);
+        iGroupHistoryService.saveOrUpdate(gh);
+
+        List<ITask> iTaskList = iTaskService.findByGroup(iGroup, null);
+        if (iTaskList != null && !iTaskList.isEmpty()) {
+            for (ITask iTask : iTaskList) {
+                ITaskHistory iTaskHistory = iTaskHistoryService.findByTask(iTask);
+                ITask t = new ITask();
+                t.setIGroup(g);
+                t.setName(iTask.getName());
+                t.setOrderNum(iTask.getOrderNum());
+                t = iTaskService.saveOrUpdate(t);
+
+                ITaskHistory th = new ITaskHistory();
+                th.setITask(t);
+                if (iTaskHistory != null)
+                    th.setNote(iTaskHistory.getNote());
+                else
+                    th.setNote("");
+                th.setStatus(status);
+                iTaskHistoryService.saveOrUpdate(th);
+
+                for (ProjectConstant.EnumIndicatorTrackingDateType ttype : ProjectConstant.EnumIndicatorTrackingDateType.values()) {
+                    for (ProjectConstant.EnumIndicatorEndingDateType etype : ProjectConstant.EnumIndicatorEndingDateType.values()) {
+                        IDate iDate = iDateService.findByTaskAndType(iTask, ttype, etype);
+                        DateTime vdt = emptydt;
+                        if (iDate != null) {
+                            IDateHistory iDateHistory = iDateHistoryService.findByDate(iDate);
+                            if (iDateHistory != null) {
+                                vdt = new DateTime(iDateHistory.getValue()).withTimeAtStartOfDay();
+                                if (vdt.getYear() == 1950)
+                                    vdt = nadt;
+                                else if ((vdt.getYear() > 1950) && (vdt.getYear() < 2000))
+                                    vdt = emptydt;
+                            }
+                        }
+                        IDate d = new IDate();
+                        d.setEtype(etype);
+                        d.setITask(t);
+                        d.setTtype(ttype);
+                        d = iDateService.saveOrUpdate(d);
+
+                        IDateHistory dh = new IDateHistory();
+                        dh.setIDate(d);
+                        dh.setComment("");
+                        dh.setStatus(status);
+                        dh.setValue(vdt.toDate());
+                        iDateHistoryService.saveOrUpdate(dh);
+                    }
+                }
+            }
+        }
     }
 
 }

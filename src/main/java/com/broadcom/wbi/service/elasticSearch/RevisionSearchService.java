@@ -26,7 +26,9 @@ public interface RevisionSearchService extends CRUDService<RevisionSearch> {
 
     List<RevisionSearch> findByProgram(String pname);
 
-    List<RevisionSearch> searchByProgram(String pname);
+    List<RevisionSearch> findByProgram(String baseNum, String pname);
+
+//    List<RevisionSearch> searchByProgram(String pname);
 
     List<RevisionSearch> findByProgramType(EnumProgramType ptype, Boolean isActive);
 }

@@ -20,10 +20,14 @@ import java.util.Set;
 @Service
 public class SkuSearchServiceImpl implements SkuSearchService {
 
+    private final SkuSearchRepository repo;
+    private final ElasticsearchTemplate template;
+
     @Autowired
-    private SkuSearchRepository repo;
-    @Autowired
-    private ElasticsearchTemplate template;
+    public SkuSearchServiceImpl(SkuSearchRepository repo, ElasticsearchTemplate template) {
+        this.repo = repo;
+        this.template = template;
+    }
 
     @Override
     public SkuSearch saveOrUpdate(SkuSearch sku) {

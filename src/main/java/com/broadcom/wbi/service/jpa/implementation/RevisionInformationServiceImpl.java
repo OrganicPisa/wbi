@@ -1,19 +1,33 @@
 package com.broadcom.wbi.service.jpa.implementation;
 
 import com.broadcom.wbi.exception.IDNotFoundException;
+import com.broadcom.wbi.model.elasticSearch.TemplateSearch;
+import com.broadcom.wbi.model.mysql.Program;
 import com.broadcom.wbi.model.mysql.Revision;
 import com.broadcom.wbi.model.mysql.RevisionInformation;
 import com.broadcom.wbi.repository.mysql.RevisionInformationRepository;
+import com.broadcom.wbi.service.elasticSearch.TemplateSearchService;
+import com.broadcom.wbi.service.event.RevisionInformationSaveEvent;
+import com.broadcom.wbi.service.event.RevisionInformationSaveEventPublisher;
 import com.broadcom.wbi.service.jpa.RevisionInformationService;
+import com.broadcom.wbi.util.ProjectConstant;
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
@@ -22,16 +36,28 @@ public class RevisionInformationServiceImpl implements RevisionInformationServic
 
     @Resource
     private RevisionInformationRepository repo;
+    @Autowired
+    private RevisionInformationSaveEventPublisher revisionInformationSaveEventPublisher;
+    @Autowired
+    private TemplateSearchService templateSearchService;
 
     @Override
     @Transactional
     public RevisionInformation saveOrUpdate(RevisionInformation revisionInformation) {
-        return repo.save(revisionInformation);
+        RevisionInformation ri = repo.save(revisionInformation);
+        HashMap map = new HashMap<>();
+        map.put("action", "save");
+        map.put("data", ri);
+        revisionInformationSaveEventPublisher.publish(new RevisionInformationSaveEvent(map));
+        return ri;
     }
 
     @Override
     @Transactional(rollbackFor = {IDNotFoundException.class})
     public void delete(Integer id) {
+        HashMap map = new HashMap<>();
+        map.put("action", "delete");
+        map.put("data", id);
         repo.delete(id);
     }
 
@@ -74,26 +100,68 @@ public class RevisionInformationServiceImpl implements RevisionInformationServic
         return repo.findDistinctByRevisionAndPhaseAndNameOrderByOrderNumAsc(rev, phase.toLowerCase().trim(), name.toLowerCase().trim());
     }
 
-//	@Override
-//	public void updateValueByRevisionPhaseName(Revision rev,String phase, HashMap infomap) {
-//		for (Object key : infomap.keySet()){
-//			List<RevisionInformation> ril = findByRevisionPhaseName(rev, "current", key.toString().toLowerCase());
-//
-//			if(ril != null){
-//				for (RevisionInformation ri : ril){
-//					ri.setValue(infomap.get(key).toString());
-//					update(ri);
-//				}
-//			}
-//			List<RevisionInformationSearch> risl = riSearchServ.findByRevisionPhaseName(rev.getId(), "current", key.toString().toLowerCase());
-//			if(risl != null){
-//				for(RevisionInformationSearch ris : risl){
-//					ris.setValue(infomap.get(key).toString());
-//					riSearchServ.save(ris);
-//				}
-//			}
-//		}
-//	}
+    @Override
+    @Async
+    public void cloneFromAnotherRevision(Revision oldRev, Revision rev, Authentication currentAuthentication) {
+        SecurityContext ctx = SecurityContextHolder.createEmptyContext();
+        ctx.setAuthentication(currentAuthentication);
+        SecurityContextHolder.setContext(ctx);
+        List<RevisionInformation> revisionInformationList = findByRevision(oldRev);
+        if ((revisionInformationList != null) && (!revisionInformationList.isEmpty())) {
+            for (RevisionInformation revisionInformation : revisionInformationList) {
+                RevisionInformation pi = new RevisionInformation();
+                pi.setOrderNum(revisionInformation.getOrderNum());
+                pi.setIsRestrictedView(revisionInformation.getIsRestrictedView());
+                pi.setName(revisionInformation.getName().toLowerCase().trim());
+                pi.setRevision(rev);
+                pi.setValue(revisionInformation.getValue().toLowerCase().trim());
+                pi.setPhase(revisionInformation.getPhase());
+                pi.setIsUserEditable(revisionInformation.getIsUserEditable());
+                pi.setOnDashboard(revisionInformation.getOnDashboard());
+                saveOrUpdate(pi);
+            }
+        }
+    }
+
+    @Override
+    public void cloneFromTemplate(Revision rev, Authentication currentAuthentication) {
+        SecurityContext ctx = SecurityContextHolder.createEmptyContext();
+        ctx.setAuthentication(currentAuthentication);
+        SecurityContextHolder.setContext(ctx);
+        Program program = rev.getProgram();
+        List<TemplateSearch> templateSearchList = templateSearchService.findByTypeCategory(program.getType().toString().toLowerCase(), "information", null);
+        List<String> phases = new ArrayList();
+        if (program.getType().equals(ProjectConstant.EnumProgramType.CHIP)) {
+            phases = Arrays.asList("ca", "pc", "ecr1", "ecr2", "ecr3", "current", "to/final");
+        } else {
+            phases = Arrays.asList("current");
+        }
+        for (String phase : phases) {
+            for (TemplateSearch temp : templateSearchList) {
+                RevisionInformation pi = new RevisionInformation();
+                pi.setOrderNum(temp.getOrderNum());
+                pi.setIsRestrictedView(temp.getIsRestrictedView());
+                pi.setName(temp.getName());
+                pi.setRevision(rev);
+                pi.setValue("");
+                pi.setPhase(phase);
+                if (phase.equalsIgnoreCase("ca")) {
+                    pi.setIsUserEditable(temp.getAvailableCA());
+                } else if (phase.equalsIgnoreCase("pc")) {
+                    pi.setIsUserEditable(temp.getAvailablePC());
+                } else if (phase.equalsIgnoreCase("current")) {
+                    pi.setIsUserEditable(temp.getAvailableCurrent());
+                } else if (phase.equalsIgnoreCase("to/final")) {
+                    pi.setIsUserEditable(temp.getAvailableTO());
+                } else if (phase.toLowerCase().indexOf("ecr") == 0) {
+                    pi.setIsUserEditable(temp.getAvailableECR());
+                }
+                pi.setOnDashboard(temp.getOnDashboard());
+                saveOrUpdate(pi);
+            }
+        }
+    }
+
 
     @Override
     public List<RevisionInformation> listAll() {

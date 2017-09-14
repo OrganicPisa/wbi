@@ -21,7 +21,7 @@ var App = angular.module('app', [
 // Router configuration
 App.config(function ($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider, cfpLoadingBarProvider, $qProvider,
                      NotificationProvider, $mdDateLocaleProvider, $mdThemingProvider, blockUIConfig) {
-        $urlRouterProvider.otherwise('/');
+    $urlRouterProvider.otherwise('/');
     $qProvider.errorOnUnhandledRejections(false);
         var whiteMap = $mdThemingProvider.extendPalette('grey', {'500': '#ffffff', 'contrastDefaultColor': 'dark'});
         $mdThemingProvider.definePalette('white', whiteMap);
@@ -32,23 +32,27 @@ App.config(function ($stateProvider, $urlRouterProvider, $locationProvider, $htt
         });
 
     blockUIConfig.message = 'Please wait...';
-        NotificationProvider.setOptions({
-            delay: 5000,
-            startTop: 20,
-            startRight: 10,
-            verticalSpacing: 5,
-            horizontalSpacing: 10,
-            positionX: 'center',
-            positionY: 'top',
-            maxCount: 3
-        });
-        cfpLoadingBarProvider.includeSpinner = true;
+    NotificationProvider.setOptions({
+        delay: 5000,
+        startTop: 20,
+        startRight: 10,
+        verticalSpacing: 5,
+        horizontalSpacing: 10,
+        positionX: 'center',
+        positionY: 'top',
+        maxCount: 3
+    });
+    cfpLoadingBarProvider.includeSpinner = true;
 
-        $stateProvider
-            .state(segmentState)
-            .state(internalProgramState)
-            .state(customerProgramState)
-
+    $stateProvider
+        .state(segmentState)
+        .state(internalProgramState)
+        .state(customerProgramState)
+        .state(softwareProgramState)
+        .state(newProgramState)
+        .state(ipProgramState)
+        .state(indicatorReportState)
+        .state(resourceReportState)
     }
 );
 
@@ -77,6 +81,7 @@ var segmentState = {
         }]
     }
 };
+
 
 var internalProgramState = {
     name: 'internalProgram',
@@ -119,6 +124,33 @@ var internalProgramState = {
     }
 };
 
+var newProgramState = {
+    name: 'newProgram',
+    url: '/program/new/0/0/:page',
+    params: {
+        page: "select",
+    },
+    templateUrl: function ($stateParams) {
+        return '/program/new/index.html';
+    },
+    controller: 'NewProgramCtrl',
+    resolve: {
+        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+            return $ocLazyLoad.load({
+                serie: true,
+                files: [
+                    '/webjars/tinymce/4.2.1/tinymce.min.js',
+                    '/webjars/angular-ui-tinymce/0.0.9/src/tinymce.js',
+                    '/webjars/smart-table/2.0.3/smart-table.js',
+                    '/webjars/smart-table-sticky-header/1.0.1/stStickyHeader.js',
+
+                ]
+            });
+        }]
+    }
+};
+
+
 var customerProgramState = {
     name: 'customerProgram',
     url: '/program/customer/{pid}/{rid}/{page}',
@@ -141,25 +173,132 @@ var customerProgramState = {
                     '/webjars/smart-table/2.0.3/smart-table.js',
                     '/webjars/smart-table-sticky-header/1.0.1/stStickyHeader.js',
                     '/webjars/angular-xeditable/0.1.9/css/xeditable.css',
-                    '/webjars/angular-xeditable/0.1.9/js/xeditable.min.js',
-                    '/webjars/angular-ui-grid/4.0.6/ui-grid.min.css',
-                    '/webjars/angular-ui-grid/4.0.6/ui-grid.min.js',
-                    // '/webjars/angular-confirm/1.2.3/angular-confirm.min.js',
-                    '/webjars/FileSaver.js/0.0.2/FileSaver.min.js',
-                    '/webjars/highcharts-ng/0.0.11/highcharts-ng.min.js',
-                    '/webjars/highcharts/5.0.13/highcharts.js',
-                    '/webjars/highcharts/5.0.13/modules/exporting.js',
-                    '/webjars/highcharts/5.0.13/modules/offline-exporting.js',
-                    '/webjars/highcharts/5.0.13/modules/no-data-to-display.js',
-                    '/webjars/angular-file-upload/12.2.13/FileAPI.min.js',
-                    '/webjars/angular-file-upload/12.2.13/ng-file-upload-shim.min.js',
-                    '/webjars/angular-file-upload/12.2.13/ng-file-upload.min.js'
+                    '/webjars/angular-xeditable/0.1.9/js/xeditable.min.js'
+                ]
+            });
+        }]
+    }
+};
+var softwareProgramState = {
+    name: 'softwareProgram',
+    url: '/program/software/{pid}/{rid}/{page}',
+    params: {
+        pid: "0",
+        rid: "0",
+        page: "dashboard",
+    },
+    templateUrl: function ($stateParams) {
+        return '/program/software/index.html';
+    },
+    controller: 'SoftwareProgramCtrl',
+    resolve: {
+        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+            return $ocLazyLoad.load({
+                serie: true,
+                files: [
+                    '/webjars/tinymce/4.2.1/tinymce.min.js',
+                    '/webjars/angular-ui-tinymce/0.0.9/src/tinymce.js',
+                    '/webjars/smart-table/2.0.3/smart-table.js',
+                    '/webjars/smart-table-sticky-header/1.0.1/stStickyHeader.js',
+                    '/webjars/angular-xeditable/0.1.9/css/xeditable.css',
+                    '/webjars/angular-xeditable/0.1.9/js/xeditable.min.js'
+                ]
+            });
+        }]
+    }
+};
+var ipProgramState = {
+    name: 'ipProgram',
+    url: '/program/ip/{pid}/{rid}/{page}',
+    params: {
+        pid: "0",
+        rid: "0",
+        page: "dashboard",
+    },
+    templateUrl: function ($stateParams) {
+        return '/program/ip/index.html';
+    },
+    controller: 'IPProgramCtrl',
+    resolve: {
+        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+            return $ocLazyLoad.load({
+                serie: true,
+                files: [
+                    '/webjars/tinymce/4.2.1/tinymce.min.js',
+                    '/webjars/angular-ui-tinymce/0.0.9/src/tinymce.js',
+                    '/webjars/smart-table/2.0.3/smart-table.js',
+                    '/webjars/smart-table-sticky-header/1.0.1/stStickyHeader.js',
+                    '/webjars/angular-xeditable/0.1.9/css/xeditable.css',
+                    '/webjars/angular-xeditable/0.1.9/js/xeditable.min.js'
                 ]
             });
         }]
     }
 };
 
+var indicatorReportState = {
+    name: 'indicatorReport',
+    url: '/report/indicator/{type}/{page}',
+    params: {
+        type: 'headline',
+        page: "internal"
+    },
+    templateUrl: function ($stateParams) {
+        return '/report/indicator/index.html';
+    },
+    controller: 'IndicatorReportCtrl',
+    resolve: {
+        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+            return $ocLazyLoad.load({
+                serie: true,
+                files: [
+                    '/webjars/tinymce/4.2.1/tinymce.min.js',
+                    '/webjars/angular-ui-tinymce/0.0.9/src/tinymce.js',
+                    '/webjars/smart-table/2.0.3/smart-table.js',
+                    '/webjars/smart-table-sticky-header/1.0.1/stStickyHeader.js',
+                    '/webjars/angular-xeditable/0.1.9/css/xeditable.css',
+                    '/webjars/angular-xeditable/0.1.9/js/xeditable.min.js',
+                    '/webjars/angular-ui-grid/4.0.6/ui-grid.min.css',
+                    '/webjars/angular-ui-grid/4.0.6/ui-grid.min.js',
+                ]
+            });
+        }]
+    }
+};
+
+var resourceReportState = {
+    name: 'resourceReport',
+    url: '/report/resource/collect/{page}',
+    params: {
+        page: "project"
+    },
+    templateUrl: function ($stateParams) {
+        return '/report/resource/index.html';
+    },
+    controller: 'ResourceReportCtrl',
+    resolve: {
+        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+            return $ocLazyLoad.load({
+                serie: true,
+                files: [
+                    '/webjars/tinymce/4.2.1/tinymce.min.js',
+                    '/webjars/angular-ui-tinymce/0.0.9/src/tinymce.js',
+                    '/webjars/smart-table/2.0.3/smart-table.js',
+                    '/webjars/smart-table-sticky-header/1.0.1/stStickyHeader.js',
+                    '/webjars/angular-xeditable/0.1.9/css/xeditable.css',
+                    '/webjars/angular-xeditable/0.1.9/js/xeditable.min.js',
+                    '/webjars/highcharts-ng/0.0.11/highcharts-ng.min.js',
+                    '/webjars/highcharts/5.0.13/highcharts.js',
+                    '/webjars/highcharts/5.0.13/modules/exporting.js',
+                    '/webjars/highcharts/5.0.13/modules/offline-exporting.js',
+                    '/webjars/highcharts/5.0.13/modules/no-data-to-display.js',
+                    '/webjars/angular-ui-grid/4.0.6/ui-grid.min.css',
+                    '/webjars/angular-ui-grid/4.0.6/ui-grid.min.js'
+                ]
+            });
+        }]
+    }
+};
 
 App.run(function ($rootScope, $http, $localStorage) {
     $rootScope.$on("$stateChangeError", console.log.bind(console));
@@ -185,11 +324,11 @@ App.run(function ($rootScope, $http, $localStorage) {
     if (!angular.isDefined($localStorage.ipDropDownTemplate)) {
         $http.get('/api/getIPDropDownTemplate').then(function (ret) {
             $localStorage.ipDropDownTemplate = ret;
-            $rootScope.ipDropDownTemplate = ret;
+            $rootScope.ipDropDownTemplate = ret.data;
         });
     }
     else{
-        $rootScope.ipDropDownTemplate = $localStorage.ipDropDownTemplate;
+        $rootScope.ipDropDownTemplate = $localStorage.ipDropDownTemplate.data;
     }
 
     $rootScope.convertDateToString = function (d) {

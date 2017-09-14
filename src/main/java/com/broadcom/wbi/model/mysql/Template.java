@@ -43,31 +43,24 @@ public class Template extends AbstractDomainClass implements Serializable {
     @Column(name = "template_group")
     private String group;
 
-    @NotBlank
     @Column(name = "on_dashboard", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean onDashboard = false;
 
-    @NotBlank
     @Column(name = "available_ca", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean availableCA = false;
 
-    @NotBlank
     @Column(name = "available_pc", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean availablePC = false;
 
-    @NotBlank
     @Column(name = "available_ecr", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean availableECR = false;
 
-    @NotBlank
     @Column(name = "available_to", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean availableTO = false;
 
-    @NotBlank
     @Column(name = "available_current", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean availableCurrent = false;
 
-    @NotBlank
     @Column(name = "is_restricted", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean isRestrictedView = false;
 }

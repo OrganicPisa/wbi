@@ -1,40 +1,32 @@
-<nav data-ng-include="'/program/new/sidebar'" data-ng-controller="SidebarCtrl" id="sidebar"
-     data-ng-if="page!=='select'"></nav>
-<main id="main-container" data-ng-if='permission.authenticated'>
-    <div class="content bg-gray-lighter">
-        <div class="row">
-        </div>
-    </div>
-    <div class="content">
-        <div ng-switch on="page">
+<md-content class="md-padding" style="padding-top:1px!important;">
+    <div flex ng-switch on="page" style="padding-bottom: 40px!important;">
             <div ng-switch-default
-                 data-ng-if="permission.authority=='ipm' || permission.authority=='pm'  || permission.authority=='cpm' || permission.authority=='admin'">
+                 data-ng-if="authority=='ipm' || authority=='pm'  || authority=='cpm'  || authority=='ippm' || authority=='admin'">
                 <div ng-include="'/program/new/select'"></div>
             </div>
             <div ng-switch-when="internalprogram"
-                 data-ng-if="permission.authority=='ipm' || permission.authority=='pm' || permission.authority=='admin'">
+                 data-ng-if="authority=='ipm' || authority=='pm' || authority=='admin'">
                 <div ng-include="'/program/new/internalprogram'"></div>
             </div>
             <div ng-switch-when="internalrevision"
-                 data-ng-if="permission.authority=='ipm' || permission.authority=='pm' || permission.authority=='admin'">
+                 data-ng-if="authority=='ipm' || authority=='pm' || authority=='admin'">
                 <div ng-include="'/program/new/internalrevision'"></div>
             </div>
             <div ng-switch-when="customerprogram"
-                 data-ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
+                 data-ng-if="authority=='cpm' || authority=='pm' || authority=='admin'">
                 <div ng-include="'/program/new/customerprogram'"></div>
             </div>
             <div ng-switch-when="ipprogram"
-                 data-ng-if="permission.authority=='ippm' || permission.authority=='pm' || permission.authority=='admin'">
+                 data-ng-if="authority=='ippm' || authority=='pm' || authority=='admin'">
                 <div ng-include="'/program/new/ipprogram'"></div>
             </div>
             <div ng-switch-when="iprevision"
-                 data-ng-if="permission.authority=='ippm' || permission.authority=='pm' || permission.authority=='admin'">
+                 data-ng-if="authority=='ippm' || authority=='pm' || authority=='admin'">
                 <div ng-include="'/program/new/iprevision'"></div>
             </div>
             <div ng-switch-when="software"
-                 data-ng-if="permission.authority=='swpm' || permission.authority=='pm' || permission.authority=='admin'">
+                 data-ng-if="authority=='swpm' || authority=='pm' || authority=='admin'">
                 <div ng-include="'/program/new/software'"></div>
             </div>
         </div>
-    </div>
-</main>
+</md-content>

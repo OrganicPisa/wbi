@@ -5,13 +5,13 @@ import com.broadcom.wbi.exception.IDNotFoundException;
 import com.broadcom.wbi.model.elasticSearch.*;
 import com.broadcom.wbi.model.mysql.*;
 import com.broadcom.wbi.service.elasticSearch.*;
-import com.broadcom.wbi.service.event.*;
+import com.broadcom.wbi.service.event.CacheClearEvent;
+import com.broadcom.wbi.service.event.CacheClearEventPublisher;
+import com.broadcom.wbi.service.event.TaskSaveEventPublisher;
+import com.broadcom.wbi.service.event.TaskWithSameNameSaveEvent;
 import com.broadcom.wbi.service.indicator.IndicatorService;
 import com.broadcom.wbi.service.jpa.*;
-import com.broadcom.wbi.util.DateResetUtil;
-import com.broadcom.wbi.util.DateUtil;
-import com.broadcom.wbi.util.ProjectConstant;
-import com.broadcom.wbi.util.TextUtil;
+import com.broadcom.wbi.util.*;
 import org.apache.commons.lang.WordUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.WebAsyncTask;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -50,61 +51,73 @@ public class RevisionController {
         stageTaskMap = Collections.unmodifiableMap(map);
     }
 
-    @Autowired
-    private RevisionInformationSearchService revisionInformationSearchService;
-    @Autowired
-    private RevisionInformationService revisionInformationService;
-    @Autowired
-    private RevisionService revisionService;
-    @Autowired
-    private RevisionSearchService revisionSearchService;
-    @Autowired
-    private ProgramService programService;
-    @Autowired
-    private RevisionContactService revisionContactService;
-    @Autowired
-    private RevisionIPService revisionIPService;
-    @Autowired
-    private RevisionContactSearchService revisionContactSearchService;
-    @Autowired
-    private EmployeeService employeeService;
-    @Autowired
-    private IndicatorService indicatorService;
+    private final RevisionInformationSearchService revisionInformationSearchService;
+    private final RevisionInformationService revisionInformationService;
+    private final RevisionService revisionService;
+    private final RevisionSearchService revisionSearchService;
+    private final ProgramService programService;
+    private final RevisionContactService revisionContactService;
+    private final RevisionIPService revisionIPService;
+    private final RevisionContactSearchService revisionContactSearchService;
+    private final EmployeeService employeeService;
+    private final IndicatorService indicatorService;
+
+    private final RevisionOutlookService revisionOutlookService;
+    private final LinkService linkService;
+    private final HeadlineService headlineService;
+    private final HeadlineSearchService headlineSearchService;
+    private final IGroupService iGroupService;
+    private final IGroupHistoryService iGroupHistoryService;
+    private final IndicatorGroupSearchService indicatorGroupSearchService;
+    private final ITaskService iTaskService;
+    private final ITaskHistoryService iTaskHistoryService;
+    private final IndicatorTaskSearchService indicatorTaskSearchService;
+    private final IDateService iDateService;
+    private final IDateHistoryService iDateHistoryService;
+    private final IndicatorDateSearchService indicatorDateSearchService;
+    private final TaskSaveEventPublisher taskSaveEventPublisher;
+    private final CacheClearEventPublisher cacheClearEventPublisher;
+    private final RedisCacheRepository redisCacheRepository;
+    private final SkuService skuService;
 
     @Autowired
-    private RevisionOutlookService revisionOutlookService;
-    @Autowired
-    private LinkService linkService;
-    @Autowired
-    private HeadlineService headlineService;
-    @Autowired
-    private HeadlineSearchService headlineSearchService;
-    @Autowired
-    private IGroupService iGroupService;
-    @Autowired
-    private IGroupHistoryService iGroupHistoryService;
-    @Autowired
-    private IndicatorGroupSearchService indicatorGroupSearchService;
-    @Autowired
-    private ITaskService iTaskService;
-    @Autowired
-    private ITaskHistoryService iTaskHistoryService;
-    @Autowired
-    private IndicatorTaskSearchService indicatorTaskSearchService;
-    @Autowired
-    private IDateService iDateService;
-    @Autowired
-    private IDateHistoryService iDateHistoryService;
-    @Autowired
-    private IndicatorDateSearchService indicatorDateSearchService;
-    @Autowired
-    private TaskSaveEventPublisher taskSaveEventPublisher;
-    @Autowired
-    private HeadlineSaveEventPublisher headlineSaveEventPublisher;
-    @Autowired
-    private CacheClearEventPublisher cacheClearEventPublisher;
-    @Autowired
-    private RedisCacheRepository redisCacheRepository;
+    public RevisionController(RevisionInformationSearchService revisionInformationSearchService, RevisionInformationService revisionInformationService,
+                              RevisionIPService revisionIPService, RevisionService revisionService, RevisionSearchService revisionSearchService,
+                              IDateHistoryService iDateHistoryService, ProgramService programService, ITaskService iTaskService,
+                              RevisionContactService revisionContactService, IGroupService iGroupService, RedisCacheRepository redisCacheRepository,
+                              IDateService iDateService, RevisionContactSearchService revisionContactSearchService, EmployeeService employeeService,
+                              IndicatorTaskSearchService indicatorTaskSearchService, IGroupHistoryService iGroupHistoryService, ITaskHistoryService iTaskHistoryService,
+                              IndicatorService indicatorService, HeadlineSearchService headlineSearchService, IndicatorGroupSearchService indicatorGroupSearchService,
+                              IndicatorDateSearchService indicatorDateSearchService, CacheClearEventPublisher cacheClearEventPublisher, RevisionOutlookService revisionOutlookService,
+                              LinkService linkService, TaskSaveEventPublisher taskSaveEventPublisher, HeadlineService headlineService, SkuService skuService) {
+        this.revisionInformationSearchService = revisionInformationSearchService;
+        this.revisionInformationService = revisionInformationService;
+        this.revisionIPService = revisionIPService;
+        this.revisionService = revisionService;
+        this.revisionSearchService = revisionSearchService;
+        this.iDateHistoryService = iDateHistoryService;
+        this.programService = programService;
+        this.iTaskService = iTaskService;
+        this.revisionContactService = revisionContactService;
+        this.iGroupService = iGroupService;
+        this.redisCacheRepository = redisCacheRepository;
+        this.iDateService = iDateService;
+        this.revisionContactSearchService = revisionContactSearchService;
+        this.employeeService = employeeService;
+        this.indicatorTaskSearchService = indicatorTaskSearchService;
+        this.iGroupHistoryService = iGroupHistoryService;
+        this.iTaskHistoryService = iTaskHistoryService;
+        this.indicatorService = indicatorService;
+        this.headlineSearchService = headlineSearchService;
+        this.indicatorGroupSearchService = indicatorGroupSearchService;
+        this.indicatorDateSearchService = indicatorDateSearchService;
+        this.cacheClearEventPublisher = cacheClearEventPublisher;
+        this.revisionOutlookService = revisionOutlookService;
+        this.linkService = linkService;
+        this.taskSaveEventPublisher = taskSaveEventPublisher;
+        this.headlineService = headlineService;
+        this.skuService = skuService;
+    }
 
     @RequestMapping(value = {"/getInformation"}, method = {RequestMethod.GET})
     public WebAsyncTask<LinkedHashMap> getInformation(HttpServletRequest req,
@@ -145,7 +158,6 @@ public class RevisionController {
                 final Revision revision = rev;
                 final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
 
-                RevisionSearch rs = revisionSearchService.findById(Integer.toString(revision.getId()));
                 if (map.containsKey("type")) {
                     String type = map.get("type").toString();
                     ExecutorService executor = Executors.newFixedThreadPool(20);
@@ -170,24 +182,18 @@ public class RevisionController {
                                             String value = map.get("value").toString().trim();
                                             try {
                                                 Integer id = Integer.parseInt(map.get("id").toString());
+                                                RevisionInformation ri = null;
                                                 if (id > 0) {
-                                                    RevisionInformation ri = revisionInformationService.findById(id);
+                                                    ri = revisionInformationService.findById(id);
                                                     if (ri != null && !ri.getValue().equalsIgnoreCase(value.trim())) {
                                                         ri.setValue(value);
-                                                        ri = revisionInformationService.saveOrUpdate(ri);
-                                                    }
-
-                                                    RevisionInformationSearch ris = revisionInformationSearchService.findById(Integer.toString(id));
-                                                    if (ris != null && !ris.getValue().equalsIgnoreCase(value.trim())) {
-                                                        ris.setValue(value.trim().toLowerCase());
-                                                        ri.setValue(value);
-                                                        revisionInformationSearchService.saveOrUpdate(ris);
+                                                        revisionInformationService.saveOrUpdate(ri);
                                                     }
                                                 } else {
                                                     if (revision != null) {
                                                         String name = map.get("key").toString().trim();
                                                         Integer orderNum = Integer.parseInt(map.get("order").toString().trim());
-                                                        RevisionInformation ri = new RevisionInformation();
+                                                        ri = new RevisionInformation();
                                                         ri.setIsRestrictedView(false);
                                                         ri.setIsUserEditable(true);
                                                         ri.setName(name);
@@ -196,22 +202,7 @@ public class RevisionController {
                                                         ri.setPhase("current");
                                                         ri.setRevision(revision);
                                                         ri.setValue(value);
-                                                        ri = revisionInformationService.saveOrUpdate(ri);
-
-                                                        RevisionInformationSearch ris = new RevisionInformationSearch();
-                                                        ris.setCreated_date(ri.getCreatedDate());
-                                                        ris.setId(Integer.toString(ri.getId()));
-                                                        ris.setOrderNum(ri.getOrderNum());
-                                                        ris.setLast_updated_date(ri.getLastUpdatedDate());
-                                                        ris.setName(ri.getName().toLowerCase().trim());
-                                                        ris.setOnDashboard(ri.getOnDashboard());
-                                                        ris.setPhase(ri.getPhase().toLowerCase().trim());
-                                                        ris.setValue(ri.getValue().toLowerCase().trim());
-                                                        ris.setIsUserEditable(ri.getIsUserEditable());
-                                                        ris.setIsRestrictedView(ri.getIsRestrictedView());
-                                                        ris.setRevision(revision.getId());
-
-                                                        revisionInformationSearchService.saveOrUpdate(ris);
+                                                        revisionInformationService.saveOrUpdate(ri);
                                                     }
                                                 }
                                             } catch (NumberFormatException e) {
@@ -228,6 +219,7 @@ public class RevisionController {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+
                     } else if (type.equalsIgnoreCase("detail")) {
                         HashMap submap = new HashMap();
                         if (map.containsKey("data")) {
@@ -251,32 +243,18 @@ public class RevisionController {
                                                 if (isEditable) {
                                                     String value = map.get("value").toString().trim();
                                                     try {
+                                                        RevisionInformation ri = null;
                                                         Integer id = Integer.parseInt(map.get("id").toString());
                                                         if (title.toString().equalsIgnoreCase("base die") && !value.trim().isEmpty()) {
                                                             Program p = revision.getProgram();
                                                             p.setBaseNum(value);
-                                                            p = programService.saveOrUpdate(p);
-                                                            List<RevisionSearch> rsl = revisionSearchService.findByProgram(p.getId());
-                                                            if (rsl != null && !rsl.isEmpty()) {
-                                                                for (RevisionSearch rs : rsl) {
-                                                                    rs.setBase_num(value);
-                                                                    revisionSearchService.saveOrUpdate(rs);
-                                                                }
-                                                            }
+                                                            programService.saveOrUpdate(p);
                                                         }
                                                         if (id > 0) {
-                                                            RevisionInformation ri = revisionInformationService.findById(id);
+                                                            ri = revisionInformationService.findById(id);
                                                             if (ri != null && !ri.getValue().equalsIgnoreCase(value.trim())) {
-
-                                                                System.out.println(ri.getName() + " : " + value + "---" + ri.getValue());
                                                                 ri.setValue(value);
                                                                 revisionInformationService.saveOrUpdate(ri);
-                                                            }
-                                                            RevisionInformationSearch ris = revisionInformationSearchService.findById(Integer.toString(id));
-                                                            if (ris != null && !ris.getValue().equalsIgnoreCase(value.trim())) {
-                                                                ris.setValue(value.trim().toLowerCase());
-                                                                ris.setLast_updated_date(new Date());
-                                                                revisionInformationSearchService.saveOrUpdate(ris);
                                                             }
                                                         } else {
                                                             if (revision != null) {
@@ -287,7 +265,7 @@ public class RevisionController {
                                                                         orderNum = Integer.parseInt(map.get("order").toString());
                                                                     else
                                                                         orderNum = 1000;
-                                                                    RevisionInformation ri = new RevisionInformation();
+                                                                    ri = new RevisionInformation();
                                                                     ri.setIsRestrictedView(false);
                                                                     ri.setIsUserEditable(true);
                                                                     ri.setName(name);
@@ -296,22 +274,7 @@ public class RevisionController {
                                                                     ri.setPhase("current");
                                                                     ri.setRevision(revision);
                                                                     ri.setValue(value);
-                                                                    ri = revisionInformationService.saveOrUpdate(ri);
-
-                                                                    RevisionInformationSearch ris = new RevisionInformationSearch();
-                                                                    ris.setCreated_date(ri.getCreatedDate());
-                                                                    ris.setId(Integer.toString(ri.getId()));
-                                                                    ris.setOrderNum(ri.getOrderNum());
-                                                                    ris.setLast_updated_date(ri.getLastUpdatedDate());
-                                                                    ris.setName(ri.getName().toLowerCase().trim());
-                                                                    ris.setOnDashboard(ri.getOnDashboard());
-                                                                    ris.setPhase(ri.getPhase().toLowerCase().trim());
-                                                                    ris.setValue(ri.getValue().toLowerCase().trim());
-                                                                    ris.setIsUserEditable(ri.getIsUserEditable());
-                                                                    ris.setIsRestrictedView(ri.getIsRestrictedView());
-                                                                    ris.setRevision(revision.getId());
-
-                                                                    revisionInformationSearchService.saveOrUpdate(ris);
+                                                                    revisionInformationService.saveOrUpdate(ri);
                                                                 }
                                                             }
                                                         }
@@ -333,6 +296,10 @@ public class RevisionController {
                         }
                     }
                 }
+
+                //delete cache here
+                //for customer program
+                //publish event to clear cache front page and report
                 ret.put("code", HttpStatus.OK);
                 ret.put("data", "Saved to db");
                 return ResponseEntity.ok(ret);
@@ -416,14 +383,10 @@ public class RevisionController {
                         } catch (Exception e) {
                             throw new CustomGenericException(e.getMessage());
                         }
-
                         if (hm.containsKey("isDeleted") && id > 0) {
                             boolean isDeleted = (Boolean) hm.get("isDeleted");
                             if (isDeleted) {
                                 revisionContactService.delete(id);
-                                RevisionContactSearch pcs = revisionContactSearchService.findById(Integer.toString(id));
-                                if (pcs != null)
-                                    revisionContactSearchService.delete(pcs.getId());
                                 continue contactloop;
                             }
                         } else {
@@ -440,17 +403,7 @@ public class RevisionController {
                                     contact.setValue(value.toString().trim());
                                     contact.setName(key);
                                     contact.setRevision(rev);
-                                    contact = revisionContactService.saveOrUpdate(contact);
-
-                                    RevisionContactSearch pcs = new RevisionContactSearch();
-                                    pcs.setId(Integer.toString(contact.getId()));
-                                    pcs.setName(key.toLowerCase().trim());
-                                    pcs.setOnDashboard(true);
-                                    pcs.setRevision(rev.getId());
-                                    pcs.setCreated_date(contact.getCreatedDate());
-                                    pcs.setLast_updated_date(contact.getLastUpdatedDate());
-                                    pcs.setValue(value.toString().toLowerCase().trim());
-                                    revisionContactSearchService.saveOrUpdate(pcs);
+                                    revisionContactService.saveOrUpdate(contact);
                                 }
                             } else {
                                 contact = revisionContactService.findById(id);
@@ -458,16 +411,7 @@ public class RevisionController {
                                     continue contactloop;
                                 contact.setValue(value.toString());
                                 contact.setName(key);
-                                contact = revisionContactService.saveOrUpdate(contact);
-
-                                RevisionContactSearch pcs = revisionContactSearchService.findById(Integer.toString(id));
-                                pcs.setName(key.toLowerCase().trim());
-                                pcs.setOnDashboard(true);
-                                pcs.setRevision(rev.getId());
-                                pcs.setCreated_date(contact.getCreatedDate());
-                                pcs.setLast_updated_date(contact.getLastUpdatedDate());
-                                pcs.setValue(value.toString().toLowerCase().trim());
-                                revisionContactSearchService.saveOrUpdate(pcs);
+                                revisionContactService.saveOrUpdate(contact);
                             }
                         }
                     }
@@ -528,7 +472,9 @@ public class RevisionController {
                         employeeService.saveOrUpdate(user);
                     }
                 }
-                redisCacheRepository.deleteWildCard(rs.getSegment().toLowerCase() + "_" + username + "_*");
+                //publish event to clear cache front page and report
+                cacheClearEventPublisher.publish(new CacheClearEvent(rid));
+
                 ret.put("data", "Saved to db");
                 return ResponseEntity.ok(ret);
             }
@@ -552,9 +498,6 @@ public class RevisionController {
                     throw new IDNotFoundException(rid, "revision");
                 final List ret = Collections.synchronizedList(new ArrayList());
                 Revision rev = revisionService.findById(rid);
-                final RevisionSearch rs = revisionSearchService.findById(Integer.toString(rid));
-                if (rs == null)
-                    throw new IDNotFoundException(rid, "revision");
                 final DateTime dt = new DateTime();
                 List<RevisionIP> iplist = revisionIPService.findByRevision(rev);
                 if (iplist != null && !iplist.isEmpty()) {
@@ -605,14 +548,14 @@ public class RevisionController {
                 Map ret = new HashMap();
                 if (!ipMap.containsKey("rid")) {
                     ret.put("data", "Revision is missing in request");
-                    ret.put("code", HttpStatus.EXPECTATION_FAILED);
-                    return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(ret);
+                    ret.put("code", HttpStatus.BAD_REQUEST);
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ret);
                 }
                 int rid = Integer.parseInt(ipMap.get("rid").toString());
                 if (rid < 1) {
                     ret.put("data", "Revision is missing in request");
-                    ret.put("code", HttpStatus.EXPECTATION_FAILED);
-                    return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(ret);
+                    ret.put("code", HttpStatus.BAD_REQUEST);
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ret);
                 }
                 Revision rev = revisionService.findById(rid);
                 if (rev == null) {
@@ -624,7 +567,9 @@ public class RevisionController {
                     return null;
                 List list = (ArrayList) ipMap.get("data");
                 if (!list.isEmpty()) {
+                    redisCacheRepository.clearCache(rid, "", "program");
                     //redis.multiDelete("*_ip_*");
+                    redisCacheRepository.deleteWildCard("ip*");
                     iploop:
                     for (Object ipObj : list) {
                         HashMap hm = (HashMap) ipObj;
@@ -668,6 +613,7 @@ public class RevisionController {
                                 reviplink.setRevision(rev);
                             }
                             revisionIPService.saveOrUpdate(reviplink);
+                            redisCacheRepository.clearCache(id, "", "program");
                         }
                     }
                 }
@@ -676,6 +622,33 @@ public class RevisionController {
             }
         };
         return new WebAsyncTask<ResponseEntity>(120000, callable);
+    }
+
+    @RequestMapping(value = {"/getIPCat"}, method = {RequestMethod.GET})
+    @ResponseBody
+    public WebAsyncTask<Map> getIPCat(HttpServletRequest req, @RequestParam(value = "cat", defaultValue = "") final String catname) {
+        Callable<Map> callable = new Callable<Map>() {
+            public Map call() {
+                if (catname.trim().isEmpty())
+                    throw new CustomGenericException(catname + " not found in IP table");
+                List<Program> plist = programService.findByName(catname + "_hidden");
+                DateTime dt = new DateTime();
+                Program p = null;
+                if (plist != null && !plist.isEmpty())
+                    p = plist.get(0);
+                if (p == null)
+                    return null;
+                List<Revision> revs = revisionService.findByProgram(p, null);
+                if (revs != null && !revs.isEmpty()) {
+                    HashMap ret = new HashMap();
+                    ret.put("id", revs.get(0).getId());
+                    return ret;
+                }
+                return null;
+            }
+        };
+
+        return new WebAsyncTask<Map>(120000, callable);
     }
 
     @PreAuthorize("hasAnyRole('PM', 'IPM', 'ADMIN')")
@@ -859,6 +832,7 @@ public class RevisionController {
                         if (hm.containsKey("isDeleted")) {
                             isDeleted = (Boolean) hm.get("isDeleted");
                             if (isDeleted) {
+                                System.out.println("Deleeting " + id);
                                 linkService.delete(id);
                             }
                         } else {
@@ -1002,9 +976,6 @@ public class RevisionController {
                 if (value.replaceAll("[0-9]", "").trim().isEmpty()) {
                     value = "";
                 }
-
-//                rev = revisionService.saveOrUpdate(rev);
-
                 //create new headline
                 Headline headline = new Headline();
                 headline.setHeadline(value);
@@ -1015,20 +986,7 @@ public class RevisionController {
                 headline.setResource_flag(resource);
                 headline.setSchedule_flag(schedule);
                 headline.setIsActive(rev.getIsActive());
-                headline = headlineService.saveOrUpdate(headline);
-
-
-                hls.setRevision_name(rev.getName());
-                hls.setRevision_id(rid);
-                hls.setHeadline(value);
-                hls.setLast_updated_date(headline.getLastUpdatedDate());
-                hls.setId(Integer.toString(headline.getId()));
-                headlineSearchService.saveOrUpdate(hls);
-
-
-                //publish event to clear cache front page and report
-                headlineSaveEventPublisher.publish(new HeadlineSaveEvent(rid));
-
+                headlineService.saveOrUpdate(headline);
 
                 ret.put("code", HttpStatus.OK);
                 ret.put("data", "Saved to db");
@@ -1124,18 +1082,7 @@ public class RevisionController {
                 gh.setIGroup(g);
                 gh.setStatus(ProjectConstant.EnumIndicatorStatus.valueOf(igs.getStatus().toUpperCase()));
                 gh.setRemark(remark);
-                gh = iGroupHistoryService.saveOrUpdate(gh);
-
-                igs.setId(Integer.toString(gh.getId()));
-                igs.setIgroup_id(g.getId());
-                igs.setIgroup_name(g.getName().toLowerCase().trim());
-                igs.setLast_updated_date(gh.getLastUpdatedDate());
-                igs.setOrder_num(igs.getOrder_num());
-                igs.setRemark(remark);
-                igs.setStatus(igs.getStatus());
-                igs.setRevision_id(igs.getRevision_id());
-                igs.setRevision_name(igs.getRevision_name());
-                indicatorGroupSearchService.saveOrUpdate(igs);
+                iGroupHistoryService.saveOrUpdate(gh);
 
                 ret.put("code", HttpStatus.OK);
                 ret.put("data", "Saved to db");
@@ -1251,7 +1198,6 @@ public class RevisionController {
                 g.setName(name);
                 g.setOrderNum(orderNum);
                 g.setRevision(rev);
-
                 g = iGroupService.saveOrUpdate(g);
                 ret.put("gid", Integer.toString(g.getId()));
 
@@ -1259,19 +1205,8 @@ public class RevisionController {
                 igh.setIGroup(g);
                 igh.setRemark("");
                 igh.setStatus(ProjectConstant.EnumIndicatorStatus.BLACK);
-                igh = iGroupHistoryService.saveOrUpdate(igh);
+                iGroupHistoryService.saveOrUpdate(igh);
 
-                IndicatorGroupSearch igs = new IndicatorGroupSearch();
-                igs.setId(Integer.toString(igh.getId()));
-                igs.setIgroup_id(g.getId());
-                igs.setIgroup_name(name.toLowerCase().trim());
-                igs.setLast_updated_date(igh.getLastUpdatedDate());
-                igs.setOrder_num(orderNum);
-                igs.setRemark("");
-                igs.setRevision_id(rid);
-                igs.setRevision_name(rev.getName());
-                igs.setStatus("black");
-                indicatorGroupSearchService.saveOrUpdate(igs);
 
                 ret.put("code", HttpStatus.CREATED);
                 ret.put("data", "Saved to db");
@@ -1311,21 +1246,35 @@ public class RevisionController {
                     ret.put("code", HttpStatus.CHECKPOINT);
                     return ResponseEntity.status(HttpStatus.CHECKPOINT).body(ret);
                 } else {
+                    List<IGroupHistory> iGroupHistoryList = iGroupHistoryService.findByGroup(g, null);
+                    if (iGroupHistoryList != null && !iGroupHistoryList.isEmpty()) {
+                        for (IGroupHistory iGroupHistory : iGroupHistoryList)
+                            iGroupHistoryService.delete(iGroupHistory.getId());
+                    }
+                    List<ITask> iTaskList = iTaskService.findByGroup(g, null);
+                    if (iTaskList != null && !iTaskList.isEmpty()) {
+                        for (ITask iTask : iTaskList) {
+                            List<ITaskHistory> iTaskHistoryList = iTaskHistoryService.findByTask(iTask, null);
+                            if (iTaskHistoryList != null && !iTaskHistoryList.isEmpty()) {
+                                for (ITaskHistory iTaskHistory : iTaskHistoryList)
+                                    iTaskHistoryService.delete(iTaskHistory.getId());
+                            }
+                            List<IDate> iDateList = iDateService.findByTask(iTask, null);
+                            if (iDateList != null && !iDateList.isEmpty()) {
+                                for (IDate iDate : iDateList) {
+                                    List<IDateHistory> iDateHistoryList = iDateHistoryService.findByDate(iDate, null);
+                                    if (iDateHistoryList != null && !iDateHistoryList.isEmpty()) {
+                                        for (IDateHistory iDateHistory : iDateHistoryList)
+                                            iDateHistoryService.delete(iDateHistory.getId());
+                                    }
+                                    iDateService.delete(iDate.getId());
+                                }
+                            }
+                            iTaskService.delete(iTask.getId());
+                        }
+                    }
                     iGroupService.delete(gid);
-                    List<IndicatorGroupSearch> igsl = indicatorGroupSearchService.findAllByGroupId(gid);
-                    if (igsl != null)
-                        for (IndicatorGroupSearch igs : igsl)
-                            indicatorGroupSearchService.delete(igs.getId());
-                    List<IndicatorTaskSearch> itsl = indicatorTaskSearchService.findByIndicatorGroup(gid);
-                    if (itsl != null) {
-                        for (IndicatorTaskSearch its : itsl)
-                            indicatorTaskSearchService.delete(its.getId());
-                    }
-                    if (igsl.get(0).getIgroup_name().equalsIgnoreCase("fcs")) {
-                        IndicatorGroupSearch igs = indicatorGroupSearchService.findByRevision(rid, "project", new DateTime());
-                        if (igs != null)
-                            ret.put("pgid", Integer.toString(igs.getIgroup_id()));
-                    }
+
                 }
                 ret.put("code", HttpStatus.OK);
                 ret.put("data", "Saved to db");
@@ -1372,13 +1321,24 @@ public class RevisionController {
                     ret.put("code", HttpStatus.CHECKPOINT);
                     return ResponseEntity.status(HttpStatus.CHECKPOINT).body(ret);
                 }
-                iTaskService.delete(tid);
-
-                List<IndicatorTaskSearch> itsl = indicatorTaskSearchService.findAllByTask(tid);
-                if (itsl != null) {
-                    for (IndicatorTaskSearch its : itsl)
-                        indicatorTaskSearchService.delete(its.getId());
+                List<ITaskHistory> iTaskHistoryList = iTaskHistoryService.findByTask(t, null);
+                if (iTaskHistoryList != null && !iTaskHistoryList.isEmpty()) {
+                    for (ITaskHistory iTaskHistory : iTaskHistoryList)
+                        iTaskHistoryService.delete(iTaskHistory.getId());
                 }
+                List<IDate> iDateList = iDateService.findByTask(t, null);
+                if (iDateList != null && !iDateList.isEmpty()) {
+                    for (IDate iDate : iDateList) {
+                        List<IDateHistory> iDateHistoryList = iDateHistoryService.findByDate(iDate, null);
+                        if (iDateHistoryList != null && !iDateHistoryList.isEmpty()) {
+                            for (IDateHistory iDateHistory : iDateHistoryList)
+                                iDateHistoryService.delete(iDateHistory.getId());
+                        }
+                        iDateService.delete(iDate.getId());
+                    }
+                }
+
+                iTaskService.delete(tid);
                 ret.put("code", HttpStatus.OK);
                 ret.put("data", "Saved to db");
                 return ResponseEntity.ok(ret);
@@ -1392,7 +1352,6 @@ public class RevisionController {
     public WebAsyncTask<ResponseEntity> saveIndicatorTask(HttpServletRequest req, @RequestBody final HashMap hm) {
         Callable<ResponseEntity> callable = new Callable<ResponseEntity>() {
             public ResponseEntity call() {
-
                 HashMap ret = new HashMap();
                 ret.put("key_milestone", "false");
                 //check data before processing
@@ -1454,10 +1413,10 @@ public class RevisionController {
                         return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(ret);
                     }
                     rev = revisionService.findById(rid);
-                    Revision group_by_revision = g.getRevision();
-                    if (group_by_revision.getId() != rid) {
-                        g = iGroupService.findByName(rev, g.getName());
-                    }
+//                    Revision group_by_revision = g.getRevision();
+//                    if (group_by_revision.getId() != rid) {
+//                        g = iGroupService.findByName(rev, g.getName());
+//                    }
                 }
                 if (g == null) {
                     ret.put("data", "Category not found in database");
@@ -1497,82 +1456,42 @@ public class RevisionController {
                     gstatus = ProjectConstant.EnumIndicatorStatus.valueOf(hm.get("gstatus").toString().toUpperCase());
                 }
                 ret.put("gstatus", gstatus.toString().toLowerCase());
-                if (g.getName().equalsIgnoreCase("project")) {
-                    if (t.getName().toLowerCase().indexOf("pc") == 0 ||
-                            t.getName().toLowerCase().indexOf("t/o") == 0 ||
-                            t.getName().toLowerCase().indexOf("eng") == 0 ||
-                            t.getName().toLowerCase().indexOf("pra") == 0) {
-                        ret.put("key_milestone", "true");
-                    }
-                }
 
                 //save group history
                 IndicatorGroupSearch igs = indicatorGroupSearchService.findByGroupId(g.getId());
+                IGroupHistory gh = new IGroupHistory();
+                gh.setStatus(gstatus);
+                gh.setIGroup(g);
                 if (igs != null) {
-                    IGroupHistory gh = new IGroupHistory();
-                    gh.setIGroup(g);
-                    gh.setStatus(gstatus);
                     gh.setRemark(igs.getRemark());
-                    gh = iGroupHistoryService.saveOrUpdate(gh);
-
-                    igs.setId(Integer.toString(gh.getId()));
-                    igs.setStatus(gstatus.toString().toLowerCase());
-                    igs.setLast_updated_date(gh.getLastUpdatedDate());
-                    if (igs.getRemark() == null)
-                        igs.setRemark("");
-                    igs = indicatorGroupSearchService.saveOrUpdate(igs);
                 } else {
-                    //if there is no task history exists
-                    IGroupHistory gh = new IGroupHistory();
-                    gh.setIGroup(g);
-                    gh.setStatus(gstatus);
                     gh.setRemark("");
-                    gh = iGroupHistoryService.saveOrUpdate(gh);
-
-                    igs = new IndicatorGroupSearch();
-                    igs.setId(Integer.toString(gh.getId()));
-                    igs.setStatus(gstatus.toString().toLowerCase());
-                    igs.setLast_updated_date(gh.getLastUpdatedDate());
-                    igs.setIgroup_id(g.getId());
-                    igs.setIgroup_name(g.getName().toLowerCase().trim());
-                    igs.setOrder_num(g.getOrderNum());
-                    igs.setRemark("");
-                    igs.setRevision_id(rev.getId());
-                    igs.setRevision_name(rev.getName().toLowerCase());
-                    igs = indicatorGroupSearchService.saveOrUpdate(igs);
                 }
+                iGroupHistoryService.saveOrUpdate(gh);
 
                 //save task
-                if (isNew) {
-                    t = new ITask();
-                    if (orderNum == -1) {
-                        orderNum = 0;
-                    }
-                    t.setOrderNum(orderNum);
-                    t.setName(name);
-                    t.setNameInReport(name);
-                    t.setIGroup(g);
-                    t = iTaskService.saveOrUpdate(t);
-                } else {
-                    if (!g.getName().equalsIgnoreCase("project") ||
-                            p.getType().equals(ProjectConstant.EnumProgramType.IP)) {
+                if (!g.getName().equalsIgnoreCase("project") ||
+                        p.getType().equals(ProjectConstant.EnumProgramType.IP)) {
+                    if (isNew) {
+                        t = new ITask();
+                        if (orderNum == -1) {
+                            orderNum = 0;
+                        }
+                        t.setOrderNum(orderNum);
+                        t.setName(name);
+                        t.setNameInReport(name);
+                        t.setIGroup(g);
+                        t = iTaskService.saveOrUpdate(t);
+                    } else {
                         if (orderNum != -1) {
                             t.setOrderNum(orderNum);
-                        }
-                        //change name case
-                        if (!t.getName().equalsIgnoreCase(name.trim())) {
-                            List<IndicatorTaskSearch> itsl = indicatorTaskSearchService.findAllByTask(t.getId());
-                            if (itsl != null && !itsl.isEmpty()) {
-                                for (IndicatorTaskSearch its : itsl) {
-                                    its.setTask_name(name.toLowerCase().trim());
-                                    indicatorTaskSearchService.saveOrUpdate(its);
-                                }
-                            }
                         }
                         t.setName(name);
                         t = iTaskService.saveOrUpdate(t);
                     }
                 }
+
+
                 //save task history
                 IndicatorTaskSearch its = indicatorTaskSearchService.findByIndicatorTask(t.getId());
                 //save new task if note/status change only
@@ -1582,28 +1501,17 @@ public class RevisionController {
                     th.setITask(t);
                     th.setNote(note);
                     th.setStatus(tstatus);
-                    th = iTaskHistoryService.saveOrUpdate(th);
-
-                    if (its == null)
-                        its = new IndicatorTaskSearch();
-                    its.setId(Integer.toString(th.getId()));
-                    its.setIgroup_id(g.getId());
-                    its.setIgroup_name(g.getName().toString().toLowerCase());
-                    its.setLast_updated_date(th.getLastUpdatedDate());
-                    its.setNote(note);
-                    its.setOrder_num(orderNum);
-                    its.setRevision_id(rev.getId());
-                    its.setRevision_name(rev.getName().toLowerCase());
-                    its.setStatus(tstatus.toString().toLowerCase());
-                    its.setTask_id(t.getId());
-                    its.setTask_name(t.getName().toLowerCase().trim());
-                    its.setTask_name_in_report(t.getNameInReport().toLowerCase().trim());
-                    its = indicatorTaskSearchService.saveOrUpdate(its);
+                    iTaskHistoryService.saveOrUpdate(th);
                 }
 
-//				/*save task with the same name
-//				 * async method -- fire and dont wait for return
-//					*/
+                if (g.getName().equalsIgnoreCase("project")) {
+                    if (t.getName().toLowerCase().indexOf("pc") == 0 ||
+                            t.getName().toLowerCase().indexOf("t/o") == 0 ||
+                            t.getName().toLowerCase().indexOf("eng") == 0 ||
+                            t.getName().toLowerCase().indexOf("pra") == 0) {
+                        ret.put("key_milestone", "true");
+                    }
+                }
 
                 //save date
                 for (ProjectConstant.EnumIndicatorTrackingDateType ttype : ProjectConstant.EnumIndicatorTrackingDateType.values()) {
@@ -1644,43 +1552,22 @@ public class RevisionController {
                                     }
                                 }
                             }
-                            if (ids == null) {
-                                IDate idate = new IDate();
+                            IDate idate = iDateService.findByTaskAndType(t, ttype, etype);
+                            if (idate == null) {
+                                idate = new IDate();
                                 idate.setITask(t);
                                 idate.setTtype(ttype);
                                 idate.setEtype(etype);
                                 idate = iDateService.saveOrUpdate(idate);
-
+                            }
+                            if (ids == null) {
                                 IDateHistory idatehistory = new IDateHistory();
                                 idatehistory.setComment(comment);
                                 idatehistory.setIDate(idate);
                                 idatehistory.setStatus(dhstatus);
                                 idatehistory.setValue(ddt.toDate());
-                                idatehistory = iDateHistoryService.saveOrUpdate(idatehistory);
-
-                                ids = new IndicatorDateSearch();
-                                ids.setId(Integer.toString(idatehistory.getId()));
-                                ids.setDate_id(idate.getId());
-                                ids.setComment(comment);
-                                ids.setDate_name(datename);
-                                ids.setGroup_id(g.getId());
-                                ids.setGroup_name(g.getName().toLowerCase().trim());
-                                ids.setLast_updated_date(idatehistory.getLastUpdatedDate());
-                                ids.setStatus(dhstatus.toString().toLowerCase().trim());
-                                ids.setTask_id(t.getId());
-                                ids.setTask_name(t.getName().toLowerCase().trim());
-                                ids.setValue(ddt.toDate());
-                                indicatorDateSearchService.saveOrUpdate(ids);
-
+                                iDateHistoryService.saveOrUpdate(idatehistory);
                             } else {
-                                IDate idate = iDateService.findById(ids.getDate_id());
-                                if (idate == null) {
-                                    idate = new IDate();
-                                    idate.setITask(t);
-                                    idate.setTtype(ttype);
-                                    idate.setEtype(etype);
-                                    idate = iDateService.saveOrUpdate(idate);
-                                }
                                 DateTime d1 = new DateTime(ids.getValue()).withTimeAtStartOfDay();
                                 DateTime d2 = new DateTime(ddt).withTimeAtStartOfDay();
                                 //check to see if 2 day not equal
@@ -1693,22 +1580,7 @@ public class RevisionController {
                                     idatehistory.setIDate(idate);
                                     idatehistory.setStatus(dhstatus);
                                     idatehistory.setValue(ddt.toDate());
-                                    idatehistory = iDateHistoryService.saveOrUpdate(idatehistory);
-
-                                    if (ids == null)
-                                        ids = new IndicatorDateSearch();
-                                    ids.setId(Integer.toString(idatehistory.getId()));
-                                    ids.setDate_id(idate.getId());
-                                    ids.setComment(comment);
-                                    ids.setDate_name(datename);
-                                    ids.setGroup_id(g.getId());
-                                    ids.setGroup_name(g.getName().toLowerCase().trim());
-                                    ids.setLast_updated_date(idatehistory.getLastUpdatedDate());
-                                    ids.setStatus(dhstatus.toString().toLowerCase().trim());
-                                    ids.setTask_id(t.getId());
-                                    ids.setTask_name(t.getName().toLowerCase().trim());
-                                    ids.setValue(ddt.toDate());
-                                    indicatorDateSearchService.saveOrUpdate(ids);
+                                    iDateHistoryService.saveOrUpdate(idatehistory);
                                 }
                             }
                         }
@@ -1753,15 +1625,7 @@ public class RevisionController {
                             hl.setStage(stage);
                         }
                     }
-                    hl = headlineService.saveOrUpdate(hl);
-
-                    hls.setSchedule_flag(gstatus.toString().toLowerCase());
-                    hls.setId(Integer.toString(hl.getId()));
-                    hls.setLast_updated_date(hl.getLastUpdatedDate());
-                    if (stage != null) {
-                        hls.setStage(stage.toString().toLowerCase());
-                    }
-                    headlineSearchService.saveOrUpdate(hls);
+                    headlineService.saveOrUpdate(hl);
                 }
 
                 HashMap tmp = new HashMap();
@@ -1964,9 +1828,9 @@ public class RevisionController {
                                 stage.equals(ProjectConstant.EnumHeadlineStage.PRA) ||
                                 stage.equals(ProjectConstant.EnumHeadlineStage.CANCELLED)) {
                             if (status) {
-                                if (rs.getType().equalsIgnoreCase("customer")) {
+                                if (rs.getProgram_type().equalsIgnoreCase("customer")) {
                                     stage = ProjectConstant.EnumHeadlineStage.CUSTOMER;
-                                } else if (rs.getType().equalsIgnoreCase("software")) {
+                                } else if (rs.getProgram_type().equalsIgnoreCase("software")) {
                                     stage = ProjectConstant.EnumHeadlineStage.SOFTWARE;
                                 } else {
                                     hls = headlineSearchService.findLastNonActiveStage(rid);
@@ -1989,11 +1853,6 @@ public class RevisionController {
                     igh.setStatus(scolor);
                     igh = iGroupHistoryService.saveOrUpdate(igh);
 
-                    igs.setId(Integer.toString(igh.getId()));
-                    igs.setLast_updated_date(igh.getLastUpdatedDate());
-                    igs.setStatus(scolor.toString().toLowerCase());
-                    indicatorGroupSearchService.saveOrUpdate(igs);
-
                     Headline hl = new Headline();
                     hl.setBudget_flag(ProjectConstant.EnumIndicatorStatus.BLACK);
                     hl.setHeadline(hls.getHeadline().replaceAll("<hr>(\\s)*?$", ""));
@@ -2005,39 +1864,25 @@ public class RevisionController {
                     hl.setStage(stage);
                     hl = headlineService.saveOrUpdate(hl);
 
-                    hls.setId(Integer.toString(hl.getId()));
-                    hls.setSchedule_flag(scolor.toString().toLowerCase());
-                    hls.setStage(stage.toString().toLowerCase());
-                    hls.setStatus(rstatus.toString().toLowerCase());
-                    hls.setPrediction_flag(ecolor.toString().toLowerCase());
-                    hls.setLast_updated_date(hl.getLastUpdatedDate());
-                    headlineSearchService.saveOrUpdate(hls);
-
                     rev.setIsActive(rstatus);
                     rev.setIsProtected(isProtected);
                     rev = revisionService.saveOrUpdate(rev);
 
-                    rs.setIs_active(status);
-                    rs.setIs_protected(isProtected);
-                    rs = revisionSearchService.saveOrUpdate(rs);
-
                     if (hm.containsKey("program")) {
                         Program p = rev.getProgram();
                         String pname = hm.get("program").toString();
-                        if (!p.getName().equalsIgnoreCase(pname) && !pname.trim().isEmpty()) {
+                        if (!pname.trim().isEmpty()) {
                             p.setName(pname);
-                            p = programService.saveOrUpdate(p);
-                            rs.setProgram_name(pname.toLowerCase());
-                            rs = revisionSearchService.saveOrUpdate(rs);
+                            p.setDisplayName(pname);
+                            programService.saveOrUpdate(p);
+
                         }
                     }
                     if (hm.containsKey("revision")) {
                         String rname = hm.get("revision").toString();
-                        if (!rs.getRev_name().equalsIgnoreCase(rname) && !rname.trim().isEmpty()) {
+                        if (!rname.trim().isEmpty()) {
                             rev.setName(rname);
-                            rev = revisionService.saveOrUpdate(rev);
-                            rs.setRev_name(rname.toLowerCase());
-                            rs = revisionSearchService.saveOrUpdate(rs);
+                            revisionService.saveOrUpdate(rev);
                         }
                     }
                     if (hm.containsKey("base")) {
@@ -2045,11 +1890,12 @@ public class RevisionController {
                         if (!rs.getBase_num().equalsIgnoreCase(base)) {
                             Program p = rev.getProgram();
                             p.setBaseNum(base);
-                            p = programService.saveOrUpdate(p);
-                            rs.setBase_num(base.toLowerCase());
-                            rs = revisionSearchService.saveOrUpdate(rs);
+                            programService.saveOrUpdate(p);
+
                         }
                     }
+
+                    cacheClearEventPublisher.publish(new CacheClearEvent(Integer.parseInt(rs.getId())));
                     ret.put("data", "Saved to db");
                     return ResponseEntity.ok(ret);
                 }
@@ -2085,13 +1931,7 @@ public class RevisionController {
                             if (rev == null)
                                 throw new CustomGenericException("Revision Not found in database");
                             rev.setOrderNum(orderNum);
-                            rev = revisionService.saveOrUpdate(rev);
-                            RevisionSearch rs = revisionSearchService.findById(Integer.toString(rid));
-                            if (rs != null) {
-                                rs.setRev_order_num(orderNum);
-                                rs.setProgram_order_num(orderNum);
-                                revisionSearchService.saveOrUpdate(rs);
-                            }
+                            revisionService.saveOrUpdate(rev);
                         }
                     }
                 }
@@ -2203,23 +2043,6 @@ public class RevisionController {
                         rev.setIsProtected(false);
                         rev = revisionService.saveOrUpdate(rev);
                         rid = rev.getId();
-
-                        rs.setBase_num("");
-                        rs.setId(Integer.toString(rev.getId()));
-                        rs.setInclude_in_report(true);
-                        rs.setIp_related(relatedsb.toString().toLowerCase());
-                        rs.setIs_active(true);
-                        rs.setIs_protected(false);
-                        rs.setLast_updated_outlook_date(rev.getLastUpdatedDate());
-                        rs.setOutlook("");
-                        rs.setProgram_id(pid);
-                        rs.setProgram_name(p.getName().toLowerCase().trim());
-                        rs.setProgram_order_num(p.getOrderNum());
-                        rs.setRev_name(rname.toLowerCase().trim());
-                        rs.setRev_order_num(rev.getOrderNum());
-                        rs.setSegment("software");
-                        rs.setType("software");
-                        rs = revisionSearchService.saveOrUpdate(rs);
                     }
                 } else {
                     if (rs == null)
@@ -2231,12 +2054,6 @@ public class RevisionController {
                     rev.setIpRelated(relatedsb.toString());
                     rev = revisionService.saveOrUpdate(rev);
 
-                    rs.setInclude_in_report(includeReport);
-                    rs.setRev_name(rname.toLowerCase().trim());
-                    rs.setIp_related(relatedsb.toString().toLowerCase());
-                    rs.setIs_active(includeReport);
-                    rs.setLast_updated_outlook_date(rev.getLastUpdatedDate());
-                    rs = revisionSearchService.saveOrUpdate(rs);
                 }
                 HeadlineSearch old_hls = headlineSearchService.findByRevision(rev.getId(), null);
                 if (old_hls == null || !value.trim().equalsIgnoreCase(old_hls.getHeadline().trim()) ||
@@ -2250,23 +2067,10 @@ public class RevisionController {
                     headline.setResource_flag(color);
                     headline.setSchedule_flag(color);
                     headline.setIsActive(rev.getIsActive());
-                    headline = headlineService.saveOrUpdate(headline);
-
-                    HeadlineSearch hls = new HeadlineSearch();
-                    hls.setStage("software");
-                    hls.setBudget_flag(color.toString().toLowerCase());
-                    hls.setPrediction_flag(color.toString().toLowerCase());
-                    hls.setResource_flag(color.toString().toLowerCase());
-                    hls.setSchedule_flag(color.toString().toLowerCase());
-                    hls.setStatus(status.toString().toLowerCase());
-                    hls.setRevision_name(rev.getName());
-                    hls.setRevision_id(rid);
-                    hls.setLast_updated_date(headline.getLastUpdatedDate());
-                    hls.setHeadline(value);
-                    hls.setId(Integer.toString(headline.getId()));
-                    headlineSearchService.saveOrUpdate(hls);
-
+                    headlineService.saveOrUpdate(headline);
                 }
+
+                cacheClearEventPublisher.publish(new CacheClearEvent(Integer.parseInt(rs.getId())));
                 ret.put("code", HttpStatus.OK);
                 ret.put("data", "Saved to db");
                 return ResponseEntity.ok(ret);
@@ -2315,4 +2119,153 @@ public class RevisionController {
 
         return ret;
     }
+
+    @PreAuthorize("hasAnyRole('IPM', 'IPPM', 'CPM', 'PM', 'ADMIN')")
+    @RequestMapping(value = {"/new"}, method = {RequestMethod.POST})
+    @ResponseBody
+    public WebAsyncTask<ResponseEntity> addNewRevision(HttpServletRequest req, HttpServletResponse res,
+                                                       @RequestBody final HashMap reqMap) {
+        Callable<ResponseEntity> callable = new Callable<ResponseEntity>() {
+            @Override
+            public ResponseEntity call() throws Exception {
+                Map ret = new HashMap();
+                if (reqMap.containsKey("data")) {
+                    final HashMap map = (HashMap) reqMap.get("data");
+                    final String createtypestring = (String) reqMap.get("type");
+                    Program program = null;
+                    if (!map.containsKey("pid"))
+                        return null;
+                    program = programService.findById(Integer.parseInt(map.get("pid").toString()));
+
+                    if (program == null)
+                        return null;
+
+                    final ProjectConstant.EnumIndicatorStatus flag = ProjectConstant.EnumIndicatorStatus.BLACK;
+                    final ProjectConstant.EnumProgramStatus status = ProjectConstant.EnumProgramStatus.ACTIVE;
+                    ProjectConstant.EnumProgramType programType = program.getType();
+                    ProjectConstant.EnumHeadlineStage programStage = ProjectConstant.EnumHeadlineStage.PLANNING;
+
+
+                    final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
+
+                    //create new revision
+                    Revision rev = revisionService.createNewRevision(map, program);
+                    if (rev != null) {
+                        List<Sku> skuList = skuService.findByProgram(program);
+                        if (skuList == null || skuList.isEmpty()) {
+                            Sku sku = new Sku();
+                            String aka = map.get("pname").toString();
+                            if (map.containsKey("aka")) {
+                                aka = map.get("aka").toString();
+                            }
+                            sku.setAka(aka);
+                            sku.setDescription("");
+                            sku.setFrequency("");
+                            sku.setIoCapacity("");
+                            sku.setNumOfSerdes("");
+                            sku.setPortConfig("");
+                            sku.setSkuNum(program.getBaseNum());
+                            sku.setDateAvailable("");
+                            sku.setProgram(program);
+                            sku.setItemp("");
+                            skuService.saveOrUpdate(sku);
+                        }
+
+                        //create new headline
+                        Headline hl = new Headline();
+                        hl.setBudget_flag(flag);
+                        hl.setHeadline("");
+                        hl.setIsActive(status);
+                        hl.setPrediction_flag(flag);
+                        hl.setResource_flag(flag);
+                        hl.setSchedule_flag(flag);
+                        hl.setBudget_flag(flag);
+                        hl.setRevision(rev);
+                        hl.setStage(programStage);
+                        hl = headlineService.saveOrUpdate(hl);
+
+                        // insert new outlook
+                        RevisionOutlook outlook = new RevisionOutlook();
+                        outlook.setContent("");
+                        outlook.setRevision(rev);
+                        revisionOutlookService.saveOrUpdate(outlook);
+
+                        Boolean cloneIndicator = false;
+                        Boolean cloneInformation = false;
+
+                        Revision oldRev = null;
+                        if (map.containsKey("oldRev")) {
+                            if (!(map.get("oldRev") instanceof String)) {
+                                HashMap rmap = (HashMap) map.get("oldRev");
+                                if (rmap.containsKey("rid")) {
+                                    String rid = rmap.get("rid").toString();
+                                    if (ValueConverterUtils.isNumber(rid)) {
+                                        oldRev = revisionService.findById(Integer.parseInt(rid));
+                                    }
+                                }
+                            }
+                        }
+                        if (map.containsKey("clone")) {
+                            HashMap cloneMap = (HashMap) map.get("clone");
+                            if (cloneMap.containsKey("milestone")) {
+                                cloneIndicator = (Boolean) cloneMap.get("milestone");
+                            }
+                            if (cloneMap.containsKey("info")) {
+                                cloneInformation = (Boolean) cloneMap.get("info");
+                            }
+                        }
+                        // clone Contact and link
+                        if (oldRev != null) {
+                            revisionContactService.cloneFromAnotherRevision(oldRev, rev, currentAuthentication);
+                            linkService.cloneFromAnotherRevision(oldRev, rev, currentAuthentication);
+                        } else {
+                            revisionContactService.cloneFromTemplate(rev, currentAuthentication);
+                        }
+                        // clone information
+                        if (cloneInformation) {
+                            if (oldRev != null) {
+                                revisionInformationService.cloneFromAnotherRevision(oldRev, rev, currentAuthentication);
+                            }
+                        } else {
+                            revisionInformationService.cloneFromTemplate(rev, currentAuthentication);
+                            if (program.getType().equals(ProjectConstant.EnumProgramType.IP)) {
+                                HashMap infomap = new HashMap();
+                                if (map.containsKey("info")) {
+                                    infomap = (HashMap) map.get("info");
+                                    if (infomap != null && infomap.keySet().size() > 0) {
+                                        for (Object key : infomap.keySet()) {
+                                            List<RevisionInformation> revisionInformationList = revisionInformationService.findByRevisionPhaseName(rev, "current", key.toString().toLowerCase());
+                                            if (revisionInformationList != null && !revisionInformationList.isEmpty()) {
+                                                for (RevisionInformation revisionInformation : revisionInformationList) {
+                                                    revisionInformation.setValue(infomap.get(key).toString().toLowerCase().trim());
+                                                    revisionInformationService.saveOrUpdate(revisionInformation);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (rev != null) {
+                            if (cloneIndicator) {
+                                if (oldRev != null) {
+                                    indicatorService.cloneIndicatorFromAnotherRevision(oldRev, rev);
+                                } else {
+                                    cloneIndicator = false;
+                                }
+                            }
+                            if (!cloneIndicator) {
+                                indicatorService.createNewIndicatorFromTemplate(rev, program.getType().toString().toLowerCase());
+                            }
+                        }
+
+                        ret.put("url", "/program/" + program.getType().toString().toLowerCase() + "/" + program.getId() + "/" + rev.getId() + "/dashboard");
+                    }
+                }
+                return ResponseEntity.ok(ret);
+            }
+        };
+        return new WebAsyncTask<ResponseEntity>(1800000, callable);
+    }
+
 }

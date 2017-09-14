@@ -26,11 +26,15 @@ import java.util.TreeSet;
 
 @Service
 public class HeadlineSearchServiceImpl implements HeadlineSearchService {
-    @Autowired
-    private HeadlineSearchRepository repo;
+    private final HeadlineSearchRepository repo;
+
+    private final ElasticsearchTemplate template;
 
     @Autowired
-    private ElasticsearchTemplate template;
+    public HeadlineSearchServiceImpl(HeadlineSearchRepository repo, ElasticsearchTemplate template) {
+        this.repo = repo;
+        this.template = template;
+    }
 
     @Override
     public HeadlineSearch saveOrUpdate(HeadlineSearch hl) {
@@ -138,7 +142,7 @@ public class HeadlineSearchServiceImpl implements HeadlineSearchService {
         query.must(QueryBuilders.termQuery("revision_id", rid));
 
         SearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(query)
-                .addAggregation(AggregationBuilders.terms("col").field(colName).size(1000))
+                .addAggregation(AggregationBuilders.terms("col").field(colName).size(100))
                 .build();
 
         SearchResponse hits = template.query(searchQuery, new ResultsExtractor<SearchResponse>() {

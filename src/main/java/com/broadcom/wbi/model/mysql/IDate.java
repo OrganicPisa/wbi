@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -28,12 +27,10 @@ public class IDate extends AbstractDomainClass implements Serializable {
     @GeneratedValue(generator = "indicatordate")
     private Integer id;
 
-    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "end_date_type", nullable = false)
     private ProjectConstant.EnumIndicatorEndingDateType etype = ProjectConstant.EnumIndicatorEndingDateType.END;
 
-    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "track_date_type", nullable = false)
     private ProjectConstant.EnumIndicatorTrackingDateType ttype = ProjectConstant.EnumIndicatorTrackingDateType.CURRENT;

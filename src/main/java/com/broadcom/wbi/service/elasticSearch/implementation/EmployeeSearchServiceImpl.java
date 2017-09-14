@@ -20,11 +20,15 @@ import java.util.List;
 @Service
 public class EmployeeSearchServiceImpl implements EmployeeSearchService {
 
-    @Autowired
-    private EmployeeSearchRepository repo;
+    private final EmployeeSearchRepository repo;
+
+    private final ElasticsearchTemplate template;
 
     @Autowired
-    private ElasticsearchTemplate template;
+    public EmployeeSearchServiceImpl(EmployeeSearchRepository repo, ElasticsearchTemplate template) {
+        this.repo = repo;
+        this.template = template;
+    }
 
     @Override
     public EmployeeSearch saveOrUpdate(EmployeeSearch empl) {

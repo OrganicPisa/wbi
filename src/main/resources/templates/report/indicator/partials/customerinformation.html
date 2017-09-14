@@ -1,9 +1,10 @@
 <style>
     .gridStyle {
         height: 100%;
+        width: 100%;
     }
 
-    .ui-grid-row: {
+    .ui-grid-row {
         display: table-row;
     }
 
@@ -15,25 +16,30 @@
         float: none;
         display: table-cell;
     }
+
 </style>
-<div class="row">
-    <div class="block block-bordered">
-        <div class="block-header">
-            <ul class="block-options" ng-show="infoReportLoaded"
-                ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
-                <li>
-                    <button class="btn btn-sm btn-info" type="button" ng-click="refreshInfoReport();">Refresh</button>
-                </li>
-            </ul>
-            <h3 class="block-title">Internal Information Report
-                <small ng-hide='infoReportLoaded'>Generating...</small>
-            </h3>
-        </div>
-        <div class="block-content" ng-show='infoReportLoaded'>
-            <div id="infoReport-div" ng-show='infoReportLoaded' class='gridWidthWrapper'>
-                <div ui-grid="infoGridOptions" ui-grid-exporter ui-grid-resize-columns ui-grid-save-state
-                     ui-grid-move-columns ui-grid-auto-resize class="gridStyle"></div>
-            </div>
-        </div>
+<md-toolbar md-scroll-shrink class="md-menu-toolbar">
+    <div class="md-toolbar-tools">
+        <button class="md-icon-button md-button" hide-gt-md ng-click="openSideMenu()" aria-label="Toggle Menu">
+            <i class="material-icons">chrome_reader_mode</i>
+        </button>
+        <h4>
+            <span style='font-size: 18px;'>
+                <a href="/">Internal Project Information Report</a>
+            </span>
+        </h4>
+        <span flex></span>
+        <span>
+            <md-button ng-click="exportInfoReport('Information_Report','information_report.xls');">Export All Data
+            </md-button>
+            <md-button ng-click="refreshInfoReport();">
+                <md-icon class="material-icons" style="fill:black;color:black;">autorenew</md-icon>
+                Reload
+            </md-button>
+        </span>
     </div>
+</md-toolbar>
+<div id="infoReport-div" class='gridWidthWrapper'>
+    <div ui-grid="infoGridOptions" ui-grid-exporter ui-grid-resize-columns ui-grid-auto-resize
+         class="gridStyle"></div>
 </div>

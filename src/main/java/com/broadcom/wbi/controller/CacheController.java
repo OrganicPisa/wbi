@@ -18,14 +18,17 @@ import java.util.concurrent.Callable;
 @RequestMapping("/api/cache")
 public class CacheController {
 
-    @Autowired
-    private RedisCacheRepository redisCacheRepository;
+    private final RedisCacheRepository redisCacheRepository;
+
+    private final RevisionSearchService revisionSearchService;
 
     @Autowired
-    private RevisionSearchService revisionSearchService;
+    public CacheController(RedisCacheRepository redisCacheRepository, RevisionSearchService revisionSearchService) {
+        this.redisCacheRepository = redisCacheRepository;
+        this.revisionSearchService = revisionSearchService;
+    }
 
     @PreAuthorize("hasAnyRole('PM', 'ADMIN')")
-//    @PreAuthorize("@employeePermissionServiceImpl.hasPermission(authentication, 'pm,ipm,cpm,swpm,ippm,admin')")
     @RequestMapping(value = {"/clear/program"}, method = {RequestMethod.GET})
     public Callable<HashMap> clearCache(HttpServletRequest req,
                                         @RequestParam(value = "pid", defaultValue = "0") final int pid,

@@ -6,7 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
@@ -27,7 +27,7 @@ public class RevisionInformation extends AbstractDomainClass implements Serializ
     @GeneratedValue(generator = "info")
     private Integer id;
 
-    @NotNull
+    @NotBlank
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -39,7 +39,7 @@ public class RevisionInformation extends AbstractDomainClass implements Serializ
     @Column(name = "order_num", nullable = false)
     private Integer orderNum;
 
-    @NotEmpty
+    @NotBlank
     @Column(name = "phase", nullable = false)
     private String phase = "current";
 

@@ -3,26 +3,29 @@
         height: 100%;
     }
 </style>
-<div class="row">
-    <div class="block block-bordered">
-        <div class="block-header">
-            <ul class="block-options" ng-show="resourceloaded">
-                <li>
-                    <select name="timeSelect" ng-model='rs.actualResourceTime'>
-                        <option value='' disabled selected>This month</option>
-                        <option ng-repeat="t in resourceTimes" value='{{t}}'>{{t}}</option>
-                    </select>
-                </li>
-            </ul>
-            <h3 class="block-title">Actual Data
-                <small ng-hide='resourceloaded'>Loading...</small>
-            </h3>
-        </div>
-        <div class="block-content" ng-show='resourceloaded'>
-            <div id="actualdiv" ng-show='resourceloaded' class='gridWidthWrapper'>
+<div layout="column">
+    <md-card>
+        <md-card-title>
+            <md-card-title-text>
+                <div layout="row">
+                    <span class="md-title">Actual Data</span>
+                    <span flex></span>
+                    <span>
+                        <md-select name="timeSelect" id="timeSelect"
+                                   ng-model="rs.actualResourceTime" placeholder="SNAPSHOT"
+                                   aria-label="Resource Data">
+                            <md-option value="">---Latest---</md-option>
+                            <md-option ng-repeat="snapshot in resourceTimes track by $index" value="{{snapshot}}"> {{snapshot}}  </md-option>
+                        </md-select>
+                    </span>
+                </div>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content>
+            <div id="actualdiv" class='gridWidthWrapper'>
                 <div ui-grid="gridOptions" ui-grid-exporter ui-grid-resize-columns
                      ui-grid-move-columns ui-grid-auto-resize class="gridStyle"></div>
             </div>
-        </div>
-    </div>
+        </md-card-content>
+    </md-card>
 </div>

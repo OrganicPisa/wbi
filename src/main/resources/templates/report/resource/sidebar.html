@@ -1,68 +1,56 @@
 <!-- Sidebar Scroll Container -->
-<div id="sidebar-scroll">
-    <div class="sidebar-content">
-        <!-- Side Content -->
-        <div class="side-content">
-            <ul class="nav-main">
-                <li>
-                    <a ui-sref="report({rtype:'resource', type:'collect', page:'dashboard'})"> <i
-                            class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-main-heading"><span class="sidebar-mini-hide">Monthly Reports</span></li>
-                <li>
-                    <a ui-sref="report({rtype:'resource', type:'collect', page:'projectgrouping'})"> <i
-                            class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Product Breakdown </span>
-                    </a>
-                    <a ui-sref="report({rtype:'resource', type:'collect', page:'reportgrouping'})"> <i
-                            class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Category Breakdown</span>
-                    </a>
-                </li>
-                <li class="nav-main-heading"><span class="sidebar-mini-hide">Others Reports</span></li>
-                <!-- 				<li> -->
-                <!-- 					<a ui-sref="report({rtype:'resource', type:'collect', page:'location'})"> <i class="si si-speedometer"></i> -->
-                <!-- 						<span class="sidebar-mini-hide">Group By Location</span> -->
-                <!-- 					</a>	 -->
-                <!-- 				</li> -->
-                <li>
-                    <a ui-sref="report({rtype:'resource', type:'collect', page:'project'})"> <i
-                            class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Group By Project</span>
-                    </a>
-                </li>
-                <li>
-                    <a ui-sref="report({rtype:'resource', type:'collect', page:'skill'})"> <i
-                            class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Group By Skill</span>
-                    </a>
-                </li>
-                <li class="nav-main-heading"><span class="sidebar-mini-hide">Manager Data</span></li>
-                <li>
-                    <a ui-sref="report({rtype:'resource', type:'collect', page:'data'})"> <i
-                            class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Actual Data</span>
-                    </a>
-                </li>
-                <li ng-if="permission.authority=='pm' || permission.authority=='admin'" class="nav-main-heading"><span
-                        class="sidebar-mini-hide">Settings</span></li>
-                <li ng-if="permission.authority=='pm' || permission.authority=='admin'">
-                    <a ui-sref="report({rtype:'resource', type:'collect', page:'settings'})"> <i
-                            class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Project Group Settings</span>
-                    </a>
-                </li>
-                <li ng-if="permission.authority=='admin'">
-                    <a ng-click='clearResourceCache();'> <i class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Clear Cache</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <!-- END Side Content -->
-    </div>
-    <!-- Sidebar Content -->
-</div>
-<!-- END Sidebar Scroll Container -->
+<style type="text/css">
+    md-list-item, md-list-item .md-list-item-inner {
+        max-height: 30px !important;
+    }
+</style>
+<md-content>
+    <md-list flex>
+        <md-subheader><h6>Dashboard</h6></md-subheader>
+        <md-list-item>
+            <a ui-sref="resourceReport({page:'dashboard'})">
+                <p>Dashboard</p>
+            </a>
+        </md-list-item>
+
+        <md-subheader><h6>Monthly Report</h6></md-subheader>
+        <md-list-item>
+            <a ui-sref="resourceReport({ page:'projectgrouping'})">
+                <p>AOP</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="resourceReport({page:'projectskillgrouping'})">
+                <p>AOP (With Skill)</p>
+            </a>
+        </md-list-item>
+
+        <md-subheader><h6>Other Reports</h6></md-subheader>
+        <md-list-item>
+            <a ui-sref="resourceReport({page:'project'})">
+                <p>By Project</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="resourceReport({page:'skill'})">
+                <p>By Skill</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="resourceReport({page:'manager'})">
+                <p>By Manager</p>
+            </a>
+        </md-list-item>
+        <md-subheader ng-if="authority=='pm' || authority=='admin'"><h6>Settings</h6></md-subheader>
+        <md-list-item ng-if="authority=='pm' || authority=='admin'">
+            <a ui-sref="resourceReport({page:'settings'})">
+                <p>Settings</p>
+            </a>
+        </md-list-item>
+        <md-list-item ng-if="authority=='pm' || authority=='admin'">
+            <a ng-click='clearResourceCache();'>
+                <p>Clear Cache</p>
+            </a>
+        </md-list-item>
+    </md-list>
+</md-content>

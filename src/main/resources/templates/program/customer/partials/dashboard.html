@@ -1,175 +1,174 @@
-<!-- Buttons Variations -->
-<div class="row">
-    <div class="col-lg-8 col-md-8 col-sm-12">
-        <div class="row">
-            <!-- Default Buttons -->
-            <div class="block block-bordered">
-                <div class="block-header">
-                    <ul class="block-options" ng-show='headlineloaded'
-                        ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
-                        <li ng-hide='(headlineeditform.$visible || !showEditFeature || snapshotHeadline)'>
-                            <button class='btn btn-sm btn-info' ng-click="refreshHeadline()">Refresh</button>
-                        </li>
-                        <li ng-hide='(headlineeditform.$visible || !showEditFeature || snapshotHeadline)'>
-                            <button class='btn btn-sm btn-info' ng-click="headlineeditform.$show();">Edit</button>
-                        </li>
-                        <li ng-hide='(headlineeditform.$visible || !showEditFeature || snapshotHeadline)'>
-                            <button class='btn btn-sm btn-info' ng-click="removeHeadline()">Delete</button>
-                        </li>
-                        <li ng-hide='(headlineeditform.$visible || snapshotHeadline)'>
-                            <button class='btn btn-sm btn-info' ng-click="newHeadline(); headlineeditform.$show(); ">
-                                New
-                            </button>
-                        </li>
-                        <li>
-                            <select name="headlineSnapshot" id="headlineSnapshotSelect"
-                                    ng-model="headline.snapshotSelect">
-                                <option value="">---Latest---</option>
-                                <option ng-repeat="snapshot in headline.snapshots track by $index" value="{{snapshot}}">
-                                    {{snapshot}}
-                                </option>
-                            </select>
+<div layout="row" layout-sm="column">
+    <div flex-sm flex-gt-sm="70" layout="column"
+         style="padding-left: 0px!important; padding-top: 0px!important; padding-bottom: 0px!important;">
+        <md-card ng-if="authority=='pm' || authority=='cpm' || authority=='admin'">
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">Program Outlook</span>
+                        <span flex></span>
+                        <a class="md-primary" ng-click="outlookeditform.$show();" ng-show='!outlookeditform.$visible'>
+                            Edit
+                        </a>
+                        <a class="md-primary" ng-click="refreshOutlook();" ng-show='!outlookeditform.$visible'>
+                            Refresh
+                        </a>
+                    </div>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <outlook-edit-form></outlook-edit-form>
+            </md-card-content>
+        </md-card>
+        <md-card>
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">Headline </span>
+                        <span class='md-subhead' ng-bind-html="trustAsHtml(headline.timestamp)"></span>
+                        <span flex></span>
+                        <span>
+                            <md-select name="headlineSnapshot" id="headlineSnapshotSelect"
+                                       ng-model="headline.snapshotSelect" placeholder="SNAPSHOT"
+                                       ng-hide="headlineeditform.$visible"
+                                       aria-label="Headline Snapshot">
+                                <md-option value="">---Latest---</md-option>
+                                <md-option ng-repeat="snapshot in headline.snapshots track by $index"
+                                           value="{{snapshot}}"> {{snapshot}}  </md-option>
+                            </md-select>
+                        </span>
+                        <span ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
+                            <a class='md-primary'
+                               ng-click="parseHeadline(); headlineeditform.$show();"
+                               ng-hide='(headlineeditform.$visible || !showEditFeature || snapshotHeadline)'>Edit</a>
+                            <a class='md-primary'
+                               ng-click="parseHeadline(); removeHeadline()"
+                               ng-hide='(headlineeditform.$visible || !showEditFeature || snapshotHeadline)'>Delete</a>
+                            <a class='md-primary'
+                               ng-click="newHeadline(); headlineeditform.$show(); "
+                               ng-hide='(headlineeditform.$visible || snapshotHeadline)'>New</a>
+                            <a class='md-primary'
+                               ng-click="refreshHeadline()"
+                               ng-hide='(headlineeditform.$visible || snapshotHeadline)'>Refresh</a>
+                        </span>
+                    </div>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <div ng-hide="headlineeditform.$visible">
+                    <ul class="list-group" id='headline-issue-list'>
+                        <li class="list-group-item" ng-repeat="headline in headline.content track by $index"
+                            ng-click='headlineClick($index, $event, headline)'>
+                            <span ng-bind-html="trustAsHtml(headline)"></span>
                         </li>
                     </ul>
-                    <h3 class="block-title">Headline
-                        <small ng-show='headlineloaded' ng-bind-html="trustAsHtml(headline.timestamp)"></small>
-                        <small ng-hide='headlineloaded'>Loading...</small>
-                    </h3>
                 </div>
-                <div class="block-content" ng-show='headlineloaded'>
-                    <div ng-hide="headlineeditform.$visible">
-                        <ul class="list-group" id='headline-issue-list'>
-                            <li class="list-group-item" ng-repeat="headline in headline.content track by $index"
-                                ng-click='headlineClick($index, $event, headline)'
-                                ng-class="{active:$index == headlineSelected}">
-                                <span ng-bind-html="trustAsHtml(headline)"></span>
-                            </li>
-                        </ul>
+                <headline-edit-form></headline-edit-form>
+            </md-card-content>
+        </md-card>
+        <md-card>
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">Meeting </span>
+                        <span flex></span>
+                        <span ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
+                            <a class='md-primary' ng-show='!meetingeditform.$visible'
+                               ng-click="meetingeditform.$show();">Edit</a>
+                            <a class='md-primary' ng-show='!meetingeditform.$visible'
+                               ng-click="refreshLink()">Refresh</a>
+                        </span>
                     </div>
-                    <headline-edit-form></headline-edit-form>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-6 col-md-6 col-sm-12" style="padding: 0px!important;">
-                <div class="block block-bordered">
-                    <div class="block-header">
-                        <ul class="block-options" ng-show='meetingloaded'
-                            ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
-                            <li ng-show='!meetingeditform.$visible'>
-                                <button class='btn btn-sm btn-info' ng-click="refreshLink()">Refresh</button>
-                            </li>
-                            <li ng-show='!meetingeditform.$visible'>
-                                <button class='btn btn-sm btn-info' ng-click="meetingeditform.$show();">Edit</button>
-                            </li>
-                        </ul>
-                        <h3 class="block-title">Meeting
-                            <small ng-hide='meetingloaded'>Loading...</small>
-                        </h3>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <meeting-edit-form></meeting-edit-form>
+            </md-card-content>
+        </md-card>
+        <md-card>
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">Links </span>
+                        <span flex></span>
+                        <span ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
+                            <a class='md-primary' ng-show='!linkeditform.$visible'
+                               ng-click="linkeditform.$show();">Edit</a>
+                            <a class='md-primary' ng-show='!linkditform.$visible' ng-click="refreshLink()">Refresh</a>
+                        </span>
                     </div>
-                    <div class="block-content" ng-show='meetingloaded'>
-                        <meeting-edit-form></meeting-edit-form>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-12" style="padding: 0px!important;">
-                <div class="block block-bordered">
-                    <div class="block-header">
-                        <ul class="block-options" ng-show='linkloaded'
-                            ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
-                            <li ng-show='!linkeditform.$visible'>
-                                <button class='btn btn-sm btn-info' ng-click="refreshLink()">Refresh</button>
-                            </li>
-                            <li ng-show='!linkeditform.$visible'>
-                                <button class='btn btn-sm btn-info' ng-click="linkeditform.$show();">Edit</button>
-                            </li>
-                        </ul>
-                        <h3 class="block-title">Links
-                            <small ng-hide='linkloaded'>Loading...</small>
-                        </h3>
-                    </div>
-                    <div class="block-content" ng-show='linkloaded'>
-                        <link-edit-form></link-edit-form>
-                    </div>
-                </div>
-            </div>
-        </div>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <link-edit-form></link-edit-form>
+            </md-card-content>
+        </md-card>
+
     </div>
-    <div class="col-lg-4 col-md-4 col-sm-12">
-        <div class="row">
-            <!-- Default Buttons -->
-            <div class="block block-bordered">
-                <div class="block-header">
-                    <ul class="block-options" ng-show='infoloaded'>
-                        <li ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
-                            <button class='btn btn-sm btn-info' ng-click="refreshInfoDashboard()">Refresh</button>
-                        </li>
-                        <li ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
-                            <button class='btn btn-sm btn-info' ng-click="infoeditform.$show();">Edit</button>
-                        </li>
-                        <li>
-                            <button class='btn btn-sm btn-info' ng-click="go(rid, 'info');">More</button>
-                        </li>
-                    </ul>
-                    <h3 class="block-title">Program Information
-                        <small ng-hide='infoloaded'>Loading...</small>
-                    </h3>
-                </div>
-                <div class="block-content" ng-show='infoloaded'>
-                    <information-edit-form></information-edit-form>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <!-- Default Buttons -->
-            <div class="block block-bordered">
-                <div class="block-header">
-                    <ul class="block-options" ng-show='contactloaded'
-                        ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
-                        <li>
-                            <button class='btn btn-sm btn-info' ng-click="refreshContact(1)">Refresh</button>
-                        </li>
-                        <li>
-                            <button class='btn btn-sm btn-info' ng-click="contacteditform.$show();">Edit</button>
-                        </li>
-                    </ul>
-                    <h3 class="block-title">Contact
-                        <small ng-hide='contactloaded'>Loading...</small>
-                    </h3>
-                </div>
-                <div class="block-content" ng-show='contactloaded'>
-                    <contact-edit-form></contact-edit-form>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <!-- Default Buttons -->
-            <div class="block block-bordered">
-                <div class="block-header">
-                    <ul class="block-options" ng-show="milestoneloaded">
-                        <li ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
-                            <button class='btn btn-sm btn-info' ng-click="refreshFrontPageMilestone()">Refresh</button>
-                        </li>
-                        <li>
-                            <button class='btn btn-sm btn-info' ng-click="go(rid, 'milestone');">More</button>
-                        </li>
-                    </ul>
-                    <h3 class="block-title">Key Project Milestones
-                        <small ng-hide='milestoneloaded'>Loading...</small>
-                    </h3>
-                </div>
-                <div class="block-content" ng-show='milestoneloaded'>
-                    <table class='table table-bordered table-condensed'>
-                        <tbody>
-                        <tr ng-repeat="milestone in milestones | orderBy: 'order'">
-                            <td class='col-sm-6 col-md-6'><strong>{{milestone['key']|myUpperCase}}</strong></td>
-                            <td style='text-align:center;' class='col-sm-6 col-md-6'
-                                ng-bind-html="trustAsHtml(milestone['value'])"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+    <div flex-sm flex-gt-sm="30" layout="column">
+        <md-card>
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">Information</span>
+                        <span flex></span>
+                        <span ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
+                            <a g-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'"
+                               class='md-primary' ng-click="infoeditform.$show();">Edit</a>
+                            <a class='md-primary' ng-click="go(rid, 'info');">More</a>
+                            <a class='md-primary' ng-click="refreshInfoDashboard()">Refresh</a>
+                        </span>
+                    </div>
+                </md-card-title-text>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <information-edit-form></information-edit-form>
+            </md-card-content>
+        </md-card>
+        <md-card>
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">Contact </span>
+                        <span flex></span>
+                        <span ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
+                            <a class='md-primary' ng-show='!contacteditform.$visible'
+                               ng-click="contacteditform.$show();">Edit</a>
+                            <a class='md-primary' ng-click="refreshContact()">Refresh</a>
+                        </span>
+                    </div>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <contact-edit-form></contact-edit-form>
+            </md-card-content>
+        </md-card>
+        <md-card>
+            <md-card-title>
+                <md-card-title-text>
+                    <div layout="row">
+                        <span class="md-title">Key Milestones </span>
+                        <span flex></span>
+                        <span>
+                            <a class='md-primary' ng-click="go(rid, 'milestone');">More</a>
+                            <a class='md-primary' ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'"
+                               ng-click="refreshFrontPageMilestone()">Refresh</a>
+                        </span>
+                    </div>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content flex>
+                <table class='table table-bordered table-condensed'>
+                    <tbody>
+                    <tr ng-repeat="milestone in milestones">
+                        <td class='col-sm-6 col-md-6'><strong>{{milestone['key']|myUpperCase}}</strong></td>
+                        <td style='text-align:center;' class='col-sm-6 col-md-6'
+                            ng-bind-html="trustAsHtml(milestone['value'])"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </md-card-content>
+        </md-card>
     </div>
 </div>

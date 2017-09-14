@@ -1,32 +1,37 @@
-<div class="row">
-    <div class="block block-bordered">
-        <md-toolbar md-colors="::{background: 'white'}">
-            <div class="md-toolbar-tools">
-                <h2 flex>Internal Headline Report</h2>
-                <md-button ng-click="convertToPPT()">
-                    <md-icon class="material-icons" style="fill:black;color:black;">get_app</md-icon>
-                    Convert To PPT
-                </md-button>
-                <md-button ng-click="refreshHeadlineReport();">
-                    <md-icon class="material-icons" style="fill:black;color:black;">autorenew</md-icon>
-                    Reload
-                </md-button>
-            </div>
-        </md-toolbar>
-        <table class='table table-bordered table-condensed table-header-bg header-fixed' st-table='ipheadlinerows'
-               st-sticky-header>
-            <thead>
-            <tr>
-                <th style='width:1%!important;'>T</th>
-                <th style='width: 10%;'>IP-PM</th>
-                <th style='width: 15%;'>Project</th>
-                <th style='width: 10%;'>Stage</th>
-                <th style='width: 64%;'>Headline</th>
-            </tr>
-            </thead>
-            <tbody ng-show='headlineReportLoaded'>
-            <tr ng-repeat="row in ipheadlinerows track by $index" ng-bind-html='trustAsHtml(row)' dynamic></tr>
-            </tbody>
-        </table>
+<md-toolbar md-scroll-shrink class="md-menu-toolbar">
+    <div class="md-toolbar-tools">
+        <button class="md-icon-button md-button" hide-gt-md ng-click="openSideMenu()" aria-label="Toggle Menu">
+            <i class="material-icons">chrome_reader_mode</i>
+        </button>
+        <h4>
+            <span style='font-size: 18px;'>
+                <a href="/">IP Headline</a>
+            </span>
+        </h4>
+        <span flex></span>
+        <span>
+             <md-button ng-click="convertToPPT()">
+                <md-icon class="material-icons" style="fill:black;color:black;">get_app</md-icon>
+                Convert To PPT
+            </md-button>
+            <md-button ng-click="refreshHeadlineReport();">
+                <md-icon class="material-icons" style="fill:black;color:black;">autorenew</md-icon>
+                Reload
+            </md-button>
+        </span>
     </div>
-</div>
+</md-toolbar>
+<table class='table table-bordered table-condensed table-header-bg'>
+    <thead>
+    <tr>
+        <th style='width:1%!important;'>T</th>
+        <th style='width: 10%;'>IP-PM</th>
+        <th style='width: 15%;'>Project</th>
+        <th style='width: 10%;'>Stage</th>
+        <th style='width: 64%;'>Headline</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="row in ipheadlinerows track by $index" ng-bind-html='trustAsHtml(row)' dynamic></tr>
+    </tbody>
+</table>

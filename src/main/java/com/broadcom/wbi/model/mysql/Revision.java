@@ -41,18 +41,15 @@ public class Revision extends AbstractDomainClass implements Serializable {
     @Column(name = "order_num", columnDefinition = "int default 0", nullable = false)
     private Integer orderNum = 0;
 
-    @NotBlank
     @Column(name = "is_active", nullable = false)
     @Enumerated(EnumType.STRING)
     private ProjectConstant.EnumProgramStatus isActive = ProjectConstant.EnumProgramStatus.ACTIVE;
 
     @JsonIgnore
-    @NotBlank
     @Column(name = "is_include_in_report", columnDefinition = "tinyint default 1", nullable = false)
     private Boolean isRevisionIncludeInReport = true;
 
     @JsonIgnore
-    @NotBlank
     @Column(name = "is_protected", columnDefinition = "tinyint default 0", nullable = false)
     private Boolean isProtected = false;
 
@@ -84,7 +81,7 @@ public class Revision extends AbstractDomainClass implements Serializable {
 
     //use for bookmark
     @JsonIgnore
-    @ManyToMany(mappedBy = "revisions")
+    @ManyToMany(mappedBy = "revisions", fetch = FetchType.LAZY)
     private Set<Employee> employees = new HashSet<Employee>();
 
 }

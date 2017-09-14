@@ -27,63 +27,80 @@ public class IndexSearchServiceImpl implements IndexSearchService {
 
     final Long MYSQL_PAGE_SIZE = new Long(10000);
 
+    private final ElasticsearchTemplate elasticsearchTemplate;
+    private final SkuService skuService;
+    private final ProgramService programService;
+    private final SkuSearchService skuSearchService;
+    private final RevisionService revisionService;
+    private final RevisionSearchService revisionSearchService;
+    private final RevisionOutlookService revisionOutlookService;
+    private final RevisionInformationService revisionInformationService;
+    private final RevisionInformationSearchService revisionInformationSearchService;
+    private final RevisionContactService revisionContactService;
+    private final RevisionContactSearchService revisionContactSearchService;
+    private final IGroupService iGroupService;
+    private final IGroupHistoryService iGroupHistoryService;
+    private final IndicatorGroupSearchService indicatorGroupSearchService;
+    private final ITaskService iTaskService;
+    private final ITaskHistoryService iTaskHistoryService;
+    private final IndicatorTaskSearchService indicatorTaskSearchService;
+    private final IDateService iDateService;
+    private final IDateHistoryService iDateHistoryService;
+    private final IndicatorDateSearchService indicatorDateSearchService;
+    private final HeadlineService headlineService;
+    private final HeadlineSearchService headlineSearchService;
+    private final TemplateService templateService;
+    private final TemplateSearchService templateSearchService;
+    private final ResourcePlanService resourcePlanService;
+    private final ResourcePlanSearchService resourcePlanSearchService;
+
     @Autowired
-    private ElasticsearchTemplate elasticsearchTemplate;
-    @Autowired
-    private SkuService skuService;
-    @Autowired
-    private SkuSearchService skuSearchService;
-    @Autowired
-    private RevisionService revisionService;
-    @Autowired
-    private RevisionSearchService revisionSearchService;
-    @Autowired
-    private RevisionOutlookService revisionOutlookService;
-    @Autowired
-    private RevisionInformationService revisionInformationService;
-    @Autowired
-    private RevisionInformationSearchService revisionInformationSearchService;
-    @Autowired
-    private RevisionContactService revisionContactService;
-    @Autowired
-    private RevisionContactSearchService revisionContactSearchService;
-    @Autowired
-    private IGroupService iGroupService;
-    @Autowired
-    private IGroupHistoryService iGroupHistoryService;
-    @Autowired
-    private IndicatorGroupSearchService indicatorGroupSearchService;
-    @Autowired
-    private ITaskService iTaskService;
-    @Autowired
-    private ITaskHistoryService iTaskHistoryService;
-    @Autowired
-    private IndicatorTaskSearchService indicatorTaskSearchService;
-    @Autowired
-    private IDateService iDateService;
-    @Autowired
-    private IDateHistoryService iDateHistoryService;
-    @Autowired
-    private IndicatorDateSearchService indicatorDateSearchService;
-    @Autowired
-    private HeadlineService headlineService;
-    @Autowired
-    private HeadlineSearchService headlineSearchService;
-    @Autowired
-    private TemplateService templateService;
-    @Autowired
-    private TemplateSearchService templateSearchService;
+    public IndexSearchServiceImpl(ElasticsearchTemplate elasticsearchTemplate, SkuService skuService, SkuSearchService skuSearchService,
+                                  RevisionService revisionService, RevisionSearchService revisionSearchService, TemplateService templateService,
+                                  RevisionOutlookService revisionOutlookService, HeadlineSearchService headlineSearchService, IndicatorGroupSearchService indicatorGroupSearchService,
+                                  ITaskHistoryService iTaskHistoryService, RevisionInformationService revisionInformationService, IndicatorDateSearchService indicatorDateSearchService,
+                                  TemplateSearchService templateSearchService, HeadlineService headlineService, RevisionInformationSearchService revisionInformationSearchService,
+                                  RevisionContactService revisionContactService, IGroupHistoryService iGroupHistoryService, ITaskService iTaskService, IDateHistoryService iDateHistoryService,
+                                  IDateService iDateService, RevisionContactSearchService revisionContactSearchService,
+                                  IndicatorTaskSearchService indicatorTaskSearchService, IGroupService iGroupService, ResourcePlanService resourcePlanService, ResourcePlanSearchService resourcePlanSearchService, ProgramService programService) {
+        this.elasticsearchTemplate = elasticsearchTemplate;
+        this.skuService = skuService;
+        this.skuSearchService = skuSearchService;
+        this.revisionService = revisionService;
+        this.revisionSearchService = revisionSearchService;
+        this.templateService = templateService;
+        this.revisionOutlookService = revisionOutlookService;
+        this.headlineSearchService = headlineSearchService;
+        this.indicatorGroupSearchService = indicatorGroupSearchService;
+        this.iTaskHistoryService = iTaskHistoryService;
+        this.revisionInformationService = revisionInformationService;
+        this.indicatorDateSearchService = indicatorDateSearchService;
+        this.templateSearchService = templateSearchService;
+        this.headlineService = headlineService;
+        this.revisionInformationSearchService = revisionInformationSearchService;
+        this.revisionContactService = revisionContactService;
+        this.iGroupHistoryService = iGroupHistoryService;
+        this.iTaskService = iTaskService;
+        this.iDateHistoryService = iDateHistoryService;
+        this.iDateService = iDateService;
+        this.revisionContactSearchService = revisionContactSearchService;
+        this.indicatorTaskSearchService = indicatorTaskSearchService;
+        this.iGroupService = iGroupService;
+        this.resourcePlanService = resourcePlanService;
+        this.resourcePlanSearchService = resourcePlanSearchService;
+        this.programService = programService;
+    }
 
 
     @Override
-    public Future<Boolean> indexAllSku(int reload) {
-        if (reload == 1) {
-            if (elasticsearchTemplate.indexExists(SkuSearch.class)) {
-                elasticsearchTemplate.deleteIndex(SkuSearch.class);
-            }
-            elasticsearchTemplate.createIndex(SkuSearch.class);
+    public Future<Boolean> indexAllSku(DateTime dt) {
+        if (elasticsearchTemplate.indexExists(SkuSearch.class)) {
+            elasticsearchTemplate.deleteIndex(SkuSearch.class);
         }
-        System.out.println("Indexing SKU");
+        elasticsearchTemplate.createIndex(SkuSearch.class);
+        elasticsearchTemplate.putMapping(SkuSearch.class);
+        Long count = revisionService.count();
+        System.out.println("Indexing SKU " + count);
         List<Sku> skuList = skuService.listAll();
         final List<SkuSearch> ssl = Collections.synchronizedList(new ArrayList<SkuSearch>());
         if (skuList != null && !skuList.isEmpty()) {
@@ -91,33 +108,41 @@ public class IndexSearchServiceImpl implements IndexSearchService {
             for (final Sku sku : skuList) {
                 executor.submit(new Runnable() {
                     public void run() {
-                        Program program = sku.getProgram();
-                        SkuSearch ss = new SkuSearch();
-                        ss.setId(Integer.toString(sku.getId()));
-                        ss.setAka(sku.getAka().toLowerCase());
-                        ss.setOtherName(sku.getAka().replaceAll("\\+", "plus").toLowerCase());
-                        ss.setBaseNum(program.getBaseNum().toLowerCase());
-                        ss.setDescription(sku.getDescription().toLowerCase());
-                        ss.setFrequency(sku.getFrequency());
-                        ss.setIoCapacity(sku.getIoCapacity());
-                        ss.setNumOfSerdes(sku.getNumOfSerdes());
-                        ss.setPortConfig(sku.getPortConfig());
-                        ss.setProgramDisplayName(program.getDisplayName().toLowerCase());
-                        ss.setProgramName(program.getDisplayName().toLowerCase());
-                        ss.setProgramType(program.getType().toString().toLowerCase());
-                        ss.setSkuNum(sku.getSkuNum());
-                        ss.setProgram(program.getId());
-                        ss.setDateAvailable(sku.getDateAvailable());
-                        ss.setItemp(sku.getItemp());
-                        ss.setFrequency(sku.getFrequency());
-                        if (program != null) {
-                            Revision a0 = revisionService.findByProgramName(program, "a0");
-                            if (a0 != null) {
-                                ss.setUrl("/program/" + program.getType().toString().toLowerCase() + "/"
-                                        + program.getId() + "/" + a0.getId() + "/dashboard");
+                        try {
+                            Program program = sku.getProgram();
+                            if (program == null) {
+                                return;
                             }
+                            SkuSearch ss = new SkuSearch();
+                            ss.setId(Integer.toString(sku.getId()));
+                            ss.setAka(sku.getAka().toLowerCase());
+                            ss.setOtherName(sku.getAka().replaceAll("\\+", "plus").toLowerCase());
+                            ss.setBaseNum(program.getBaseNum().toLowerCase());
+                            ss.setDescription(sku.getDescription().toLowerCase());
+                            ss.setFrequency(sku.getFrequency());
+                            ss.setIoCapacity(sku.getIoCapacity());
+                            ss.setNumOfSerdes(sku.getNumOfSerdes());
+                            ss.setPortConfig(sku.getPortConfig());
+                            ss.setProgramDisplayName(program.getDisplayName().toLowerCase());
+                            ss.setProgramName(program.getDisplayName().toLowerCase());
+                            ss.setProgramType(program.getType().toString().toLowerCase());
+                            ss.setSkuNum(sku.getSkuNum());
+                            ss.setProgram(program.getId());
+                            ss.setDateAvailable(sku.getDateAvailable());
+                            ss.setItemp(sku.getItemp());
+                            ss.setFrequency(sku.getFrequency());
+                            if (program != null) {
+                                Revision a0 = revisionService.findByProgramName(program, "a0");
+                                if (a0 != null) {
+                                    ss.setUrl("/program/" + program.getType().toString().toLowerCase() + "/"
+                                            + program.getId() + "/" + a0.getId() + "/dashboard");
+                                }
+                            }
+                            ssl.add(ss);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                        ssl.add(ss);
+
                     }
                 });
 
@@ -138,14 +163,29 @@ public class IndexSearchServiceImpl implements IndexSearchService {
 
     @Override
     public Future<Boolean> indexAllRevision(DateTime dt) {
-        if (dt == null) {
-            if (elasticsearchTemplate.indexExists(RevisionSearch.class)) {
-                elasticsearchTemplate.deleteIndex(RevisionSearch.class);
+        Long count = new Long(0);
+        try {
+            if (dt == null) {
+                if (elasticsearchTemplate.indexExists(RevisionSearch.class)) {
+                    elasticsearchTemplate.deleteIndex(RevisionSearch.class);
+                    elasticsearchTemplate.createIndex(RevisionSearch.class);
+                    elasticsearchTemplate.putMapping(RevisionSearch.class);
+                }
+                count = revisionService.count();
+            } else {
+                List<RevisionSearch> rsl = new ArrayList<>();
+                rsl = revisionSearchService.findByDateTime(dt);
+                if (rsl != null && !rsl.isEmpty()) {
+                    for (RevisionSearch rs : rsl) {
+                        revisionSearchService.delete(rs.getId());
+                    }
+                }
+                count = revisionService.count(dt);
             }
-            elasticsearchTemplate.createIndex(RevisionSearch.class);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        System.out.println("Indexing revision");
-        Long count = revisionService.count(dt);
+        System.out.println("Indexing revision " + count);
         Long stop = new Long(0);
         if (count > 0) {
             int index = 0;
@@ -173,7 +213,7 @@ public class IndexSearchServiceImpl implements IndexSearchService {
                                     rs.setId(Integer.toString(rev.getId()));
                                     rs.setInclude_in_report(rev.getIsRevisionIncludeInReport());
                                     rs.setIp_related(rev.getIpRelated());
-                                    rs.setProgram_name(p.getDisplayName().toLowerCase());
+                                    rs.setProgram_name(p.getDisplayName().toLowerCase().replace(".", "").replaceAll("\\+", "plus").trim());
                                     rs.setBase_num(p.getBaseNum());
                                     if (rev.getIsActive().toString().equalsIgnoreCase("active")) {
                                         rs.setIs_active(true);
@@ -186,7 +226,7 @@ public class IndexSearchServiceImpl implements IndexSearchService {
                                     rs.setProgram_order_num(p.getOrderNum());
                                     rs.setProgram_id(p.getId());
                                     rs.setSegment(segments.iterator().next().getName().toLowerCase());
-                                    rs.setType(p.getType().toString().toLowerCase());
+                                    rs.setProgram_type(p.getType().toString().toLowerCase());
                                     RevisionOutlook outlook = revisionOutlookService.findByRevision(rev);
                                     if (outlook != null) {
                                         rs.setOutlook(outlook.getContent());
@@ -225,10 +265,12 @@ public class IndexSearchServiceImpl implements IndexSearchService {
         if (reload == 1) {
             if (elasticsearchTemplate.indexExists(RevisionInformationSearch.class)) {
                 elasticsearchTemplate.deleteIndex(RevisionInformationSearch.class);
+                elasticsearchTemplate.createIndex(RevisionInformationSearch.class);
+                elasticsearchTemplate.putMapping(RevisionInformationSearch.class);
             }
-            elasticsearchTemplate.createIndex(RevisionInformationSearch.class);
         }
         Long count = revisionInformationService.count();
+        System.out.println("Indexing all information " + count);
         Long stop = new Long(0);
         if (count > 0) {
             int index = 0;
@@ -336,13 +378,54 @@ public class IndexSearchServiceImpl implements IndexSearchService {
     }
 
     @Override
+    public Future<Boolean> indexAllResourcePlan(DateTime dt) {
+        if (elasticsearchTemplate.indexExists(ResourcePlanSearch.class)) {
+            elasticsearchTemplate.deleteIndex(ResourcePlanSearch.class);
+            elasticsearchTemplate.createIndex(ResourcePlanSearch.class);
+            elasticsearchTemplate.putMapping(ResourcePlanSearch.class);
+        }
+        List<ResourcePlan> resources = resourcePlanService.listAll();
+        final List<ResourcePlanSearch> rpl = Collections.synchronizedList(new ArrayList<ResourcePlanSearch>());
+        if (resources != null && !resources.isEmpty()) {
+            ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+            for (final ResourcePlan resource : resources) {
+                executor.submit(new Runnable() {
+                    public void run() {
+                        ResourcePlanSearch rp = new ResourcePlanSearch();
+                        rp.setCount(resource.getCount());
+                        rp.setInclude_contractor(resource.getInclude_contractor());
+                        rp.setMonth(resource.getMonth());
+                        rp.setPlan_type(resource.getType().toLowerCase().trim());
+                        rp.setProgram(resource.getProgram().getId());
+                        rp.setSkill(resource.getPlan_skill().toLowerCase().trim());
+                        rpl.add(rp);
+                    }
+                });
+            }
+            executor.shutdown();
+            try {
+                executor.awaitTermination(3, TimeUnit.HOURS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Done collecting...\nStart to insert to ES");
+            resourcePlanSearchService.saveBulk(rpl);
+            System.out.println("Done Inserting Resource Plan");
+        }
+        return new AsyncResult<Boolean>(true);
+    }
+
+
+    @Override
     public Future<Boolean> indexAllRevisionContact(int reload) {
         if (reload == 1) {
             if (elasticsearchTemplate.indexExists(RevisionContactSearch.class)) {
                 elasticsearchTemplate.deleteIndex(RevisionContactSearch.class);
+                elasticsearchTemplate.createIndex(RevisionContactSearch.class);
+                elasticsearchTemplate.putMapping(RevisionContactSearch.class);
             }
-            elasticsearchTemplate.createIndex(RevisionContactSearch.class);
         }
+        System.out.println("Indexing contact");
         List<RevisionContact> contacts = revisionContactService.listAll();
         List<RevisionContactSearch> csl = Collections.synchronizedList(new ArrayList<RevisionContactSearch>());
         if (contacts != null && !contacts.isEmpty()) {
@@ -360,7 +443,6 @@ public class IndexSearchServiceImpl implements IndexSearchService {
                         pc.setRevision(info.getRevision().getId());
                         pc.setValue(value.trim().toLowerCase());
                         csl.add(pc);
-                        System.out.println("Collecting " + info.getId());
                     }
                 });
             }
@@ -385,8 +467,9 @@ public class IndexSearchServiceImpl implements IndexSearchService {
         if (dt == null) {
             if (elasticsearchTemplate.indexExists(IndicatorGroupSearch.class)) {
                 elasticsearchTemplate.deleteIndex(IndicatorGroupSearch.class);
+                elasticsearchTemplate.createIndex(IndicatorGroupSearch.class);
+                elasticsearchTemplate.putMapping(IndicatorGroupSearch.class);
             }
-            elasticsearchTemplate.createIndex(IndicatorGroupSearch.class);
             count = iGroupHistoryService.count();
         } else {
             List<IndicatorGroupSearch> deligsl = new ArrayList<IndicatorGroupSearch>();
@@ -470,8 +553,9 @@ public class IndexSearchServiceImpl implements IndexSearchService {
         if (dt == null) {
             if (elasticsearchTemplate.indexExists(IndicatorTaskSearch.class)) {
                 elasticsearchTemplate.deleteIndex(IndicatorTaskSearch.class);
+                elasticsearchTemplate.createIndex(IndicatorTaskSearch.class);
+                elasticsearchTemplate.putMapping(IndicatorTaskSearch.class);
             }
-            elasticsearchTemplate.createIndex(IndicatorTaskSearch.class);
             count = iTaskHistoryService.count();
         } else {
             List<IndicatorTaskSearch> delitsl = new ArrayList<IndicatorTaskSearch>();
@@ -566,8 +650,9 @@ public class IndexSearchServiceImpl implements IndexSearchService {
         if (dt == null) {
             if (elasticsearchTemplate.indexExists(IndicatorDateSearch.class)) {
                 elasticsearchTemplate.deleteIndex(IndicatorDateSearch.class);
+                elasticsearchTemplate.createIndex(IndicatorDateSearch.class);
+                elasticsearchTemplate.putMapping(IndicatorDateSearch.class);
             }
-            elasticsearchTemplate.createIndex(IndicatorDateSearch.class);
             count = iDateHistoryService.count();
         } else {
             List<IndicatorDateSearch> delitsl = new ArrayList<IndicatorDateSearch>();
@@ -657,8 +742,9 @@ public class IndexSearchServiceImpl implements IndexSearchService {
         if (dt == null) {
             if (elasticsearchTemplate.indexExists(HeadlineSearch.class)) {
                 elasticsearchTemplate.deleteIndex(HeadlineSearch.class);
+                elasticsearchTemplate.createIndex(HeadlineSearch.class);
+                elasticsearchTemplate.putMapping(HeadlineSearch.class);
             }
-            elasticsearchTemplate.createIndex(HeadlineSearch.class);
             count = headlineService.count();
         } else {
             List<HeadlineSearch> headlineSearchList = new ArrayList<HeadlineSearch>();
@@ -735,11 +821,12 @@ public class IndexSearchServiceImpl implements IndexSearchService {
     }
 
     @Override
-    public Future<Boolean> indexAllTemplate(int reload) {
+    public Future<Boolean> indexAllTemplate(DateTime dt) {
         if (elasticsearchTemplate.indexExists(TemplateSearch.class)) {
             elasticsearchTemplate.deleteIndex(TemplateSearch.class);
+            elasticsearchTemplate.createIndex(TemplateSearch.class);
+            elasticsearchTemplate.putMapping(TemplateSearch.class);
         }
-        elasticsearchTemplate.createIndex(TemplateSearch.class);
 
         List<Template> templates = templateService.listAll();
         if (templates != null && !templates.isEmpty()) {

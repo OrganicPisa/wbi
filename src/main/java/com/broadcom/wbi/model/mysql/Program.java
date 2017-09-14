@@ -41,7 +41,6 @@ public class Program extends AbstractDomainClass implements Serializable {
     @Column(name = "display_name", nullable = false)
     private String displayName;
 
-    @NotBlank
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     private ProjectConstant.EnumProgramType type = ProjectConstant.EnumProgramType.CHIP;
@@ -64,7 +63,6 @@ public class Program extends AbstractDomainClass implements Serializable {
     private Integer orderNum = 0;
 
     @JsonIgnore
-    @NotBlank
     @Column(name = "is_include_in_report", columnDefinition = "tinyint default 1", nullable = false)
     private Boolean isProgramIncludeInReport = true;
 

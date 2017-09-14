@@ -120,7 +120,7 @@ public class RedisCacheRepositoryImpl implements RedisCacheRepository<String, St
                         String seg = "";
                         for (RevisionSearch rs : rsl) {
                             deleteWildCard(rs.getId() + "_*");
-                            type = rs.getType().toLowerCase();
+                            type = rs.getProgram_type().toLowerCase();
                             seg = rs.getSegment().toLowerCase();
                         }
                         if (!type.trim().isEmpty()) {
@@ -137,7 +137,7 @@ public class RedisCacheRepositoryImpl implements RedisCacheRepository<String, St
                     String type = "";
                     String seg = "";
                     if (rs != null) {
-                        type = rs.getType().toLowerCase();
+                        type = rs.getProgram_type().toLowerCase();
                         seg = rs.getSegment().toLowerCase();
                     }
                     if (!type.trim().isEmpty()) {

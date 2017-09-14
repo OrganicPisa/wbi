@@ -19,34 +19,34 @@ public class RevisionInformationSearch implements Serializable {
     @Id
     private String id;
 
-    @Field(type = FieldType.Date, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Date, index = FieldIndex.not_analyzed, store = true)
     private Date created_date;
 
-    @Field(type = FieldType.Date, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Date, index = FieldIndex.not_analyzed, store = true)
     private Date last_updated_date;
 
-    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, store = true)
     private String name;
 
-    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, store = true)
     private String value;
 
-    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, store = true)
     private Integer orderNum;
 
-    @Field(type = FieldType.Boolean, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Boolean, index = FieldIndex.not_analyzed, store = true)
     private Boolean onDashboard;
 
-    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, store = true)
     private String phase;
 
-    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, store = true)
     private Integer revision;
 
-    @Field(type = FieldType.Boolean, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Boolean, index = FieldIndex.not_analyzed, store = true)
     private Boolean isUserEditable;
 
-    @Field(type = FieldType.Boolean, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Boolean, index = FieldIndex.not_analyzed, store = true)
     private Boolean isRestrictedView;
 
 }

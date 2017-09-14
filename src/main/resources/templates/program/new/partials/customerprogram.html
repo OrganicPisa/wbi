@@ -1,73 +1,45 @@
-<div class='row'>
-    <div class="col-md-6 col-md-offset-4 col-lg-6 col-lg-offset-4">
-        <h2>Create New Customer Program</h2>
-    </div>
-</div>
-<div class="row">
-    <form class="form-horizontal" role="form" data-ng-submit="submitCustomerForm(customerForm.$valid)" novalidate
-          name='customerForm'>
-        <div class="col-md-12 col-lg-9 col-lg-offset-2">
-            <div class="block">
-                <div class="block-header">
-                    <h3 class="block-title">Program Information</h3>
+<div layout="column" layout-padding>
+    <md-card>
+        <md-card-title>
+            <md-card-title-text>
+                <div layout="row">
+                    <span class="md-title">New Customer Program</span>
                 </div>
-                <div class="block-content block-content-narrow">
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="pname">Program Name <span
-                                class="text-danger">*</span>
-                        </label>
-                        <div class="col-md-9"
-                             data-ng-class="{'has-error':customerForm.pname.$invalid && (customerForm.pname.$dirty || customerForm.$submitted)}">
-                            <input class='form-control' ng-model='customer.pname' name='pname' type='text'
-                                   placeholder='Program name' tabindex='1' autocomplete="off"
-                                   required minlength="3" maxlength="100" ng-unique-program="customer.pname">
-                            <p class="help-block"
-                               ng-show="customerForm.pname.$error.required && (customerForm.pname.$dirty || customerForm.$submitted)">
-                                Required</p>
-                            <p class="help-block"
-                               ng-show="customerForm.pname.$error.minlength && (customerForm.pname.$dirty || customerForm.$submitted)">
-                                Min 3 Characters</p>
-                            <p class="help-block"
-                               ng-show="customerForm.pname.$error.maxlength && (customerForm.pname.$dirty || customerForm.$submitted)">
-                                Max 100 characters</p>
-                            <p class="help-block"
-                               ng-show="customerForm.pname.$error.programUnique && (customerForm.pname.$dirty || customerForm.$submitted)">
-                                Already Registered</p>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content>
+            <form role="form" data-ng-submit="submitCustomerForm(customerForm.$valid)" novalidate name='customerForm'>
+                <div layout-gt-xs="column">
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <label>Program Name</label>
+                        <input ng-model='customer.pname' name='pname' type='text'
+                               autocomplete="off" required minlength="3" maxlength="128"
+                               ng-unique-program="customer.pname">
+                        <div ng-messages="customerForm.pname.$error">
+                            <p ng-message="required">Required</p>
+                            <p ng-message="minlength">Min 3 Characters</p>
+                            <p ng-message="maxlength">Max 128 Characters</p>
+                            <p ng-message="programUnique">Already registered</p>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="customerName">Customer Name <span
-                                class="text-danger">*</span>
-                        </label>
-                        <div class="col-md-9"
-                             ng-class="{'has-error':customerForm.customerName.$invalid && (customerForm.customerName.$dirty || customerForm.$submitted)}">
-                            <input class='form-control' ng-model='customer.baseDie' name='customerName' type='text'
-                                   placeholder='Cisco, Dell, ...' tabindex='2' autocomplete="off" required
-                                   maxlength="100">
-                            <p class="help-block"
-                               ng-show="customerForm.customerName.$error.required && (customerForm.customerName.$dirty || customerForm.$submitted)">
-                                Required</p>
-                            <p class="help-block"
-                               ng-show="customerForm.customerName.$error.maxlength && (customerForm.customerName.$dirty || customerForm.$submitted)">
-                                Max 100 characters</p>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <label>Customer Name</label>
+                        <input ng-model='customer.baseDie' name='customerName' type='text'
+                               autocomplete="off" required minlength="3" maxlength="128">
+                        <div ng-messages="customerForm.customerName.$error">
+                            <p ng-message="required">Required</p>
+                            <p ng-message="minlength">Min 3 Characters</p>
+                            <p ng-message="maxlength">Max 128 Characters</p>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-md-3 control-label" for="segment">Segment <span class="text-danger">*</span>
-                        </label>
-                        <div class="col-md-3"
-                             ng-class="{'has-error':customerForm.segment.$invalid && (customerForm.segment.$dirty || customerForm.$submitted)}">
-                            <select tabindex='3' class='form-control' ng-model='customer.segment'
-                                    data-ng-options="segment.name for segment in segments |orderBy:'orderNum' track by segment.id"></select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary btn-block" data-ng-disabled="customerForm.$invalid"
-                                tabindex='25' data-ng-click='submitted=true'>Submit
-                        </button>
-                    </div>
+                    </md-input-container>
+                    <md-input-container class="md-block" flex-gt-xs>
+                        <md-button type="submit" class="btn btn-primary btn-block"
+                                   data-ng-disabled="customerForm.$invalid"
+                                   tabindex='25' data-ng-click='submitted=true'>Submit
+                        </md-button>
+                    </md-input-container>
                 </div>
-            </div>
-        </div>
-    </form>
+            </form>
+        </md-card-content>
+    </md-card>
 </div>

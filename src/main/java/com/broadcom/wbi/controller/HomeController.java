@@ -42,6 +42,7 @@ public class HomeController {
             public HashMap call() {
                 HashMap ret = new HashMap();
                 LinkedHashMap technologyMap = new LinkedHashMap();
+                technologyMap.put("7nm", "7nm");
                 technologyMap.put("16nm", "16nm");
                 technologyMap.put("28nm", "28nm");
 

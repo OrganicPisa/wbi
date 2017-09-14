@@ -1,10 +1,9 @@
 App.controller('InternalProgramCtrl', function ($scope, $rootScope, $http, $sce, $stateParams, $filter, $location,
                                                 $localStorage, Notification, $mdDialog, $mdSidenav,
                                                 Upload, infoFactory, contactFactory,
-                                                linkFactory, skuFactory, headlineFactory,
-                                                swFactory,
+                                                linkFactory, skuFactory, headlineFactory, uiGridConstants,
                                                 outlookFactory, milestoneFactory, remarkFactory,
-                                                resourceFactory, ipChipTableFactory, authenticationFactory) {
+                                                resourceFactory, ipChipTableFactory) {
     $scope.pid = $stateParams.pid;
     $scope.rid = $stateParams.rid;
     $scope.revisions=[];
@@ -30,6 +29,9 @@ App.controller('InternalProgramCtrl', function ($scope, $rootScope, $http, $sce,
     $scope.resourceChart = [];
     $scope.resourceTimeArray = [];
 
+    $scope.isCustomerProgram = false;
+    $scope.isChipProgram = true;
+    $scope.ipChipTable = [];
     $scope.milestones = [];
     $scope.remark = "";
     $scope.remarkTimestamp = "";
@@ -41,6 +43,25 @@ App.controller('InternalProgramCtrl', function ($scope, $rootScope, $http, $sce,
     $scope.openNewTab = function(url){
         $window.open(url, '_blank');
     };
+
+    var chart;
+
+    (function (H) {
+        H.wrap(H.Chart.prototype.initReflow = function () {
+            var chart = this,
+                reflow = function (e) {
+                    if (chart && chart.options) {
+                        chart.reflow(e);
+                    }
+                };
+
+
+            H.addEvent(window, 'resize', reflow);
+            H.addEvent(chart, 'destroy', function () {
+                H.removeEvent(window, 'resize', reflow);
+            });
+        });
+    })(Highcharts);
 
     $scope.go = function (id, page) {
         var patharr = $location.path().split("/");
@@ -71,7 +92,7 @@ App.controller('InternalProgramCtrl', function ($scope, $rootScope, $http, $sce,
     };
 
     $scope.clearRevisionCache= function(){
-        $http.post('/api/revision/clearRevisionCache', {'rid': $scope.rid}).then(function (result) {
+        $http.post('/api/revision/clearCache', {'rid': $scope.rid}).then(function (result) {
             Notification.success({message: 'Revision Cache cleared, Ready to be refreshed', delay:2000,replaceMessage:true, positionY:'top', positionX:'center'});
             setTimeout(function () {
                 location.reload();
@@ -79,7 +100,7 @@ App.controller('InternalProgramCtrl', function ($scope, $rootScope, $http, $sce,
         });
     };
     $scope.clearProgramCache= function(){
-        $http.post('/api/revision/clearRevisionCache', {'rid': $scope.rid, 'pid': $scope.pid}).then(function (result) {
+        $http.post('/api/program/clearCache', {'rid': $scope.rid, 'pid': $scope.pid}).then(function (result) {
             Notification.success({message: 'Cache cleared. Ready to be refreshed', delay:2000,replaceMessage:true, positionY:'top', positionX:'center'});
             setTimeout(function () {
                 location.reload();
@@ -123,6 +144,7 @@ App.controller('InternalProgramCtrl', function ($scope, $rootScope, $http, $sce,
         $scope.predicate='torder';
         $scope.snapshotMilestone = false;
         $scope.displayMilestoneStrikeout = false;
+        $scope.flagStatus = "black";
 
         $scope.currentMilestoneRowClick = {};
         if($rootScope.authority.match(/^(admin|pm)/i)){
@@ -158,7 +180,7 @@ App.controller('InternalProgramCtrl', function ($scope, $rootScope, $http, $sce,
         $scope.displayMilestoneSnapshot = function(val){
             $scope.displayMilestoneStrikeout = !$scope.displayMilestoneStrikeout;
         };
-        $scope.flagStatus =  "black";
+
         milestoneFactory.getCategory($scope.rid, "", 0)
             .then(function(result){
                 if(result){
@@ -216,7 +238,6 @@ App.controller('InternalProgramCtrl', function ($scope, $rootScope, $http, $sce,
                     cat.name = result;
                     cat.order = 1;
                     cat.rid = $scope.rid;
-                    console.log(cat);
                     $http.post("/api/revision/addIndicatorCategory", JSON.stringify(cat))
                         .then(function (new_cat) {
                             milestoneFactory.getCategory($scope.rid, "", 1)
@@ -474,7 +495,7 @@ App.controller('InternalProgramCtrl', function ($scope, $rootScope, $http, $sce,
                         .then(function () {
                             milestoneFactory.getIndicator($scope.rid, $scope.ms.gid, '', 1)
                                 .then(function (result) {
-                                    $scope.milestones = result;
+                                    $scope.milestones = $filter('orderBy')(result.data, ['torder', 'tname']);
                                 }, function (data, code) {
                                     Notification.error(data);
                                     console.log(data);
@@ -531,7 +552,7 @@ App.controller('InternalProgramCtrl', function ($scope, $rootScope, $http, $sce,
         };
 
         $scope.checkEditFormShowCondition = function (milestoneeditform) {
-            var msg = milestoneFactory.checkEditFormShow(milestoneeditform, $scope.milestoneSelected.index);
+            var msg = milestoneFactory.checkEditFormShow(milestoneeditform, $scope.milestoneSelected);
             if (msg.match(/[a-zA-Z]/)) {
                 Notification.error(msg);
             }
@@ -672,12 +693,12 @@ App.controller('InternalProgramCtrl', function ($scope, $rootScope, $http, $sce,
             setTimeout(function () {
                 $http.post('/api/revision/saveIndicatorTask', JSON.stringify($scope.milestoneSelected))
                     .then(function (ret) {
-                        var pobj = $filter('filter')($scope.ms.categories, {id: $scope.ms.gid}, true)[0];
+                        var current_category = $filter('filter')($scope.ms.categories, {id: $scope.ms.gid}, true)[0];
 
-                        pobj.status = ret.data.gstatus;
-                        if (pobj.name.match(/project/i)) {
-                            var revobj = $filter('filter')($scope.revisions, {rid: $scope.rid})[0];
-                            revobj.revision_btn_color = ret.data.revision_btn_color;
+                        current_category.status = ret.data.gstatus;
+                        if (current_category.name.match(/project/i)) {
+                            // var revobj = $filter('filter')($scope.revisions, {rid: $scope.rid})[0];
+                            $scope.currentRevision.revision_btn_color = ret.data.revision_btn_color;
                         }
                         milestoneFactory.getCategory($scope.rid, "", 1)
                             .then(function (result) {
@@ -884,101 +905,636 @@ App.controller('InternalProgramCtrl', function ($scope, $rootScope, $http, $sce,
                     $scope.ipChipTable = result.data;
                 }
             });
-        // var chart = {};
-        // $scope.resourceMonthlyChartConfig = {
-        //     credits : {
-        //         enabled : false
-        //     },
-        //     options : {
-        //         chart:{},
-        //         plotOptions : {
-        //             line : {
-        //                 states : {
-        //                     hover : {
-        //                         lineWidth : 3
-        //                     }
-        //                 },
-        //             },
-        //             series : {
-        //                 marker : {
-        //                     enabled : true
-        //                 }
-        //             },
-        //             showInLegend : true
-        //         }
-        //     },func: function(chart) {
-        //         setTimeout(function() {
-        //             chart.reflow();
-        //         }, 10);
-        //     },
-        //     title : {},
-        //     subtitle : {},
-        //     xAxis : {
-        //         labels : {
-        //             rotation : -60,
-        //             style : {
-        //                 fontSize : '12px',
-        //                 fontFamily : 'Verdana, sans-serif'
-        //             },
-        //             overflow : 'justify'
-        //         },
-        //         min : 0
-        //     },
-        //     yAxis : {
-        //         title : {
-        //             text : 'Headcount'
-        //         },
-        //         min : 0,
-        //         allowDecimals : false
-        //     },
-        //     legend : {
-        //         enabled : true,
-        //         align : 'center',
-        //     },
-        //     tooltip : {
-        //         crosshairs : true,
-        //         shared : true
-        //     },
-        //     exporting : {},
-        // };
-        //
-        // $scope.subtitleChart = '';
-        // $scope.milestoneResourceValid = false;
-        //
-        // resourceFactory.getMonthlyChart($scope.rid,0)
-        //     .then(function(result) {
-        //         if(!result.data){
-        //             $scope.milestoneResourceValid = false;
-        //         }
-        //         else{
-        //             $scope.milestoneResourceValid = true;
-        //             $scope.resourceMonthlyChartConfig.options.chart.type = 'line';
-        //             $scope.resourceMonthlyChartConfig.series=  result.data.series;
-        //             $scope.resourceMonthlyChartConfig.xAxis.categories= result.data.time;
-        //             $scope.resourceMonthlyChartConfig.title.text=  result.data.title;
-        //             $scope.resourceMonthlyChartConfig.exporting.fileName =$scope.subtitleChart;
-        //         }
-        //     }, function(data, code) {
-        //         console.log(data);
-        //     });
-        // resourceFactory.getSummaryTable($scope.rid,0)
-        //     .then(function(result) {
-        //         if(result){
-        //             $scope.milestoneResourceValid = true;
-        //             $scope.resources = result.data['data'];
-        //             $scope.resourceTimestamp = result.data['last_updated_date'];
-        //         }
-        //         else{
-        //             $scope.milestoneResourceValid = false;
-        //             $scope.resourceTimestamp = "<i>No Data Available</i>";
-        //         }
-        //     }, function(data, code) {
-        //         Notification.error(data);
-        //     });
+        $scope.resourceMonthlyChartConfig = {
+            credits: {
+                enabled: false
+            },
+            options: {
+                chart: {},
+                plotOptions: {
+                    line: {
+                        states: {
+                            hover: {
+                                lineWidth: 3
+                            }
+                        },
+                    },
+                    series: {
+                        marker: {
+                            enabled: true
+                        }
+                    },
+                    showInLegend: true
+                }
+            }, func: function (chart) {
+                chart.reflow();
+            },
+            title: {},
+            subtitle: {},
+            xAxis: {
+                labels: {
+                    rotation: -60,
+                    style: {
+                        fontSize: '12px',
+                        fontFamily: 'Verdana, sans-serif'
+                    },
+                    overflow: 'justify'
+                },
+                min: 0
+            },
+            yAxis: {
+                title: {
+                    text: 'Headcount'
+                },
+                min: 0,
+                allowDecimals: false
+            },
+            legend: {
+                enabled: true,
+                align: 'center',
+            },
+            tooltip: {
+                crosshairs: true,
+                shared: true
+            },
+            exporting: {},
+        };
+
+        $scope.subtitleChart = '';
+        $scope.milestoneResourceValid = false;
+
+        resourceFactory.getMonthlyChart($scope.rid, 0)
+            .then(function (result) {
+                if (!result.data) {
+                    $scope.milestoneResourceValid = false;
+                }
+                else {
+                    $scope.milestoneResourceValid = true;
+                    $scope.resourceMonthlyChartConfig.options.chart.type = 'line';
+                    $scope.resourceMonthlyChartConfig.series = result.data.series;
+                    $scope.resourceMonthlyChartConfig.xAxis.categories = result.data.time;
+                    $scope.resourceMonthlyChartConfig.title.text = result.data.title;
+                    $scope.resourceMonthlyChartConfig.exporting.fileName = $scope.subtitleChart;
+                }
+            }, function (data, code) {
+                console.log(data);
+            });
+        resourceFactory.getSummaryTable($scope.rid, 0)
+            .then(function (result) {
+                if (result) {
+                    $scope.milestoneResourceValid = true;
+                    $scope.resources = result.data.data;
+                    $scope.resourceTimestamp = result.data['last_updated_date'];
+                }
+                else {
+                    $scope.milestoneResourceValid = false;
+                    $scope.resourceTimestamp = "<i>No Data Available</i>";
+                }
+            }, function (data, code) {
+                Notification.error(data);
+            });
 
     }
+    else if ($scope.page.match(/resource/i)) {
+        $scope.subtitleChart = '';
+        $scope.rs = {};
+        $scope.resourceTimestamp = '';
+        $scope.milestoneResourceValid = false;
+        $scope.rs.actualSkillData = [];
+        $scope.rs.porSkillData = [];
+        $scope.exportResourceSkillTableData = function () {
+            var uri = 'data:application/vnd.ms-excel;base64,'
+                ,
+                template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+                , base64 = function (s) {
+                    return window.btoa(unescape(encodeURIComponent(s)))
+                }
+                , format = function (s, c) {
+                    return s.replace(/{(\w+)}/g, function (m, p) {
+                        return c[p];
+                    })
+                };
 
+            var table = document.getElementById("resourceSkillCompareTable");
+            var ctx = {worksheet: name || 'Skill Compare', table: table.innerHTML};
+            var url = uri + base64(format(template, ctx));
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'skill_summary.xls';
+            a.click();
+        };
+        $scope.resourceMonthlyChartConfig = {
+            credits: {enabled: false},
+            options: {
+                chart: {},
+                plotOptions: {
+                    line: {
+                        states: {
+                            hover: {
+                                lineWidth: 3
+                            }
+                        },
+                    },
+                    series: {
+                        marker: {
+                            enabled: true
+                        }
+                    },
+                    showInLegend: true
+                }
+            }, func: function (chart) {
+                chart.reflow();
+            },
+            title: {},
+            subtitle: {},
+            xAxis: {
+                labels: {
+                    rotation: -60,
+                    style: {
+                        fontSize: '12px',
+                        fontFamily: 'Verdana, sans-serif'
+                    },
+                    overflow: 'justify'
+                },
+                min: 0
+            },
+            yAxis: {
+                title: {
+                    text: 'Headcount'
+                },
+                min: 0,
+                allowDecimals: false
+            },
+            legend: {
+                enabled: true,
+                align: 'center',
+            },
+            tooltip: {
+                crosshairs: true,
+                shared: true
+            },
+            exporting: {},
+        };
+        $scope.resourceSkillCurrentCompareChartConfig = {
+            credits: {enabled: false},
+            options: {
+                chart: {},
+                plotOptions: {
+                    bar: {dataLabels: {enabled: true}},
+                    showInLegend: true
+                }
+            }, func: function (chart) {
+                chart.reflow();
+            },
+            yAxis: {
+                title: {text: 'Headcount'},
+                min: 0,
+                allowDecimals: false
+            },
+            xAxis: {},
+            title: {},
+            exporting: {},
+            legend: {
+                enabled: true,
+                align: 'center',
+            }
+        };
+        $scope.actualResourceMonthlySkillTrendChartConfig = {
+            credits: {enabled: false},
+            options: {
+                chart: {},
+                plotOptions: {column: {stacking: 'normal'}}
+            }, func: function (chart) {
+                chart.reflow();
+            },
+            title: {},
+            xAxis: {
+                labels: {
+                    rotation: -60,
+                    style: {fontSize: '12px', fontFamily: 'Verdana, sans-serif'},
+                    overflow: 'justify'
+                },
+                min: 0
+            },
+            yAxis: {
+                title: {text: 'Headcount'},
+                minRange: 0,
+                allowDecimals: false,
+                tickInterval: 10,
+                min: 0
+            },
+            exporting: {},
+            legend: {
+                enabled: true,
+                align: 'center',
+            }
+        };
+        $scope.porResourceMonthlySkillTrendChartConfig = {
+            credits: {enabled: false},
+            options: {
+                chart: {},
+                plotOptions: {column: {stacking: 'normal'}}
+            },
+            func: function (chart) {
+                chart.reflow();
+            },
+            title: {},
+            xAxis: {
+                labels: {
+                    rotation: -60,
+                    style: {fontSize: '12px', fontFamily: 'Verdana, sans-serif'},
+                    overflow: 'justify'
+                },
+                min: 0
+            },
+            yAxis: {
+                title: {text: 'Headcount'},
+                minRange: 0,
+                allowDecimals: false,
+                tickInterval: 10,
+                min: 0
+            },
+            exporting: {},
+            legend: {enabled: true, align: 'center'},
+        };
 
+        $scope.resourceSkillTrendCompareChartConfig = {
+            credits: {enabled: false},
+            options: {
+                chart: {},
+                plotOptions: {
+                    line: {
+                        states: {hover: {lineWidth: 3}},
+                        marker: {enabled: true}
+                    },
+                    showInLegend: true
+                },
+            }, func: function (chart) {
+                chart.reflow();
+            },
+            title: {},
+            xAxis: {
+                labels: {
+                    rotation: -60,
+                    style: {fontSize: '12px', fontFamily: 'Verdana, sans-serif'},
+                    overflow: 'justify'
+                },
+                min: 0
+            },
+            yAxis: {
+                title: {text: 'Headcount'},
+                min: 0,
+                allowDecimals: false
+            },
+            exporting: {},
+            legend: {
+                enabled: true,
+                align: 'center',
+            }
+        };
+        if ($scope.page.match(/data/i)) {
+            $scope.actualResources = [];
+            $scope.resourceTimeArray = [];
+            $scope.rs.actualResourceTime = '';
+            $scope.openNewTab = function (url) {
+                $window.open(url, '_blank');
+            };
+
+            $scope.gridOptions = {
+                data: $scope.actualResources,
+                enableGridMenu: true,
+                exporterMenuPdf: false,
+                enableColumnResizing: true,
+                exporterCsvFilename: 'actual_data_resource.csv',
+                enableFiltering: true,
+                columnDefs: [
+                    {field: 'Employee'},
+                    {field: 'Skill'},
+                    {field: 'Project'},
+                    {field: 'Manager'},
+                    {
+                        field: 'Man Month', filters: [
+                        {
+                            condition: uiGridConstants.filter.GREATER_THAN,
+                            placeholder: 'greater than'
+                        },
+                        {
+                            condition: uiGridConstants.filter.LESS_THAN,
+                            placeholder: 'less than'
+                        }
+                    ]
+                    }
+                ],
+                onRegisterApi: function (gridApi) {
+                    $scope.gridApi = gridApi;
+                },
+                minRowsToShow: 5
+            };
+
+            $scope.$watch('rs.actualResourceTime', function (val) {
+                $scope.resourceloaded = false;
+                $http.get('/api/resource/program/generateActualEmployeeResource?rid=' + $scope.rid + "&date=" + val)
+                    .then(function (result) {
+                        $scope.resourceloaded = true;
+                        $scope.actualResources = result.data.data;
+                        var rlength = 1;
+                        if (typeof $scope.actualResources != 'undefined') {
+                            rlength = $scope.actualResources.length + 1;
+                            if (rlength > 23)
+                                rlength = 23;
+                        }
+                        $scope.gridOptions.minRowsToShow = rlength;
+                        $scope.gridOptions.data = result.data.data;
+                    });
+            });
+            $http.get('/api/resource/program/getActualResourceTimes?rid=' + $scope.rid)
+                .then(function (result) {
+                    $scope.resourceTimes = result.data;
+                });
+        }
+        else if ($scope.page.match(/report/i)) {
+            $scope.$watch('rs.skillSelect', function (val) {
+                var actualData = $filter('filter')($scope.rs.actualSkillData, {name: val})[0];
+                var porData = $filter('filter')($scope.rs.porSkillData, {name: val})[0];
+                var compareSkillData = [];
+                if (typeof actualData != 'undefined') {
+                    if (actualData.data) {
+                        var actualObj = {};
+                        actualObj.name = 'ACTUAL';
+                        actualObj.data = actualData.data;
+                        actualObj.color = "#005568";
+                        compareSkillData.push(actualObj);
+                    }
+                }
+                if (typeof porData != 'undefined') {
+                    if (porData.data) {
+                        var porObj = {};
+                        porObj.name = 'POR';
+                        porObj.data = porData.data;
+                        porObj.color = "#7CB5EC";
+                        compareSkillData.push(porObj);
+                    }
+                }
+                if (compareSkillData.length == 2) {
+                    $scope.resourceSkillTrendCompareChartConfig.options.chart.type = 'line';
+                    $scope.resourceSkillTrendCompareChartConfig.series = compareSkillData;
+                    $scope.resourceSkillTrendCompareChartConfig.xAxis.categories = $scope.timeList;
+                    $scope.resourceSkillTrendCompareChartConfig.title.text = val + ' (POR vs Actual)';
+                    $scope.resourceSkillTrendCompareChartConfig.exporting.fileName = val + ' (PORvsActual)';
+                }
+            });
+            resourceFactory.getSkillCompareTable($scope.rid, 0)
+                .then(function (result) {
+                    if (result.data.err) {
+                        $scope.milestoneResourceValid = false;
+                    }
+                    else {
+                        $scope.milestoneResourceValid = true;
+                        $scope.resourceTimestamp = result.data.data.last_updated_date;
+                        $scope.skillTable = result.data.data.table;
+                        $scope.skillList = result.data.data.skillList;
+                        if (result.data.data.currentSkillChart) {
+                            $scope.resourceSkillCurrentCompareChartConfig.options.chart.type = 'bar';
+                            $scope.resourceSkillCurrentCompareChartConfig.series = result.data.data.currentSkillChart.data;
+                            $scope.resourceSkillCurrentCompareChartConfig.xAxis.categories = result.data.data.currentSkillChart.time;
+                            $scope.resourceSkillCurrentCompareChartConfig.title.text = "Actual vs POR (Accumulative)";
+                            $scope.resourceSkillCurrentCompareChartConfig.exporting.fileName = 'ActualvsPORSkill';
+                        }
+                        if (result.data.data.actualSkillTrend) {
+                            $scope.actualResourceMonthlySkillTrendChartConfig.options.chart.type = 'line';
+                            $scope.actualResourceMonthlySkillTrendChartConfig.series = result.data.data.actualSkillTrend.data;
+                            $scope.actualResourceMonthlySkillTrendChartConfig.xAxis.categories = result.data.data.actualSkillTrend.time;
+                            $scope.actualResourceMonthlySkillTrendChartConfig.title.text = "Actual Skill Trend";
+                            $scope.actualResourceMonthlySkillTrendChartConfig.exporting.fileName = 'ActualSkillTrend"';
+                            $scope.timeList = result.data.data.actualSkillTrend.time;
+                            $scope.rs.actualSkillData = result.data.data.actualSkillTrend.data;
+                        }
+                        if (result.data.data.porSkillTrend) {
+                            $scope.porResourceMonthlySkillTrendChartConfig.options.chart.type = 'line';
+                            $scope.porResourceMonthlySkillTrendChartConfig.series = result.data.data.porSkillTrend.data;
+                            $scope.porResourceMonthlySkillTrendChartConfig.xAxis.categories = result.data.data.porSkillTrend.time;
+                            $scope.porResourceMonthlySkillTrendChartConfig.title.text = "POR Skill Trend";
+                            $scope.porResourceMonthlySkillTrendChartConfig.exporting.fileName = 'PORSkillTrend"';
+                            $scope.rs.porSkillData = result.data.data.porSkillTrend.data;
+                        }
+                    }
+                }, function (data, code) {
+                    console.log(data);
+                });
+        }
+        else if ($scope.page.match(/summary/i)) {
+            resourceFactory.getMonthlyChart($scope.rid, 0)
+                .then(function (result) {
+                    if (!result) {
+                        $scope.milestoneResourceValid = false;
+                    }
+                    else {
+                        $scope.milestoneResourceValid = true;
+                        $scope.resourceMonthlyChartConfig.options.chart.type = 'line';
+                        $scope.resourceMonthlyChartConfig.series = result.data.series;
+                        $scope.resourceMonthlyChartConfig.xAxis.categories = result.data.time;
+                        $scope.resourceMonthlyChartConfig.title.text = result.data.title;
+                        $scope.resourceMonthlyChartConfig.exporting.fileName = $scope.subtitleChart;
+                    }
+                }, function (data, code) {
+                    console.log(data);
+                });
+            resourceFactory.getSummaryTable($scope.rid, 0)
+                .then(function (result) {
+                    if (result) {
+                        $scope.milestoneResourceValid = true;
+                        $scope.resources = result.data.data;
+                        $scope.resourceTimestamp = result.data.last_updated_date;
+                    }
+                    else {
+                        $scope.milestoneResourceValid = false;
+                        $scope.resourceTimestamp = "<i>No Data Available</i>";
+                    }
+                }, function (data, code) {
+                    Notification.error(data);
+                });
+            resourceFactory.getSkillCompareTable($scope.rid, 0)
+                .then(function (result) {
+                    if (result.data.err) {
+                        $scope.milestoneResourceValid = false;
+                    }
+                    else {
+                        $scope.milestoneResourceValid = true;
+                        $scope.resourceTimestamp = result.data.data.last_updated_date;
+                        $scope.skillTable = result.data.data.table;
+                        $scope.skillList = result.data.data.skillList;
+                        if (result.data.data.currentSkillChart) {
+                            $scope.resourceSkillCurrentCompareChartConfig.options.chart.type = 'bar';
+                            $scope.resourceSkillCurrentCompareChartConfig.series = result.data.data.currentSkillChart.data;
+                            $scope.resourceSkillCurrentCompareChartConfig.xAxis.categories = result.data.data.currentSkillChart.time;
+                            $scope.resourceSkillCurrentCompareChartConfig.title.text = "Actual vs POR (Accumulative)";
+                            $scope.resourceSkillCurrentCompareChartConfig.exporting.fileName = 'ActualvsPORSkill';
+                        }
+                        if (result.data.data.actualSkillTrend) {
+                            $scope.actualResourceMonthlySkillTrendChartConfig.options.chart.type = 'line';
+                            $scope.actualResourceMonthlySkillTrendChartConfig.series = result.data.data.actualSkillTrend.data;
+                            $scope.actualResourceMonthlySkillTrendChartConfig.xAxis.categories = result.data.data.actualSkillTrend.time;
+                            $scope.actualResourceMonthlySkillTrendChartConfig.title.text = "Actual Skill Trend";
+                            $scope.actualResourceMonthlySkillTrendChartConfig.exporting.fileName = 'ActualSkillTrend"';
+                            $scope.timeList = result.data.data.actualSkillTrend.time;
+                            $scope.rs.actualSkillData = result.data.data.actualSkillTrend.data;
+                        }
+                        if (result.data.data.porSkillTrend) {
+                            $scope.porResourceMonthlySkillTrendChartConfig.options.chart.type = 'line';
+                            $scope.porResourceMonthlySkillTrendChartConfig.series = result.data.data.porSkillTrend.data;
+                            $scope.porResourceMonthlySkillTrendChartConfig.xAxis.categories = result.data.data.porSkillTrend.time;
+                            $scope.porResourceMonthlySkillTrendChartConfig.title.text = "POR Skill Trend";
+                            $scope.porResourceMonthlySkillTrendChartConfig.exporting.fileName = 'PORSkillTrend"';
+                            $scope.rs.porSkillData = result.data.data.porSkillTrend.data;
+                        }
+                    }
+                }, function (data, code) {
+                    console.log(data);
+                });
+
+            $scope.uploadResource = function (files) {
+                if (files && files.length) {
+                    for (var i = 0; i < files.length; i++) {
+                        var file = files[i];
+                        if (!file.name.match(/(\.xls|\.csv)/i)) {
+                            Notification.danger({
+                                title: 'File Not Support', message: 'MS Excel file support only',
+                                positionY: 'top', positionX: 'center', delay: '30000'
+                            });
+                        }
+                        else {
+                            Notification.info({
+                                title: 'Please Wait',
+                                message: 'Uploading resource file. The whole process may take up to 5 minutes. Please do not refresh the page',
+                                positionY: 'top',
+                                positionX: 'center',
+                                delay: '30000'
+                            });
+                            Upload.upload({
+                                url: '/file/upload/resource',
+                                fields: {
+                                    'pid': $scope.pid
+                                },
+                                file: file
+                            }).success(function (data, status, headers, config) {
+                                resourceFactory.getMonthlyChart($scope.rid, 1)
+                                    .then(function (result) {
+                                        $scope.milestoneResourceValid = true;
+                                        if (result) {
+                                            $scope.resourceMonthlyChartConfig.series = result.data.series;
+                                            $scope.resourceMonthlyChartConfig.xAxis.categories = result.data.time;
+                                        }
+                                    }, function (data, code) {
+                                        console.log(data);
+                                    });
+                                resourceFactory.getSummaryTable($scope.rid, 1)
+                                    .then(function (result) {
+                                        if (result) {
+                                            $scope.milestoneResourceValid = true;
+                                            $scope.resources = result.data.data;
+                                            $scope.resourceTimestamp = result.data['last_updated_date'];
+                                        }
+                                        else {
+                                            $scope.milestoneResourceValid = false;
+                                            $scope.resourceTimestamp = "<i>No Data Available</i>";
+                                        }
+                                    }, function (data, code) {
+                                        Notification.error(data);
+                                    });
+                                resourceFactory.getSkillCompareTable($scope.rid, 1)
+                                    .then(function (result) {
+                                        if (result['err']) {
+                                            $scope.milestoneResourceValid = false;
+                                        }
+                                        else {
+                                            $scope.milestoneResourceValid = true;
+                                            $scope.resourceTimestamp = result.data['last_updated_date'];
+                                            $scope.skillTable = result.data.data.table;
+                                            $scope.skillList = result.data.data['skillList'];
+                                            if (result.data.data['currentSkillChart']) {
+                                                $scope.resourceSkillCurrentCompareChartConfig.series = result.data.data['currentSkillChart'].data;
+                                                $scope.resourceSkillCurrentCompareChartConfig.xAxis.categories = result.data.data['currentSkillChart']['time'];
+                                            }
+                                            if (result.data.data['actualSkillTrend']) {
+                                                $scope.actualResourceMonthlySkillTrendChartConfig.series = result.data.data['actualSkillTrend'].data;
+                                                $scope.actualResourceMonthlySkillTrendChartConfig.xAxis.categories = result.data.data['actualSkillTrend']['time'];
+                                                $scope.timeList = result.data.data['actualSkillTrend']['time'];
+                                                $scope.rs.actualSkillData = result.data.data['actualSkillTrend'].data;
+                                            }
+                                            if (result.data.data['porSkillTrend']) {
+                                                $scope.porResourceMonthlySkillTrendChartConfig.series = result.data.data['porSkillTrend'].data;
+                                                $scope.porResourceMonthlySkillTrendChartConfig.xAxis.categories = result.data.data['porSkillTrend']['time'];
+                                                $scope.rs.porSkillData = result.data.data['porSkillTrend'].data;
+                                            }
+                                        }
+                                    }, function (data, code) {
+                                        console.log(data);
+                                    });
+
+                            });
+                        }
+                    }
+                }
+            };
+        }
+
+    }
+    else if ($scope.page.match(/settings/i)) {
+        setTimeout(function () {
+            $scope.settings = {};
+            $scope.settings.program = $scope.currentRevision.program;
+            $scope.settings.revision = $scope.currentRevision.revision;
+            $scope.settings.base = $scope.currentRevision.base;
+            $scope.settings.stage = $scope.currentRevision.stage;
+            $scope.settings.scheduleFlag = $filter('filter')($scope.flaglist, {flag: $scope.currentRevision.schedule_flag}, true)[0];
+            $scope.settings.escalationFlag = $filter('filter')($scope.flaglist, {flag: $scope.currentRevision.prediction_flag}, true)[0];
+            $scope.settings.status = ($scope.currentRevision.status.toLowerCase() === 'true');
+            $scope.$watch('settings.scheduleFlag', function (val) {
+                if (val.flag.match(/grey/i)) {
+                    $scope.settings.status = false;
+                }
+                else {
+                    $scope.settings.status = true;
+                }
+            });
+            $scope.$watch('settings.status', function (val) {
+                if (!val) {
+                    $scope.settings.scheduleFlag = $filter('filter')($scope.flaglist, {flag: 'grey'}, true)[0];
+                    $scope.settings.escalationFlag = $filter('filter')($scope.flaglist, {flag: 'grey'}, true)[0];
+                }
+            });
+
+            $scope.saveSettings = function () {
+                $http.post("/api/revision/saveRevisionFlag", {
+                    'rid': $scope.rid,
+                    'schedule': $scope.settings.scheduleFlag.flag,
+                    'base': $scope.settings.base,
+                    'stage': $scope.settings.stage,
+                    'escalation': $scope.settings.escalationFlag.flag,
+                    'program': $scope.settings.program,
+                    'revision': $scope.settings.revision,
+                    'status': $scope.settings.status
+                })
+                    .then(function (result) {
+                        $scope.currentRevision.schedule_flag = $scope.settings.scheduleFlag.flag;
+                        $scope.currentRevision.revision_btn_color = $scope.settings.scheduleFlag.flag;
+                        if ($scope.currentRevision.revision_btn_color.match(/black/i)) {
+                            $scope.currentRevision.revision_btn_color = 'green';
+                        }
+                        $scope.currentRevision.prediction_flag = $scope.settings.escalationFlag.flag;
+                        $scope.currentRevision.status = $scope.settings.status;
+                        $scope.currentRevision.program = $scope.settings.program;
+                        $scope.currentRevision.base = $scope.settings.base;
+                        $scope.currentRevision.revision = $scope.settings.revision;
+                        $scope.rname = $scope.settings.revision;
+                        $scope.programName = $scope.settings.program;
+                    }, function (data, code) {
+                        Notification.error(data);
+                    });
+            };
+        }, 100);
+
+    }
 
 
 
@@ -1173,7 +1729,7 @@ App.controller('InternalProgramCtrl', function ($scope, $rootScope, $http, $sce,
         })
     };
 
-    $scope.deleteMeeting = function(id) {
+    $scope.deleteMeeting = function (id) {
         $scope.meetings = linkFactory.del($scope.meetings, id);
     };
     $scope.cancelSaveMeeting = function() {
@@ -1289,19 +1845,20 @@ App.controller('InternalProgramCtrl', function ($scope, $rootScope, $http, $sce,
     };
 
     $scope.saveIPChipTable = function() {
-        ipChipTableFactory.save($scope.rid, $scope.ipChipTable, function(){
-            ipChipTableFactory.get($scope.rid, 1)
-                .then(function(result) {
+        ipChipTableFactory.save($scope.rid, $scope.ipChipTable)
+            .then(function () {
+                ipChipTableFactory.get($scope.rid, 1)
+                    .then(function (result) {
 
-                    if(Array.isArray(result.data)){
-                        $scope.ipChipTable = result.data;
-                    }
-                })
-                .error(function(data, code) {
-                    Notification.error(data);
-                });
+                        if (Array.isArray(result.data)) {
+                            $scope.ipChipTable = result.data;
+                        }
+                    })
+                    .error(function (data, code) {
+                        Notification.error(data);
+                    });
 
-        });
+            });
     };
 
     $scope.searchIPProgram = function(term){
@@ -1313,18 +1870,20 @@ App.controller('InternalProgramCtrl', function ($scope, $rootScope, $http, $sce,
             }
         }).then(function(res){
             searchProgramDisplay = [];
-            searchProgramDisplay = res.data;
+            searchProgramDisplay = $filter('orderBy')(res.data, ['pname', 'rname']);
             return searchProgramDisplay;
         });
     };
 
-    $scope.selectIP = function($item, $model, ip){
-        ip.displayName = $item.pname + " "+$item.rname;
-        ip.program = $item.pname;
-        ip.revision = $item.rname;
-        ip.rev = $item.url;
-        ip.pid = $item.pid;
-        ip.rid = $item.rid;
+    $scope.selectIP = function (item, ip) {
+        if (typeof item != 'undefined') {
+            ip.displayName = item.pname + " " + item.rname;
+            ip.program = item.pname;
+            ip.revision = item.rname;
+            ip.rev = item.url;
+            ip.pid = item.pid;
+            ip.rid = item.rid;
+        }
     };
 
 

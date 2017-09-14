@@ -40,7 +40,7 @@ public class Segment extends AbstractDomainClass implements Serializable {
     private String description;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "segments")
+    @ManyToMany(mappedBy = "segments", fetch = FetchType.LAZY)
     private Set<Program> programs = new HashSet<Program>();
 
     @JsonIgnore

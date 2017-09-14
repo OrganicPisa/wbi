@@ -9,6 +9,10 @@ import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,5 +83,26 @@ public class LinkServiceImpl implements LinkService {
     @Transactional(readOnly = true)
     public List<Link> findByType(Revision rev, String type) {
         return repo.findByRevisionAndTypeOrderByCreatedDateDesc(rev, type.toLowerCase().trim());
+    }
+
+    @Override
+    @Async
+    public void cloneFromAnotherRevision(Revision oldRev, Revision rev, Authentication currentAuthentication) {
+        SecurityContext ctx = SecurityContextHolder.createEmptyContext();
+        ctx.setAuthentication(currentAuthentication);
+        SecurityContextHolder.setContext(ctx);
+        List<Link> links = findByRevision(oldRev);
+        if (links != null && !links.isEmpty()) {
+            for (Link l : links) {
+                Link link = new Link();
+                link.setCategory(l.getCategory());
+                link.setDisplay_name(l.getDisplay_name());
+                link.setOrderNum(l.getOrderNum());
+                link.setRevision(rev);
+                link.setType(l.getType());
+                link.setUrl(l.getUrl());
+                saveOrUpdate(link);
+            }
+        }
     }
 }

@@ -4,6 +4,8 @@ import com.broadcom.wbi.model.mysql.Headline;
 import com.broadcom.wbi.model.mysql.Revision;
 import com.broadcom.wbi.repository.mysql.HeadlineRepository;
 import com.broadcom.wbi.service.elasticSearch.HeadlineSearchService;
+import com.broadcom.wbi.service.event.HeadlineSaveEvent;
+import com.broadcom.wbi.service.event.HeadlineSaveEventPublisher;
 import com.broadcom.wbi.service.jpa.HeadlineService;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,19 +17,32 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
 @Transactional(rollbackFor = {Exception.class})
 public class HeadlineServiceImpl implements HeadlineService {
+    private final HeadlineSearchService hlSearchServ;
     @Autowired
-    private HeadlineSearchService hlSearchServ;
+    private HeadlineSaveEventPublisher headlineSaveEventPublisher;
     @Resource
     private HeadlineRepository repo;
 
+    @Autowired
+    public HeadlineServiceImpl(HeadlineSearchService hlSearchServ) {
+        this.hlSearchServ = hlSearchServ;
+    }
+
     @Override
     public Headline saveOrUpdate(Headline headline) {
-        return repo.save(headline);
+        Headline hl = repo.save(headline);
+
+        HashMap map = new HashMap();
+        map.put("action", "save");
+        map.put("data", hl);
+        headlineSaveEventPublisher.publish(new HeadlineSaveEvent(map));
+        return hl;
     }
 
     @Override
@@ -61,6 +76,10 @@ public class HeadlineServiceImpl implements HeadlineService {
 
     @Override
     public void delete(Integer id) {
+        HashMap map = new HashMap();
+        map.put("action", "delete");
+        map.put("data", id);
+        headlineSaveEventPublisher.publish(new HeadlineSaveEvent(map));
         repo.delete(id);
     }
 

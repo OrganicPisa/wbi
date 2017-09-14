@@ -1,9 +1,13 @@
-<div class="row">
-    <div class="block block-bordered">
-        <div class="block-header">
-            <h3 class="block-title">Settings</h3>
-        </div>
-        <div class="block-content">
+<div layout="column">
+    <md-card>
+        <md-card-title>
+            <md-card-title-text>
+                <div layout="row">
+                    <span class="md-title">Settings</span>
+                </div>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content>
             <div layout="row" flex>
                 <md-input-container flex="20">
                     <label>Program Name</label>
@@ -41,6 +45,6 @@
                     <md-button class="md-raised md-primary" ng-click='saveSettings()'>Save</md-button>
                 </md-input-container>
             </div>
-        </div>
-    </div>
+        </md-card-content>
+    </md-card>
 </div>

@@ -30,22 +30,26 @@ import java.util.*;
 @Service
 public class RevisionInformationSearchServiceImpl implements RevisionInformationSearchService {
 
+    private final RevisionInformationSearchRepository repo;
+    private final ElasticsearchTemplate template;
+    private final RevisionSearchService revSearchServ;
+    private final RevisionService revServ;
+    private final RevisionIPService revIPServ;
+    private final IndicatorTaskSearchService itaskSearchServ;
+    private final IndicatorDateSearchService idateSearchServ;
+    private final HeadlineSearchService hlSearchServ;
+
     @Autowired
-    private RevisionInformationSearchRepository repo;
-    @Autowired
-    private ElasticsearchTemplate template;
-    @Autowired
-    private RevisionSearchService revSearchServ;
-    @Autowired
-    private RevisionService revServ;
-    @Autowired
-    private RevisionIPService revIPServ;
-    @Autowired
-    private IndicatorTaskSearchService itaskSearchServ;
-    @Autowired
-    private IndicatorDateSearchService idateSearchServ;
-    @Autowired
-    private HeadlineSearchService hlSearchServ;
+    public RevisionInformationSearchServiceImpl(RevisionInformationSearchRepository repo, ElasticsearchTemplate template, RevisionSearchService revSearchServ, RevisionService revServ, RevisionIPService revIPServ, IndicatorTaskSearchService itaskSearchServ, IndicatorDateSearchService idateSearchServ, HeadlineSearchService hlSearchServ) {
+        this.repo = repo;
+        this.template = template;
+        this.revSearchServ = revSearchServ;
+        this.revServ = revServ;
+        this.revIPServ = revIPServ;
+        this.itaskSearchServ = itaskSearchServ;
+        this.idateSearchServ = idateSearchServ;
+        this.hlSearchServ = hlSearchServ;
+    }
 
     @Override
     public RevisionInformationSearch saveOrUpdate(RevisionInformationSearch info) {
@@ -205,7 +209,7 @@ public class RevisionInformationSearchServiceImpl implements RevisionInformation
         if (rs == null)
             throw new IDNotFoundException(rid, "revision");
         LinkedHashSet<String> headerSet = new LinkedHashSet();
-        if (rs.getType().equalsIgnoreCase("chip")) {
+        if (rs.getProgram_type().equalsIgnoreCase("chip")) {
             headerSet.add("ca");
             headerSet.add("pc");
         }
@@ -219,7 +223,7 @@ public class RevisionInformationSearchServiceImpl implements RevisionInformation
             }
         }
         headerSet.add("current");
-        if (rs.getType().equalsIgnoreCase("chip")) {
+        if (rs.getProgram_type().equalsIgnoreCase("chip")) {
             headerSet.add("to/final");
         }
         if (infoType.equalsIgnoreCase("dashboard")) {
@@ -230,13 +234,13 @@ public class RevisionInformationSearchServiceImpl implements RevisionInformation
             HashMap hm = new HashMap();
             ret.put("program_name", TextUtil.formatName(rs.getProgram_name()));
 
-            if (rs.getType().equals("customer")) {
+            if (rs.getProgram_type().equals("customer")) {
                 hm = new HashMap();
                 ret.put("customer_name", TextUtil.formatName(rs.getBase_num()));
-            } else if (rs.getType().equals("chip")) {
+            } else if (rs.getProgram_type().equals("chip")) {
                 ret.put("base_die", TextUtil.formatName(rs.getBase_num()));
                 ret.put("segment", rs.getSegment().toUpperCase());
-            } else if (rs.getType().equals("ip")) {
+            } else if (rs.getProgram_type().equals("ip")) {
                 HeadlineSearch hs = hlSearchServ.findByRevision(Integer.parseInt(rs.getId()), new DateTime());
                 if (hs != null) {
                     hm = new HashMap();
@@ -285,7 +289,7 @@ public class RevisionInformationSearchServiceImpl implements RevisionInformation
                     }
                     if (arrvalue.length > 1) {
                         Integer order = Integer.parseInt(arrvalue[1]);
-                        if (rs.getType().equalsIgnoreCase("chip"))
+                        if (rs.getProgram_type().equalsIgnoreCase("chip"))
                             order += 2;
                         else
                             order += 1;
@@ -297,7 +301,7 @@ public class RevisionInformationSearchServiceImpl implements RevisionInformation
                             val = arrvalue[2].toLowerCase();
                         hm.put("value", val);
                     }
-                    if (rs.getType().equalsIgnoreCase("ip")) {
+                    if (rs.getProgram_type().equalsIgnoreCase("ip")) {
                         if (key.toString().equalsIgnoreCase("category") ||
                                 key.toString().equalsIgnoreCase("technology") ||
                                 key.toString().equalsIgnoreCase("type") ||
@@ -314,7 +318,7 @@ public class RevisionInformationSearchServiceImpl implements RevisionInformation
                     }
                 }
             }
-            if (rs.getType().equalsIgnoreCase("ip")) {
+            if (rs.getProgram_type().equalsIgnoreCase("ip")) {
                 List<RevisionInformationSearch> pil = findByRevision(Integer.parseInt(rs.getId()), true);
                 if (pil != null && !pil.isEmpty()) {
                     for (RevisionInformationSearch pi : pil) {
@@ -328,7 +332,7 @@ public class RevisionInformationSearchServiceImpl implements RevisionInformation
                     for (RevisionIP rip : riplist) {
                         Revision rev = rip.getRevision();
                         RevisionSearch rs1 = revSearchServ.findById(Integer.toString(rev.getId()));
-                        sb.append("<a href='/program/" + rs1.getType().toLowerCase() + "/" + rs1.getProgram_id() + "/" +
+                        sb.append("<a href='/program/" + rs1.getProgram_type().toLowerCase() + "/" + rs1.getProgram_id() + "/" +
                                 rs1.getId() + "/dashboard'>" + TextUtil.formatName(rs1.getProgram_name()) + " " + rs1.getRev_name().toUpperCase() + "</a> (" + rip.getInstanceNum() + ")<br>");
                     }
                     if (sb.length() > 0) {
@@ -404,7 +408,7 @@ public class RevisionInformationSearchServiceImpl implements RevisionInformation
                                 }
                             }
                         }
-                        hm.put("value", value);
+                        hm.put("value", TextUtil.formatName(value));
                         hm.put("rid", ris.getRevision());
                         hm.put("restrictedView", ris.getIsRestrictedView());
                         map.put(header, hm);

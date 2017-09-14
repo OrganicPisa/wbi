@@ -416,8 +416,8 @@ App.factory("milestoneFactory", function ($http, $timeout) {
         getMilestoneSnapshot: function (gid) {
             return $http.get('/api/revision/getMilestoneSnapshot?gid=' + gid);
         },
-        checkEditFormShow: function (milestoneeditform, index) {
-            if (typeof index == 'undefined' || index < 0) {
+        checkEditFormShow: function (milestoneeditform, milestoneSelected) {
+            if (typeof milestoneSelected == 'undefined' || typeof milestoneSelected.index == 'undefined' || milestoneSelected.index < 0) {
                 //$alert({title:'Edit Error', content:'<br>Please select milestone that you would like to edit.',container: 'body',  placement:'top', type:'danger',show:true, duration:5 });
                 return 'Please select milestone that you would like to edit.';
             }
@@ -654,13 +654,13 @@ App.factory("outlookFactory", function ($http, $filter, $sce) {
 App.factory("resourceFactory", function ($http, $filter, $sce) {
     var resourceObject = {
         getMonthlyChart: function (rid, reload) {
-            return $http.get('/api/resource/program/getResourceMonthlyChart?rid=' + rid + '&reload=' + reload);
+            return $http.get('/api/resource/program/getResourceSummaryChart?rid=' + rid + '&reload=' + reload);
         },
         getSummaryTable: function (rid, reload) {
             return $http.get('/api/resource/program/getResourceSummaryTable?rid=' + rid + '&reload=' + reload);
         },
         getSkillCompareTable: function (rid, reload) {
-            return $http.get('/api/resource/program/getResourceSkillSummary?rid=' + rid + '&reload=' + reload);
+            return $http.get('/api/resource/program/getResourceSummarySkill?rid=' + rid + '&reload=' + reload);
         },
     };
     return resourceObject;
@@ -702,7 +702,7 @@ App.factory("swFactory", function ($http, $q, $filter) {
             if (mm < 10) {
                 mm = '0' + mm;
             }
-            var ts = mm + '/api/' + dd + '/api/' + yy;
+            var ts = mm + '/' + dd + '/' + yy;
             return sws.unshift({
                 id: -1,
                 color: 'green',
@@ -772,17 +772,11 @@ App.factory("ipChipTableFactory", function ($http, $filter, $q, Notification) {
                 isNew: true
             });
         },
-        save: function (rid, ips, callback) {
+        save: function (rid, ips) {
             var obj = {};
             obj.rid = rid;
             obj.data = ips;
-            $http.post('/api/revision/saveIPTable', obj)
-                .then(function (result) {
-                    Notification.then({message: result.data, delay: 1000});
-                    callback();
-                }, function (ret) {
-                Notification.error({message: ret.data, delay: 5000, title: ret.code});
-            });
+            return $http.post('/api/revision/saveIPTable', obj);
 //			var promises = [];
 //			angular.forEach(ips, function(ip){
 //				ip.rid = rid;

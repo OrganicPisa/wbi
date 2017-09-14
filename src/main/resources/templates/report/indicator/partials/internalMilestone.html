@@ -2,15 +2,10 @@
     <div class="block block-bordered">
         <md-toolbar md-colors="::{background: 'white'}">
             <div class="md-toolbar-tools">
-                <h2 flex>Internal Milestone Report</h2>
-                <md-button ng-click="ms.projectStatus = true" ng-show="ms.projectStatus== 'all'">
-                    <md-icon class="material-icons " style="font-size:14px;fill:black;color:black;">timeline</md-icon>
-                    All Projects
-                </md-button>
-                <md-button ng-click="ms.projectStatus = 'all'" ng-show="ms.projectStatus!= 'all'">
-                    <md-icon class="material-icons " style="font-size:14px;fill:black;color:black;">timeline</md-icon>
-                    Acive Projects
-                </md-button>
+                <button class="md-icon-button md-button" hide-gt-md ng-click="openSideMenu()" aria-label="Toggle Menu">
+                    <i class="material-icons">chrome_reader_mode</i>
+                </button>
+                <h2 flex>Internal Milestone</h2>
                 <md-button ng-click="ms.viewNote = !ms.viewNote" ng-show="ms.viewNote">
                     <md-icon class="material-icons " style="font-size:14px;fill:black;color:black;">tab_unselected
                     </md-icon>
@@ -31,8 +26,7 @@
                 </md-button>
             </div>
         </md-toolbar>
-        <table class='table table-bordered table-condensed table-header-bg' id='internalMilestoneTable'
-               st-table='internalrows' st-sticky-header>
+        <table class='table table-bordered table-condensed table-header-bg' id='internalMilestoneTable'>
             <thead>
             <tr>
                 <th style='width: 13%; background-color: #49AFCD; color: #FFFFFF; text-transform: uppercase; text-align: center; border: 1px solid #ddd;'>
@@ -76,7 +70,7 @@
                 </th>
             </tr>
             </thead>
-            <tbody ng-show='internalMilestoneReportLoaded'>
+            <tbody>
             <tr ng-repeat="row in internalrows track by $index"
                 ng-bind-html='trustAsHtml(row)'></tr>
             </tbody>

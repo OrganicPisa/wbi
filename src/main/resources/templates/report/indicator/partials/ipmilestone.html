@@ -2,7 +2,11 @@
     <div class="block block-bordered">
         <md-toolbar md-colors="::{background: 'white'}">
             <div class="md-toolbar-tools">
-                <h2 flex>IP Milestone Report</h2>
+
+                <button class="md-icon-button md-button" hide-gt-md ng-click="openSideMenu()" aria-label="Toggle Menu">
+                    <i class="material-icons">chrome_reader_mode</i>
+                </button>
+                <h2 flex>IP Milestone</h2>
                 <md-button ng-click="ms.viewNote = !ms.viewNote" ng-show="ms.viewNote">
                     <md-icon class="material-icons " style="font-size:14px;fill:black;color:black;">tab_unselected
                     </md-icon>
@@ -23,8 +27,7 @@
                 </md-button>
             </div>
         </md-toolbar>
-        <table class='table table-bordered table-condensed table-header-bg' id='ipMilestoneTable' st-table='iprows'
-               st-sticky-header>
+        <table class='table table-bordered table-condensed table-header-bg' id='ipMilestoneTable'>
             <thead>
             <tr>
                 <th style='width: 16%;background-color:#49AFCD;color:#FFFFFF; text-transform:uppercase;text-align:center;border: 1px solid #ddd;'>
@@ -62,7 +65,7 @@
                 </th>
             </tr>
             </thead>
-            <tbody ng-show='ipMilestoneReportLoaded'>
+            <tbody>
             <tr ng-repeat="row in iprows track by $index" ng-bind-html='trustAsHtml(row)'></tr>
             </tbody>
         </table>

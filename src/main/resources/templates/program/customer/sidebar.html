@@ -1,40 +1,32 @@
-<!-- Sidebar Scroll Container -->
-<div id="sidebar-scroll" class='hidden-xs hidden-sm'>
-    <div class="sidebar-content">
-        <!-- Side Content -->
-        <div class="side-content">
-            <ul class="nav-main">
-                <li>
-                    <a data-ui-sref="program({ptype:'customer', pid:{{pid}}, rid:{{rid}}, page:'dashboard'})"> <i
-                            class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Dashboard</span>
-                    </a></li>
-                <li class="nav-main-heading"><span class="sidebar-mini-hide">Program
-						Information</span></li>
-                <li><a data-ui-sref="program({ptype:'customer', pid:{{pid}}, rid:{{rid}}, page:'info'})"> <i
-                        class="si si-speedometer"></i>
-                    <span class="sidebar-mini-hide">Information</span>
-                </a></li>
-                <li class="nav-main-heading"><span class="sidebar-mini-hide">Indicator</span></li>
-                <li><a data-ui-sref="program({ptype:'customer', pid:{{pid}}, rid:{{rid}}, page:'milestone'})"> <i
-                        class="si si-speedometer"></i>
-                    <span class="sidebar-mini-hide">Milestone</span>
-                </a></li>
-                <li><a data-ui-sref="program({ptype:'customer', pid:{{pid}}, rid:{{rid}}, page:'weeklyUpdate'})"> <i
-                        class="si si-speedometer"></i>
-                    <span class="sidebar-mini-hide">Weekly Update Note</span>
-                </a></li>
-                <li data-ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'"
-                    class="nav-main-heading"><span class="sidebar-mini-hide">Admin</span></li>
-                <li data-ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
-                    <a data-ui-sref="program({ptype:'customer', pid:{{pid}}, rid:{{rid}}, page:'settings'})"> <i
-                            class="si si-speedometer"></i>
-                        <span class="sidebar-mini-hide">Settings</span>
-                    </a></li>
-            </ul>
-        </div>
-        <!-- END Side Content -->
-    </div>
-    <!-- Sidebar Content -->
-</div>
-<!-- END Sidebar Scroll Container -->
+<md-content>
+    <md-list flex>
+        <md-list-item>
+            <a ui-sref="customerProgram({pid:{{pid}}, rid:{{rid}}, page:'dashboard'})">
+                <p>Dashboard</p>
+            </a>
+        </md-list-item>
+        <md-subheader><h6>Program Information</h6></md-subheader>
+        <md-list-item>
+            <a ui-sref="customerProgram({pid:{{pid}}, rid:{{rid}}, page:'info'})">
+                <p>Information</p>
+            </a>
+        </md-list-item>
+        <md-subheader><h6>Indicator</h6></md-subheader>
+        <md-list-item>
+            <a ui-sref="customerProgram({pid:{{pid}}, rid:{{rid}}, page:'milestone'})">
+                <p>Milestone</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="customerProgram({pid:{{pid}}, rid:{{rid}}, page:'weeklyUpdate'})">
+                <p>Weekly Update Note</p>
+            </a>
+        </md-list-item>
+        <md-subheader ng-show="authority=='cpm' ||authority=='pm' || authority=='admin'"><h6>Admin</h6></md-subheader>
+        <md-list-item ng-show="authority=='cpm' || authority=='pm' || authority=='admin'">
+            <a ui-sref="customerProgram({pid:{{pid}}, rid:{{rid}}, page:'settings'})">
+                <p>Settings</p>
+            </a>
+        </md-list-item>
+    </md-list>
+</md-content>

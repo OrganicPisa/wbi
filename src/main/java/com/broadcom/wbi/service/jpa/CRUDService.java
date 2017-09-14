@@ -9,10 +9,10 @@ import java.util.List;
 
 public interface CRUDService<T> {
 
-    final static DateTimeFormatter dfmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+    DateTimeFormatter dfmt = DateTimeFormat.forPattern("yyyy-MM-dd");
 
 
-    final static DateTimeFormatter dfmt2 = DateTimeFormat.forPattern("MM/dd/yy");
+    DateTimeFormatter dfmt2 = DateTimeFormat.forPattern("MM/dd/yy");
 
     List<T> saveBulk(List<T> listOfDomainObject);
 

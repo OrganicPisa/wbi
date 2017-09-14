@@ -24,11 +24,15 @@ import java.util.*;
 @Service
 public class IndicatorDateSearchServiceImpl implements IndicatorDateSearchService {
 
-    @Autowired
-    private IndicatorDateSearchRepository repo;
+    private final IndicatorDateSearchRepository repo;
+
+    private final ElasticsearchTemplate template;
 
     @Autowired
-    private ElasticsearchTemplate template;
+    public IndicatorDateSearchServiceImpl(IndicatorDateSearchRepository repo, ElasticsearchTemplate template) {
+        this.repo = repo;
+        this.template = template;
+    }
 
     @Override
     public IndicatorDateSearch saveOrUpdate(IndicatorDateSearch idate) {

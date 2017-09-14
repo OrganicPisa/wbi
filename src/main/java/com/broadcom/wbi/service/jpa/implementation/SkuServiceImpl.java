@@ -4,6 +4,8 @@ import com.broadcom.wbi.model.mysql.Program;
 import com.broadcom.wbi.model.mysql.Sku;
 import com.broadcom.wbi.repository.mysql.SkuRepository;
 import com.broadcom.wbi.service.elasticSearch.SkuSearchService;
+import com.broadcom.wbi.service.event.SkuSaveEvent;
+import com.broadcom.wbi.service.event.SkuSaveEventPublisher;
 import com.broadcom.wbi.service.jpa.SkuService;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -22,17 +25,29 @@ public class SkuServiceImpl implements SkuService {
 
     @Autowired
     private SkuSearchService skuSearchServ;
+    @Autowired
+    private SkuSaveEventPublisher skuSaveEventPublisher;
 
     @Resource
     private SkuRepository repo;
 
     @Override
     public Sku saveOrUpdate(Sku sku) {
-        return repo.save(sku);
+        Sku s = repo.save(sku);
+        HashMap map = new HashMap();
+        map.put("action", "save");
+        map.put("data", s);
+        skuSaveEventPublisher.publish(new SkuSaveEvent(map));
+
+        return s;
     }
 
     @Override
     public void delete(Integer id) {
+        HashMap map = new HashMap();
+        map.put("action", "delete");
+        map.put("data", id);
+        skuSaveEventPublisher.publish(new SkuSaveEvent(map));
         repo.delete(id);
     }
 

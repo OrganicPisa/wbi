@@ -7,9 +7,9 @@ import java.util.Date;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
 
-    public Employee findFirstByAccNtOrderByAccNtAsc(String acct);
+    Employee findFirstByAccNtOrderByAccNtAsc(String acct);
 
-    public Employee findFirstByEmailOrderByEmailAsc(String email);
+    Employee findFirstByEmailOrderByEmailAsc(String email);
 
     Long countAllByCreatedDateBefore(Date dt);
 }

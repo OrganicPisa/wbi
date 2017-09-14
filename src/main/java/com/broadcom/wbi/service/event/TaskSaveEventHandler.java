@@ -45,32 +45,39 @@ public class TaskSaveEventHandler implements ApplicationListener<TaskWithSameNam
         stageTaskMap = Collections.unmodifiableMap(map);
     }
 
+    private final RevisionService revisionService;
+    private final RevisionSearchService revisionSearchService;
+    private final IGroupService iGroupService;
+    private final IGroupHistoryService iGroupHistoryService;
+    private final IndicatorGroupSearchService indicatorGroupSearchService;
+    private final ITaskService iTaskService;
+    private final ITaskHistoryService iTaskHistoryService;
+    private final IndicatorTaskSearchService indicatorTaskSearchService;
+    private final IDateService iDateService;
+    private final IDateHistoryService iDateHistoryService;
+    private final IndicatorDateSearchService indicatorDateSearchService;
+    private final IndicatorService indicatorService;
+    private final RedisCacheRepository redis;
+
     @Autowired
-    private RevisionService revisionService;
-    @Autowired
-    private RevisionSearchService revisionSearchService;
-    @Autowired
-    private IGroupService iGroupService;
-    @Autowired
-    private IGroupHistoryService iGroupHistoryService;
-    @Autowired
-    private IndicatorGroupSearchService indicatorGroupSearchService;
-    @Autowired
-    private ITaskService iTaskService;
-    @Autowired
-    private ITaskHistoryService iTaskHistoryService;
-    @Autowired
-    private IndicatorTaskSearchService indicatorTaskSearchService;
-    @Autowired
-    private IDateService iDateService;
-    @Autowired
-    private IDateHistoryService iDateHistoryService;
-    @Autowired
-    private IndicatorDateSearchService indicatorDateSearchService;
-    @Autowired
-    private IndicatorService indicatorService;
-    @Autowired
-    private RedisCacheRepository redis;
+    public TaskSaveEventHandler(IGroupHistoryService iGroupHistoryService, RevisionService revisionService, RedisCacheRepository redis, IndicatorService indicatorService,
+                                RevisionSearchService revisionSearchService, IGroupService iGroupService, IndicatorGroupSearchService indicatorGroupSearchService,
+                                ITaskService iTaskService, ITaskHistoryService iTaskHistoryService, IndicatorTaskSearchService indicatorTaskSearchService,
+                                IDateService iDateService, IDateHistoryService iDateHistoryService, IndicatorDateSearchService indicatorDateSearchService) {
+        this.iGroupHistoryService = iGroupHistoryService;
+        this.revisionService = revisionService;
+        this.redis = redis;
+        this.indicatorService = indicatorService;
+        this.revisionSearchService = revisionSearchService;
+        this.iGroupService = iGroupService;
+        this.indicatorGroupSearchService = indicatorGroupSearchService;
+        this.iTaskService = iTaskService;
+        this.iTaskHistoryService = iTaskHistoryService;
+        this.indicatorTaskSearchService = indicatorTaskSearchService;
+        this.iDateService = iDateService;
+        this.iDateHistoryService = iDateHistoryService;
+        this.indicatorDateSearchService = indicatorDateSearchService;
+    }
 
     @Override
     public void onApplicationEvent(TaskWithSameNameSaveEvent taskWithSameNameSaveEvent) {

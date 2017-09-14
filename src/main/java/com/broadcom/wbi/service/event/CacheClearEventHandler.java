@@ -1,39 +1,29 @@
 package com.broadcom.wbi.service.event;
 
+import com.broadcom.wbi.model.elasticSearch.RevisionSearch;
+import com.broadcom.wbi.service.elasticSearch.RevisionSearchService;
 import com.broadcom.wbi.service.jpa.RedisCacheRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-
 @Component
 public class CacheClearEventHandler implements ApplicationListener<CacheClearEvent> {
+    private final RedisCacheRepository redis;
+    private final RevisionSearchService revisionSearchService;
+
     @Autowired
-    private RedisCacheRepository redis;
+    public CacheClearEventHandler(RedisCacheRepository redis, RevisionSearchService revisionSearchService) {
+        this.redis = redis;
+        this.revisionSearchService = revisionSearchService;
+    }
 
     @Override
-    public void onApplicationEvent(CacheClearEvent event) {
-        HashMap hm = (HashMap) event.getSource();
-        Integer id = 0;
-        String key = "";
-        String resetType = "program";
-
-        if (hm.containsKey("id")) {
-            try {
-                id = Integer.parseInt(hm.get("id").toString());
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-
+    public void onApplicationEvent(CacheClearEvent cacheClearEvent) {
+        Integer rid = (Integer) cacheClearEvent.getSource();
+        RevisionSearch rs = revisionSearchService.findById(Integer.toString(rid));
+        if (rs != null) {
+            redis.clearCache(rs.getProgram_id(), "", "program");
         }
-        if (id < 1) return;
-
-        if (hm.containsKey("key"))
-            key = hm.get("key").toString().toLowerCase().trim();
-        if (hm.containsKey("resetType"))
-            resetType = hm.get("resetType").toString().toLowerCase().trim();
-
-        redis.clearCache(id, key, resetType);
     }
 }

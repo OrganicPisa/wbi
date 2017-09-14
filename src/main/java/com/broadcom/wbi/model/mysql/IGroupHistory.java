@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -26,7 +25,6 @@ public class IGroupHistory extends AbstractDomainClass implements Serializable {
     @GeneratedValue(generator = "indicatorgrouph")
     private Integer id;
 
-    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ProjectConstant.EnumIndicatorStatus status = ProjectConstant.EnumIndicatorStatus.BLACK;

@@ -19,34 +19,34 @@ public class IndicatorDateSearch implements Serializable {
     @Id
     private String id;
 
-    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, store = true)
     private Integer date_id;
 
     //will be consist of PLAN_START/PLAN_END/
-    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, store = true)
     private String date_name;
 
-    @Field(type = FieldType.Date, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Date, index = FieldIndex.not_analyzed, store = true)
     private Date value;
 
-    @Field(type = FieldType.String, index = FieldIndex.analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.String, index = FieldIndex.analyzed, store = true)
     private String comment;
 
-    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, store = true)
     private String status;
 
-    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, store = true)
     private Integer group_id;
 
-    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, store = true)
     private String group_name;
 
-    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Integer, index = FieldIndex.not_analyzed, store = true)
     private Integer task_id;
 
-    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.String, index = FieldIndex.not_analyzed, store = true)
     private String task_name;
 
-    @Field(type = FieldType.Date, index = FieldIndex.not_analyzed, searchAnalyzer = "standard", store = true)
+    @Field(type = FieldType.Date, index = FieldIndex.not_analyzed, store = true)
     private Date last_updated_date;
 }

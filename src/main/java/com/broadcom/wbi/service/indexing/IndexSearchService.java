@@ -8,7 +8,7 @@ import java.util.concurrent.Future;
 public interface IndexSearchService {
 
     @Async
-    Future<Boolean> indexAllSku(int reload);
+    Future<Boolean> indexAllSku(DateTime dt);
 
     @Async
     Future<Boolean> indexAllRevision(DateTime dt);
@@ -35,5 +35,8 @@ public interface IndexSearchService {
     Future<Boolean> indexAllHeadline(DateTime dt);
 
     @Async
-    Future<Boolean> indexAllTemplate(int reload);
+    Future<Boolean> indexAllTemplate(DateTime dt);
+
+    @Async
+    Future<Boolean> indexAllResourcePlan(DateTime dt);
 }

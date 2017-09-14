@@ -6,6 +6,7 @@ import com.broadcom.wbi.repository.elasticSearch.RevisionSearchRepository;
 import com.broadcom.wbi.service.elasticSearch.RevisionSearchService;
 import com.broadcom.wbi.service.jpa.SegmentService;
 import com.broadcom.wbi.util.ProjectConstant.EnumProgramType;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +24,16 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings({"rawtypes"})
 @Service
 public class RevisionSearchServiceImpl implements RevisionSearchService {
+    private final RevisionSearchRepository repo;
+    private final SegmentService segmentServ;
+    private final ElasticsearchTemplate template;
+
     @Autowired
-    private RevisionSearchRepository repo;
-    @Autowired
-    private SegmentService segmentServ;
-    @Autowired
-    private ElasticsearchTemplate template;
+    public RevisionSearchServiceImpl(RevisionSearchRepository repo, SegmentService segmentServ, ElasticsearchTemplate template) {
+        this.repo = repo;
+        this.segmentServ = segmentServ;
+        this.template = template;
+    }
 
     @Override
     public RevisionSearch saveOrUpdate(RevisionSearch rev) {
@@ -90,7 +95,7 @@ public class RevisionSearchServiceImpl implements RevisionSearchService {
     public List<RevisionSearch> findByType(String type) {
         SearchQuery searchQuery = new NativeSearchQueryBuilder().withPageable(new PageRequest(0, 1000))
                 .withQuery(QueryBuilders.boolQuery()
-                        .must(QueryBuilders.termQuery("type", type))
+                        .must(QueryBuilders.termQuery("program_type", type))
                 ).build();
         List<RevisionSearch> revs = repo.search(searchQuery).getContent();
         return revs;
@@ -138,7 +143,7 @@ public class RevisionSearchServiceImpl implements RevisionSearchService {
         SearchQuery searchQuery = new NativeSearchQueryBuilder().withPageable(new PageRequest(0, 1000))
                 .withQuery(QueryBuilders.boolQuery()
                         .must(QueryBuilders.termQuery("segment", segment))
-                        .must(QueryBuilders.termQuery("type", type))
+                        .must(QueryBuilders.termQuery("program_type", type))
                 ).build();
         List<RevisionSearch> revs = repo.search(searchQuery).getContent();
         return revs;
@@ -151,14 +156,14 @@ public class RevisionSearchServiceImpl implements RevisionSearchService {
             searchQuery = new NativeSearchQueryBuilder().withPageable(new PageRequest(0, 1000))
                     .withQuery(QueryBuilders.boolQuery()
                             .must(QueryBuilders.termQuery("segment", segment))
-                            .must(QueryBuilders.termQuery("type", type))
+                            .must(QueryBuilders.termQuery("program_type", type))
                             .must(QueryBuilders.termQuery("is_active", isActive))
                     ).build();
         } else {
             searchQuery = new NativeSearchQueryBuilder().withPageable(new PageRequest(0, 1000))
                     .withQuery(QueryBuilders.boolQuery()
                             .must(QueryBuilders.termQuery("segment", segment))
-                            .must(QueryBuilders.termQuery("type", type))
+                            .must(QueryBuilders.termQuery("program_type", type))
                     ).build();
         }
         List<RevisionSearch> revs = repo.search(searchQuery).getContent();
@@ -201,23 +206,37 @@ public class RevisionSearchServiceImpl implements RevisionSearchService {
 
     @Override
     public List<RevisionSearch> findByProgram(String pname) {
-        SearchQuery searchQuery = new NativeSearchQueryBuilder().withPageable(new PageRequest(0, 1000))
-                .withQuery(QueryBuilders.boolQuery()
-                        .must(QueryBuilders.termQuery("program_name", pname.toLowerCase().trim()))
-                ).build();
+        BoolQueryBuilder query = QueryBuilders.boolQuery();
+        pname = pname.replace(".", "").replaceAll("\\+", "plus").trim();
+        query.must(QueryBuilders.termQuery("program_name", pname));
+        SearchQuery searchQuery = new NativeSearchQueryBuilder().withPageable(new PageRequest(0, 100))
+                .withQuery(query).build();
+        System.out.println(pname + "---");
         List<RevisionSearch> revs = repo.search(searchQuery).getContent();
         return revs;
     }
 
     @Override
-    public List<RevisionSearch> searchByProgram(String pname) {
-        SearchQuery searchQuery = new NativeSearchQueryBuilder().withPageable(new PageRequest(0, 1000))
-                .withQuery(QueryBuilders.boolQuery()
-                        .must(QueryBuilders.wildcardQuery("program_name", "*" + pname.trim() + "*"))
-                ).build();
+    public List<RevisionSearch> findByProgram(String baseNum, String pname) {
+        BoolQueryBuilder query = QueryBuilders.boolQuery();
+        pname = pname.replace(".", "").replaceAll("\\+", "plus").trim();
+        query.must(QueryBuilders.termQuery("program_name", pname));
+        query.must(QueryBuilders.termQuery("base_num", baseNum.toLowerCase().trim()));
+        SearchQuery searchQuery = new NativeSearchQueryBuilder().withPageable(new PageRequest(0, 100))
+                .withQuery(query).build();
         List<RevisionSearch> revs = repo.search(searchQuery).getContent();
         return revs;
     }
+
+//    @Override
+//    public List<RevisionSearch> searchByProgram(String pname) {
+//        SearchQuery searchQuery = new NativeSearchQueryBuilder().withPageable(new PageRequest(0, 1000))
+//                .withQuery(QueryBuilders.boolQuery()
+//                        .must(QueryBuilders.wildcardQuery("program", "*" + pname.trim() + "*"))
+//                ).build();
+//        List<RevisionSearch> revs = repo.search(searchQuery).getContent();
+//        return revs;
+//    }
 
     @Override
     public List<RevisionSearch> findByProgramType(EnumProgramType ptype, Boolean isActive) {

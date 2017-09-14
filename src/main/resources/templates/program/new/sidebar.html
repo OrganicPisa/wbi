@@ -5,53 +5,47 @@
         <div class="side-content">
             <ul class="nav-main">
                 <li class="nav-main-heading"
-                    data-ng-if="permission.authority=='ipm' || permission.authority=='pm' || permission.authority=='admin'">
+                    data-ng-if="authority=='ipm' || authority=='pm' || authority=='admin'">
                     <span class="sidebar-mini-hide">Internal Program</span>
                 </li>
-                <li data-ng-if="permission.authority=='ipm' || permission.authority=='pm' || permission.authority=='admin'">
+                <li data-ng-if="authority=='ipm' || authority=='pm' || authority=='admin'">
                     <a data-ui-sref="program({ptype:'new',pid:0, rid:0, page:'internalprogram'})"> <i
                             class="si si-plus"></i>
                         <span class="sidebar-mini-hide">Program</span>
                     </a>
                 </li>
-                <li data-ng-if="permission.authority=='ipm' || permission.authority=='pm' || permission.authority=='admin'">
+                <li data-ng-if="authority=='ipm' || authority=='pm' || authority=='admin'">
                     <a data-ui-sref="program({ptype:'new', pid:0, rid:0,  page:'internalrevision'})">
                         <i class="si si-speedometer"></i>
                         <span class="sidebar-mini-hide">Revision</span>
                     </a>
                 </li>
                 <li class="nav-main-heading"
-                    data-ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
+                    data-ng-if="authority=='cpm' || authority=='pm' || authority=='admin'">
                     <span class="sidebar-mini-hide">Customer Program</span>
                 </li>
-                <li data-ng-if="permission.authority=='cpm' || permission.authority=='pm' || permission.authority=='admin'">
+                <li data-ng-if="authority=='cpm' || authority=='pm' || authority=='admin'">
                     <a data-ui-sref="program({ptype:'new',pid:0, rid:0,  page:'customerprogram'})">
                         <i class="si si-speedometer"></i>
                         <span class="sidebar-mini-hide">Program</span>
                     </a>
                 </li>
                 <li class="nav-main-heading"
-                    data-ng-if="permission.authority=='ippm' || permission.authority=='pm' || permission.authority=='admin'">
+                    data-ng-if="authority=='ippm' || authority=='pm' || authority=='admin'">
                     <span class="sidebar-mini-hide">IP Program</span>
                 </li>
-                <li data-ng-if="permission.authority=='ippm' || permission.authority=='pm' || permission.authority=='admin'">
+                <li data-ng-if="authority=='ippm' || authority=='pm' || authority=='admin'">
                     <a data-ui-sref="program({ptype:'new',pid:0, rid:0,  page:'ipprogram'})">
                         <i class="si si-speedometer"></i>
                         <span class="sidebar-mini-hide">Program</span>
                     </a>
                 </li>
-                <li data-ng-if="permission.authority=='ippm' || permission.authority=='pm' || permission.authority=='admin'">
+                <li data-ng-if="authority=='ippm' || authority=='pm' || authority=='admin'">
                     <a data-ui-sref="program({ptype:'new',pid:0, rid:0,  page:'iprevision'})">
                         <i class="si si-speedometer"></i>
                         <span class="sidebar-mini-hide">Revision</span>
                     </a>
                 </li>
-                <!-- 				<li class="nav-main-heading"><span class="sidebar-mini-hide">Software Program</span></li> -->
-                <!-- 				<li> -->
-                <!-- 					<a data-ui-sref="program({ptype:'new',pid:0, rid:0,  page:'software'})"> <i class="si si-speedometer"></i> -->
-                <!-- 						<span class="sidebar-mini-hide">Program</span> -->
-                <!-- 					</a> -->
-                <!-- 				</li> -->
             </ul>
         </div>
         <!-- END Side Content -->

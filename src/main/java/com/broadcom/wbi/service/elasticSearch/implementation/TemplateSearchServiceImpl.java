@@ -19,6 +19,7 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -27,11 +28,14 @@ import java.util.TreeSet;
 @Service
 public class TemplateSearchServiceImpl implements TemplateSearchService {
 
-    @Autowired
+    private final ElasticsearchTemplate template;
+    @Resource
     private TemplateSearchRepository repo;
 
     @Autowired
-    private ElasticsearchTemplate template;
+    public TemplateSearchServiceImpl(ElasticsearchTemplate template) {
+        this.template = template;
+    }
 
 
     @Override
@@ -83,12 +87,12 @@ public class TemplateSearchServiceImpl implements TemplateSearchService {
     public List<TemplateSearch> findByTypeCategory(String type, String category, String group) {
         BoolQueryBuilder query = QueryBuilders.boolQuery();
         if (type != null && !type.trim().isEmpty())
-            query.must(QueryBuilders.wildcardQuery("type", type.toLowerCase()));
+            query.must(QueryBuilders.termQuery("type", type.toLowerCase()));
         if (category != null && !category.trim().isEmpty())
-            query.must(QueryBuilders.wildcardQuery("category", category.toLowerCase()));
+            query.must(QueryBuilders.termQuery("category", category.toLowerCase()));
         if (group != null && !group.trim().isEmpty())
-            query.must(QueryBuilders.wildcardQuery("group", group.toLowerCase()));
-        SearchQuery searchQuery = new NativeSearchQueryBuilder().withPageable(new PageRequest(0, 1000))
+            query.must(QueryBuilders.termQuery("group", group.toLowerCase()));
+        SearchQuery searchQuery = new NativeSearchQueryBuilder().withPageable(new PageRequest(0, 100))
                 .withQuery(query)
                 .withSort(SortBuilders.fieldSort("orderNum").order(SortOrder.ASC)).build();
         List<TemplateSearch> infos = repo.search(searchQuery).getContent();
@@ -101,9 +105,9 @@ public class TemplateSearchServiceImpl implements TemplateSearchService {
         if (type != null && !type.trim().isEmpty())
             query.must(QueryBuilders.termQuery("type", type.toLowerCase()));
         if (category != null && !category.trim().isEmpty())
-            query.must(QueryBuilders.wildcardQuery("category", category.toLowerCase()));
+            query.must(QueryBuilders.termQuery("category", category.toLowerCase()));
         if (group != null && !group.trim().isEmpty())
-            query.must(QueryBuilders.wildcardQuery("group", group.toLowerCase()));
+            query.must(QueryBuilders.termQuery("group", group.toLowerCase()));
         SearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(query)
                 .addAggregation(AggregationBuilders.terms("col").field(colName).size(1000))
                 .build();

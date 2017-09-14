@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.validator.constraints.NotBlank;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -34,7 +33,6 @@ public class IDateHistory extends AbstractDomainClass implements Serializable {
     @Column(name = "comment", columnDefinition = "TEXT")
     private String comment;
 
-    @NotBlank
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ProjectConstant.EnumIndicatorStatus status = ProjectConstant.EnumIndicatorStatus.BLACK;
