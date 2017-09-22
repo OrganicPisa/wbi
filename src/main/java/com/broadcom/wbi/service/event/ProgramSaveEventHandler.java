@@ -4,6 +4,7 @@ import com.broadcom.wbi.model.elasticSearch.RevisionSearch;
 import com.broadcom.wbi.model.mysql.Program;
 import com.broadcom.wbi.model.mysql.Segment;
 import com.broadcom.wbi.service.elasticSearch.RevisionSearchService;
+import com.broadcom.wbi.service.jpa.ProgramService;
 import com.broadcom.wbi.service.jpa.RedisCacheRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -17,11 +18,13 @@ import java.util.Set;
 public class ProgramSaveEventHandler implements ApplicationListener<ProgramSaveEvent> {
     private final RedisCacheRepository redis;
     private final RevisionSearchService revisionSearchService;
+    private final ProgramService programService;
 
     @Autowired
-    public ProgramSaveEventHandler(RedisCacheRepository redis, RevisionSearchService revisionSearchService) {
+    public ProgramSaveEventHandler(RedisCacheRepository redis, RevisionSearchService revisionSearchService, ProgramService programService) {
         this.redis = redis;
         this.revisionSearchService = revisionSearchService;
+        this.programService = programService;
     }
 
     @Override
@@ -31,16 +34,18 @@ public class ProgramSaveEventHandler implements ApplicationListener<ProgramSaveE
         if (actionType.equalsIgnoreCase("save")) {
             Program program = (Program) map.get("data");
             Set<Segment> segmentSet = program.getSegments();
-            Segment segment = segmentSet.iterator().next();
-            List<RevisionSearch> revisionSearchList = revisionSearchService.findByProgram(program.getId());
-            if (revisionSearchList != null && !revisionSearchList.isEmpty()) {
-                for (RevisionSearch revisionSearch : revisionSearchList) {
-                    revisionSearch.setProgram_name(program.getName().toLowerCase().trim());
-                    revisionSearch.setBase_num(program.getBaseNum().toLowerCase().trim());
-                    revisionSearch.setProgram_id(program.getId());
-                    revisionSearch.setSegment(segment.getName().toLowerCase().trim());
-                    revisionSearch.setProgram_type(program.getType().toString().toLowerCase().trim());
-                    revisionSearchService.saveOrUpdate(revisionSearch);
+            if (segmentSet != null && !segmentSet.isEmpty()) {
+                Segment segment = segmentSet.iterator().next();
+                List<RevisionSearch> revisionSearchList = revisionSearchService.findByProgram(program.getId());
+                if (revisionSearchList != null && !revisionSearchList.isEmpty()) {
+                    for (RevisionSearch revisionSearch : revisionSearchList) {
+                        revisionSearch.setProgram_name(program.getName().toLowerCase().trim());
+                        revisionSearch.setBase_num(program.getBaseNum().toLowerCase().trim());
+                        revisionSearch.setProgram_id(program.getId());
+                        revisionSearch.setSegment(segment.getName().toLowerCase().trim());
+                        revisionSearch.setProgram_type(program.getType().toString().toLowerCase().trim());
+                        revisionSearchService.saveOrUpdate(revisionSearch);
+                    }
                 }
             }
             redis.clearCache(program.getId(), "", "program");
@@ -48,8 +53,11 @@ public class ProgramSaveEventHandler implements ApplicationListener<ProgramSaveE
             try {
                 Integer id = (Integer) map.get("data");
                 if (id > 0) {
-                    redis.clearCache(id, "", "program");
-                    revisionSearchService.delete(Integer.toString(id));
+                    Program program = programService.findById(id);
+                    if (program != null) {
+                        redis.clearCache(id, "", "program");
+                        revisionSearchService.delete(Integer.toString(id));
+                    }
                 }
             } catch (Exception e) {
 

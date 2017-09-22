@@ -31,7 +31,8 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat='row in displayCollection' ng-hide="frontpageDisplayBookmarkOnly && frontpageDisplayBookmarkOnly!=row.bookmark">
+        <tr ng-repeat='row in displayCollection'
+            ng-hide="frontpageDisplayBookmarkOnly && frontpageDisplayBookmarkOnly!=row.bookmark">
             <td style='width: 2% !important;' class='hidden-xs'>
                 <label class="css-input css-checkbox css-checkbox-primary remove-margin-t remove-margin-b">
                     <input type="checkbox" ng-true-value="row.bookmark" ng-checked="row.bookmark"

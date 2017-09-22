@@ -43,4 +43,11 @@ public class IDateHistory extends AbstractDomainClass implements Serializable {
     @JoinColumn(name = "indicator_date_id")
     private IDate iDate;
 
+
+    @Override
+    public String toString() {
+        return iDate.getEtype().toString() + " " +
+                iDate.getTtype().toString() + " : " + value;
+    }
+
 }

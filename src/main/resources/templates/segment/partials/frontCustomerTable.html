@@ -9,15 +9,19 @@
             <th class='hidden-xs' style='width: 5% !important;' st-sort='base' st-sort-default='true'>Customer</th>
             <th style='width: 6% !important;' st-sort='program'>Program</th>
             <th class='hidden-xs' style='width: 6% !important;' st-sort='switch_chip'>Switch Chip</th>
+            <th class='hidden-xs hidden-sm' style='width: 7% !important;' st-sort='sdk_fcs'>SDK For First FCS</th>
+            <th class='hidden-xs hidden-sm' style='width: 7% !important;' st-sort='sdk_upcoming_release'>SDK For
+                Upcoming Release
+            </th>
             <th class='hidden-xs hidden-sm' style='width: 7% !important;' st-sort='sdk_current'>Current SDK</th>
-            <th class='hidden-xs hidden-sm' style='width: 7% !important;' st-sort='sdk_fcs'>SDK For FCS</th>
             <th style='width: 4% !important;' st-sort='fcs'>FCS</th>
             <th class='hidden-xs' style='width: 8% !important;' st-sort='reduced_pm'>PM</th>
             <th class='hidden-xs hidden-sm' style='width: 50% !important;'>Headline</th>
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat='row in displayCollection' ng-hide="frontpageDisplayBookmarkOnly && frontpageDisplayBookmarkOnly!=row.bookmark">
+        <tr ng-repeat='row in displayCollection'
+            ng-hide="frontpageDisplayBookmarkOnly && frontpageDisplayBookmarkOnly!=row.bookmark">
             <td class='hidden-xs' style='width: 2% !important;'>
                 <label class="css-input css-checkbox css-checkbox-primary remove-margin-t remove-margin-b">
                     <input type="checkbox" ng-true-value="row.bookmark" ng-checked="row.bookmark"
@@ -29,9 +33,11 @@
             <td class='hidden-xs' style='width: 5% !important;'><strong ng-bind='row.base'></strong></td>
             <td style='width: 6% !important;' dynamic='row.rev'></td>
             <td class='hidden-xs' style='width: 6% !important;' ng-bind-html='trustAsHtml(row.switch_chip)'></td>
+            <td class='hidden-xs hidden-sm' style='width: 7% !important;' ng-bind-html='trustAsHtml(row.sdk_fcs)'></td>
+            <td class='hidden-xs hidden-sm' style='width: 7% !important;'
+                ng-bind-html='trustAsHtml(row.sdk_upcoming_release)'></td>
             <td class='hidden-xs hidden-sm' style='width: 7% !important;'
                 ng-bind-html='trustAsHtml(row.sdk_current)'></td>
-            <td class='hidden-xs hidden-sm' style='width: 7% !important;' ng-bind-html='trustAsHtml(row.sdk_fcs)'></td>
             <td style='width: 4% !important;' ng-bind-html='trustAsHtml(row.fcs)'></td>
             <td class='hidden-xs' style='width: 8% !important;' ng-bind-html='trustAsHtml(row.pm)'></td>
             <td class='hidden-xs hidden-sm' style='width: 50% !important;'

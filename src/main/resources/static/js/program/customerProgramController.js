@@ -834,14 +834,19 @@ App.controller('CustomerProgramCtrl', function ($scope, $rootScope, $http, $sce,
     else if ($scope.page.match(/settings/i)) {
         setTimeout(function () {
             $scope.settings = {};
+            if (typeof $scope.currentRevision == 'undefined') {
+                $scope.currentRevision = $filter('filter')($scope.revisions, {rid: $scope.rid})[0];
+            }
             $scope.settings.program = $scope.currentRevision.program;
             $scope.settings.revision = $scope.currentRevision.revision;
             $scope.settings.base = $scope.currentRevision.base;
             $scope.settings.stage = $scope.currentRevision.stage;
             $scope.settings.scheduleFlag = $filter('filter')($scope.flaglist, {flag: $scope.currentRevision.schedule_flag}, true)[0];
-            console.log($scope.settings.scheduleFlag);
             $scope.settings.escalationFlag = $filter('filter')($scope.flaglist, {flag: $scope.currentRevision.prediction_flag}, true)[0];
-            $scope.settings.status = ($scope.currentRevision.status.toLowerCase() === 'true');
+            $scope.settings.status = true;
+            if (typeof $scope.currentRevision.status != 'undefined') {
+                $scope.settings.status = ($scope.currentRevision.status.toLowerCase() === 'true');
+            }
             $scope.$watch('settings.scheduleFlag', function (val) {
                 if (val.flag.match(/grey/i)) {
                     $scope.settings.status = false;

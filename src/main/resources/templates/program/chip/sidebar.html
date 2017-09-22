@@ -1,59 +1,64 @@
 <!-- Sidebar Scroll Container -->
-    <md-content>
-        <md-list flex>
-            <md-list-item>
-                <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'dashboard'})">
-                    <p>Dashboard</p>
-                </a>
-            </md-list-item>
-            <md-subheader><h6>Program Information</h6></md-subheader>
-            <md-list-item>
-                <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'info'})">
-                    <p>Information</p>
-                </a>
-            </md-list-item>
-            <md-list-item>
-                <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'sku'})">
-                    <p>SKU</p>
-                </a>
-            </md-list-item>
-            <md-subheader><h6>Indicator</h6></md-subheader>
-            <md-list-item>
-                <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'milestone'})">
-                    <p>Milestone</p>
-                </a>
-            </md-list-item>
-            <md-list-item>
-                <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'weeklyUpdate'})">
-                    <p>Weekly Update Note</p>
-                </a>
-            </md-list-item>
-            <md-subheader><h6>Resources (PT)</h6></md-subheader>
-            <md-list-item>
-                <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'resourceSummary'})">
-                    <p>Summary Report</p>
-                </a>
-            </md-list-item>
-            <md-list-item>
-                <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'resourceReport'})">
-                    <p>Other Reports</p>
-                </a>
-            </md-list-item>
-            <md-list-item>
-                <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'resourceData'})">
-                    <p>Actual Data</p>
-                </a>
-            </md-list-item>
-            <md-subheader ng-show="authority=='pm' || authority=='admin'"><h6>Admin</h6></md-subheader>
-            <md-list-item  ng-show="authority=='pm' || authority=='admin'">
-                <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'settings'})">
-                    <p>Settings</p>
-                </a>
-            </md-list-item>
-            <md-list-item  ng-show="authority=='pm' || authority=='admin'">
-                <a ng-click='clearRevisionCache();'>
-                    <p>Clear Cache</p>
-                </a>
-            </md-list-item>
-        </md-list>
-    </md-content>
+<md-content>
+    <md-list flex>
+        <md-list-item>
+            <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'dashboard'})">
+                <p>Dashboard</p>
+            </a>
+        </md-list-item>
+        <md-subheader><h6>Program Information</h6></md-subheader>
+        <md-list-item>
+            <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'info'})">
+                <p>Information</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'sku'})">
+                <p>SKU</p>
+            </a>
+        </md-list-item>
+        <md-subheader><h6>Indicator</h6></md-subheader>
+        <md-list-item>
+            <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'milestone'})">
+                <p>Milestone</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'weeklyUpdate'})">
+                <p>Weekly Update Note</p>
+            </a>
+        </md-list-item>
+        <md-subheader><h6>Resources (PT)</h6></md-subheader>
+        <md-list-item>
+            <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'resourceSummary'})">
+                <p>Summary Report</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'resourceReport'})">
+                <p>Other Reports</p>
+            </a>
+        </md-list-item>
+        <md-list-item>
+            <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'resourceData'})">
+                <p>Actual Data</p>
+            </a>
+        </md-list-item>
+        <md-subheader ng-if="authority=='pm' || authority=='admin'"><h6>Admin</h6></md-subheader>
+        <md-list-item ng-if="authority=='pm' || authority=='admin'">
+            <a ui-sref="internalProgram({pid:{{pid}}, rid:{{rid}}, page:'settings'})">
+                <p>Settings</p>
+            </a>
+        </md-list-item>
+        <md-list-item ng-if="authority=='pm' || authority=='admin'">
+            <a ng-click='clearCache();'>
+                <p>Clear Cache</p>
+            </a>
+        </md-list-item>
+        <md-list-item ng-if="authority=='admin'">
+            <a ng-click='deleteRevision();'>
+                <p style="color:red;">Delete Revision</p>
+            </a>
+        </md-list-item>
+    </md-list>
+</md-content>

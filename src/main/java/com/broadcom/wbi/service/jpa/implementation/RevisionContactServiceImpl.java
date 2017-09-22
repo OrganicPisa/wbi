@@ -30,11 +30,11 @@ import java.util.List;
 @Service
 @Transactional(rollbackFor = {Exception.class})
 public class RevisionContactServiceImpl implements RevisionContactService {
-    @Resource
-    private RevisionContactRepository repo;
     private final TemplateSearchService templateSearchService;
     private final RevisionContactSearchService revisionContactSearchService;
     private final RevisionContactSaveEventPublisher revisionContactSaveEventPublisher;
+    @Resource
+    private RevisionContactRepository repo;
 
     @Autowired
     public RevisionContactServiceImpl(TemplateSearchService templateSearchService, RevisionContactSearchService revisionContactSearchService, RevisionContactSaveEventPublisher revisionContactSaveEventPublisher) {

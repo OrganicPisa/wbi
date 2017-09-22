@@ -43,7 +43,7 @@ public class RedisCacheRepositoryImpl implements RedisCacheRepository<String, St
     }
 
     public void delete(String key) {
-        System.out.println("Deleting cache key " + key);
+        System.out.println(key);
         if (hasKey(key))
             template.delete(key);
     }
@@ -109,7 +109,7 @@ public class RedisCacheRepositoryImpl implements RedisCacheRepository<String, St
 
     public void clearCache(int id, String key, String resetType) {
         try {
-            if (!key.isEmpty()) {
+            if (key != null && !key.isEmpty()) {
                 delete(id + "_" + key);
             } else {
                 deleteWildCard(id + "_*");

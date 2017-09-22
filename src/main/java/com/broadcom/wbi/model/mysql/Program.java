@@ -67,7 +67,7 @@ public class Program extends AbstractDomainClass implements Serializable {
     private Boolean isProgramIncludeInReport = true;
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "program", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "program", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<Sku> skus = new HashSet<Sku>();
 
     @JsonIgnore
@@ -75,11 +75,11 @@ public class Program extends AbstractDomainClass implements Serializable {
     private Set<Revision> revisions = new HashSet<Revision>();
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "program", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "program", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<ResourcePlan> resourcePlanning = new HashSet<ResourcePlan>();
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "program", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "program", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<SkillMapping> skillMapping = new HashSet<SkillMapping>();
 
 }

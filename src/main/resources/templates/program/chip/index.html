@@ -4,27 +4,32 @@
     a {
         padding-left: 10px;
     }
-    md-card-title{
-        padding-top:10px!important;
+
+    md-card-title {
+        padding-top: 10px !important;
         padding-left: 10px !important;
-        max-height: 40px!important;
+        max-height: 40px !important;
 
     }
-    md-card{
-        margin-bottom: 1px!important;
-        margin-left: 1px!important;
+
+    md-card {
+        margin-bottom: 1px !important;
+        margin-left: 1px !important;
     }
-    md-card-content{
+
+    md-card-content {
         padding-bottom: 1px !important;
     }
-    md-card-actions{
-        margin-bottom: 1px!important;
-        margin-top: 1px!important;
+
+    md-card-actions {
+        margin-bottom: 1px !important;
+        margin-top: 1px !important;
     }
 
     p {
-        margin-bottom:1px!important;
+        margin-bottom: 1px !important;
     }
+
     .editable-wrap {
         display: block;
         white-space: nowrap;
@@ -56,8 +61,12 @@
     .editable-error {
         text-color: red;
     }
-    md-select{ margin-top: 0px!important;}
-    .md-subhead{
+
+    md-select {
+        margin-top: 0px !important;
+    }
+
+    .md-subhead {
         padding-top: 5px !important;
         padding-left: 10px !important;
     }
@@ -65,9 +74,9 @@
 
 <section layout="row" flex>
     <md-sidenav class="md-sidenav-left"
-            md-component-id="left"
-            md-is-locked-open="$mdMedia('gt-md')" style="width:200px!important;"
-            md-whiteframe="4" ng-include="'/program/chip/sidebar'">
+                md-component-id="left"
+                md-is-locked-open="$mdMedia('gt-md')" style="width:200px!important;"
+                md-whiteframe="4" ng-include="'/program/chip/sidebar'">
     </md-sidenav>
     <div layout="column" flex>
         <md-toolbar md-scroll-shrink class="md-menu-toolbar">
@@ -88,7 +97,8 @@
                 </h4>
 
                 <md-button type="button" ng-repeat="rev in revisions |orderBy:'revision'"
-                           ng-click="go(rev['rid'], '')" md-colors="{background: '{{rev.revision_btn_color.toLowerCase()}}'}">
+                           ng-click="go(rev['rid'], '')"
+                           md-colors="{background: '{{rev.revision_btn_color.toLowerCase()}}'}">
                     {{(rev['revision']|uppercase)}}
                     <small> {{rev['stage']|myUpperCase}}</small>
                 </md-button>
@@ -131,8 +141,6 @@
             </div>
         </md-content>
     </div>
-
-
 
 
 </section>

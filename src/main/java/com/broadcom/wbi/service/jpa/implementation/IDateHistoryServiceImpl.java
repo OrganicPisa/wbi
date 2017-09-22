@@ -25,8 +25,12 @@ public class IDateHistoryServiceImpl implements IDateHistoryService {
     @Resource
     private IDateHistoryRepository repo;
 
+    private final IndicatorDateSaveEventPublisher indicatorDateSaveEventPublisher;
+
     @Autowired
-    private IndicatorDateSaveEventPublisher indicatorDateSaveEventPublisher;
+    public IDateHistoryServiceImpl(IndicatorDateSaveEventPublisher indicatorDateSaveEventPublisher) {
+        this.indicatorDateSaveEventPublisher = indicatorDateSaveEventPublisher;
+    }
 
     @Override
     public IDateHistory saveOrUpdate(IDateHistory idateh) {
@@ -108,5 +112,6 @@ public class IDateHistoryServiceImpl implements IDateHistoryService {
     public List<IDateHistory> findByDate(IDate idate, DateTime dt1, DateTime dt2) {
         return repo.findByIDateAndCreatedDateBetweenOrderByCreatedDateDesc(idate, dt1.toDate(), dt2.toDate());
     }
+
 
 }

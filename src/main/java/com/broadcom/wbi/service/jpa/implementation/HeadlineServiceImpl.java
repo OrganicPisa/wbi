@@ -24,14 +24,14 @@ import java.util.List;
 @Transactional(rollbackFor = {Exception.class})
 public class HeadlineServiceImpl implements HeadlineService {
     private final HeadlineSearchService hlSearchServ;
-    @Autowired
-    private HeadlineSaveEventPublisher headlineSaveEventPublisher;
+    private final HeadlineSaveEventPublisher headlineSaveEventPublisher;
     @Resource
     private HeadlineRepository repo;
 
     @Autowired
-    public HeadlineServiceImpl(HeadlineSearchService hlSearchServ) {
+    public HeadlineServiceImpl(HeadlineSearchService hlSearchServ, HeadlineSaveEventPublisher headlineSaveEventPublisher) {
         this.hlSearchServ = hlSearchServ;
+        this.headlineSaveEventPublisher = headlineSaveEventPublisher;
     }
 
     @Override
@@ -101,7 +101,9 @@ public class HeadlineServiceImpl implements HeadlineService {
 
     @Override
     public List<Headline> findByRevision(Revision rev, DateTime dt) {
-        return repo.findByRevisionAndCreatedDateAfterOrderByCreatedDateDesc(rev, dt.toDate());
+        if (dt == null)
+            dt = new DateTime();
+        return repo.findByRevisionAndCreatedDateBeforeOrderByCreatedDateDesc(rev, dt.toDate());
     }
 
     @Override

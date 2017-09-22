@@ -4,11 +4,13 @@ import com.broadcom.wbi.model.mysql.Program;
 import com.broadcom.wbi.model.mysql.ResourcePlan;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
 
 
+@Repository
 public interface ResourcePlanRepository extends JpaRepository<ResourcePlan, Integer> {
     List<ResourcePlan> findDistinctByProgram(Program program);
 
@@ -25,5 +27,8 @@ public interface ResourcePlanRepository extends JpaRepository<ResourcePlan, Inte
 
     @Query("SELECT DISTINCT rsp.plan_skill from ResourcePlan rsp where rsp.program =?1 and rsp.type like ?2 order by rsp.plan_skill ASC")
     List<String> findDistinctSkillByProgramAndType(Program program, String type);
+
+    @Query("SELECT DISTINCT rsp from ResourcePlan rsp where rsp.program =?1 and rsp.type like ?2 order by rsp.plan_skill ASC")
+    List<ResourcePlan> findDistinctByProgramAndType(Program program, String type);
 
 }

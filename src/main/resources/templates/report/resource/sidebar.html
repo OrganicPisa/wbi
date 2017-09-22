@@ -44,12 +44,19 @@
         <md-subheader ng-if="authority=='pm' || authority=='admin'"><h6>Settings</h6></md-subheader>
         <md-list-item ng-if="authority=='pm' || authority=='admin'">
             <a ui-sref="resourceReport({page:'settings'})">
-                <p>Settings</p>
+                <p>Create New Project Group</p>
             </a>
         </md-list-item>
         <md-list-item ng-if="authority=='pm' || authority=='admin'">
             <a ng-click='clearResourceCache();'>
                 <p>Clear Cache</p>
+            </a>
+        </md-list-item>
+        </md-list-item>
+        <md-subheader ng-if="authority=='admin'"><h6>Admin</h6></md-subheader>
+        <md-list-item ng-if="authority=='admin'">
+            <a ng-click="syncResourceData();">
+                <p style="color: red!important">Sync Resource Data to WBI</p>
             </a>
         </md-list-item>
     </md-list>

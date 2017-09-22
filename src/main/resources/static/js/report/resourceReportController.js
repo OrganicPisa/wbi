@@ -31,6 +31,9 @@ App.controller('ResourceReportCtrl', function ($scope, $rootScope, $filter, $htt
         $mdSidenav('left').toggle()
     };
 
+    $scope.syncResourceData = function () {
+        $http.post("/api/resource/sync");
+    };
     $scope.exportDataToExcel = function (id, title, fname) {
         var uri = 'data:application/vnd.ms-excel;base64,'
             ,

@@ -189,7 +189,7 @@ App.controller('HomeCtrl', function ($scope, $rootScope, $log, $filter, $http, $
             if (angular.isDefined($localStorage.currentDashboardSegmentClicked)) {
                 $scope.selectedIndex = $localStorage.currentDashboardSegmentClicked;
             }
-            else{
+            else {
                 $scope.selectedIndex = 0;
             }
             $scope.selectedTab = $scope.tabs[$scope.selectedIndex];
@@ -234,8 +234,8 @@ App.controller('HomeCtrl', function ($scope, $rootScope, $log, $filter, $http, $
             });
     };
     // $scope.$watch('segment', function (val){
-    $scope.$watch('selectedTab', function(tab){
-        if(typeof tab.name != 'undefined') {
+    $scope.$watch('selectedTab', function (tab) {
+        if (typeof tab.name != 'undefined') {
             $scope.selectedIndex = $scope.tabs.indexOf(tab);
             $localStorage.currentDashboardSegmentClicked = $scope.selectedIndex;
             if (tab.name.match(/^customer/i)) {

@@ -30,12 +30,16 @@ public class ProgramServiceImpl implements ProgramService {
     @Resource
     private ProgramRepository repo;
 
+    private final ProgramSaveEventPublisher programSaveEventPublisher;
+    private final SegmentService segmentService;
+    private final SkuService skuService;
+
     @Autowired
-    private ProgramSaveEventPublisher programSaveEventPublisher;
-    @Autowired
-    private SegmentService segmentService;
-    @Autowired
-    private SkuService skuService;
+    public ProgramServiceImpl(ProgramSaveEventPublisher programSaveEventPublisher, SegmentService segmentService, SkuService skuService) {
+        this.programSaveEventPublisher = programSaveEventPublisher;
+        this.segmentService = segmentService;
+        this.skuService = skuService;
+    }
 
     @Override
     @Transactional
@@ -95,18 +99,6 @@ public class ProgramServiceImpl implements ProgramService {
         return repo.findByName(name.trim());
     }
 
-    //	@Override
-//	@Transactional(readOnly = true)
-//	public List<Program> findByNameType(String name, ProgramType type) {
-//		List<Program> programs = new JPAQuery(em)
-//				.from(qprogram)
-//				.where(qprogram.name.toLowerCase().like("%"+name.toLowerCase()+"%")
-//						.and(qprogram.type.eq(type)))
-//				.orderBy(qprogram.name.asc()).list(qprogram);
-//		if (programs != null && !programs.isEmpty())
-//			return programs;
-//		return null;
-//	}
     @Override
     @Transactional(readOnly = true)
     public List<Program> checkExist(String name, String base, ProjectConstant.EnumProgramType type) {
@@ -123,17 +115,6 @@ public class ProgramServiceImpl implements ProgramService {
         }
         return null;
     }
-//	@Override
-//	@Transactional(readOnly = true)
-//	public List<Program> checkExistBase(String base, ProgramType type) {
-//		List<Program> programs = new JPAQuery(em).from(qprogram)
-//				.where(qprogram.baseNum.like(base)
-//						.and(qprogram.type.eq(type)))
-//				.orderBy(qprogram.name.asc()).list(qprogram);
-//		if (programs != null && !programs.isEmpty())
-//			return programs;
-//		return null;
-//	}
 
     @Override
     @Transactional(readOnly = true)

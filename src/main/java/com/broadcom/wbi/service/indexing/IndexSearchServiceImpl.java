@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -881,6 +884,92 @@ public class IndexSearchServiceImpl implements IndexSearchService {
 
         System.out.println("Done Inserting Template");
         return new AsyncResult<Boolean>(true);
+    }
+
+    @Override
+    public Future<Boolean> checkAndAuditTemplate(String type, String category, String group, Authentication currentAuthentication) {
+        ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+        List<TemplateSearch> templateSearchList = templateSearchService.findByTypeCategory(type, category, group);
+        if (templateSearchList != null && !templateSearchList.isEmpty()) {
+            List<RevisionSearch> revisionSearchList = revisionSearchService.findByType(type);
+            if (revisionSearchList != null && !revisionSearchList.isEmpty()) {
+                for (final RevisionSearch revisionSearch : revisionSearchList) {
+                    executor.submit(new Runnable() {
+                        public void run() {
+                            SecurityContext ctx = SecurityContextHolder.createEmptyContext();
+                            ctx.setAuthentication(currentAuthentication);
+                            SecurityContextHolder.setContext(ctx);
+                            Revision revision = revisionService.findById(Integer.parseInt(revisionSearch.getId()));
+                            if (revision == null) return;
+//                            List<RevisionInformationSearch> revisionInformationSearchList = revisionInformationSearchService.findByRevisionPhaseName(Integer.parseInt(revisionSearch.getId()), "current", "sdk for upcoming release");
+//                            for(RevisionInformationSearch revisionInformationSearch : revisionInformationSearchList){
+//                                RevisionInformation revisionInformation = revisionInformationService.findById(Integer.parseInt(revisionInformationSearch.getId()));
+//                                if(revisionInformation != null)
+//                                    revisionInformationService.delete(revisionInformation.getId());
+//                                else
+//                                    revisionInformationSearchService.delete(revisionInformationSearch.getId());
+//                            }
+//                            System.out.println(revisionSearch.toString() + " "+revisionInformationSearchList.size());
+//                            List<RevisionInformationSearch> revisionInformationSearchList = revisionInformationSearchService.findByRevisionPhaseName(Integer.parseInt(revisionSearch.getId()), "current", "sdk for next fcs");
+//                            if(revisionInformationSearchList != null && revisionInformationSearchList.size()>0){
+//                                for (RevisionInformationSearch revisionInformationSearch : revisionInformationSearchList){
+//                                    RevisionInformation revisionInformation = revisionInformationService.findById(Integer.parseInt(revisionInformationSearch.getId()));
+//                                    if(revisionInformation != null){
+//                                        revisionInformation.setName("sdk for upcoming release");
+//                                        revisionInformationService.saveOrUpdate(revisionInformation);
+//                                    }
+//                                }
+//                            }
+//                            System.out.println(revisionSearch.toString() + " "+ revisionInformationSearchList.size());
+
+                            for (TemplateSearch templateSearch : templateSearchList) {
+                                List<RevisionInformationSearch> revisionInformationSearchList = revisionInformationSearchService.findByRevisionPhaseName(Integer.parseInt(revisionSearch.getId()), "current", templateSearch.getName());
+                                if (revisionInformationSearchList == null || revisionInformationSearchList.isEmpty()) {
+                                    System.out.println(revisionSearch.toString());
+//                                    try {
+//                                        RevisionInformation revisionInformation = new RevisionInformation();
+//                                        revisionInformation.setOrderNum(templateSearch.getOrderNum());
+//                                        revisionInformation.setName(templateSearch.getName());
+//                                        revisionInformation.setValue("");
+//                                        revisionInformation.setRevision(revision);
+//                                        revisionInformation.setPhase("current");
+//                                        revisionInformation.setOnDashboard(templateSearch.getOnDashboard());
+//                                        revisionInformation.setIsUserEditable(templateSearch.getAvailableCurrent());
+//                                        revisionInformation.setIsRestrictedView(templateSearch.getIsRestrictedView());
+//                                        revisionInformation = revisionInformationService.saveOrUpdate(revisionInformation);
+//                                    } catch (Exception e) {
+//                                        e.printStackTrace();
+//                                    }
+                                } else {
+                                    if (revisionInformationSearchList.size() > 1)
+                                        System.out.println(revisionSearch.toString());
+                                    else {
+                                        for (RevisionInformationSearch revisionInformationSearch : revisionInformationSearchList) {
+                                            RevisionInformation revisionInformation = revisionInformationService.findById(Integer.parseInt(revisionInformationSearch.getId()));
+                                            if (revisionInformation != null) {
+                                                revisionInformation.setOrderNum(templateSearch.getOrderNum());
+                                                revisionInformationService.saveOrUpdate(revisionInformation);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                executor.shutdown();
+                try {
+                    executor.awaitTermination(3, TimeUnit.HOURS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
+        System.out.println("Done Updating Template for " + type);
+        return new AsyncResult<Boolean>(true);
+
     }
 
 }

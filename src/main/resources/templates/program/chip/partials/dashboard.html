@@ -1,14 +1,14 @@
 <div layout="row" layout-sm="column">
     <div flex-sm flex-gt-sm="70" layout="column"
          style="padding-left: 0px!important; padding-top: 0px!important; padding-bottom: 0px!important;">
-        <md-card  ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
+        <md-card ng-if="authority=='pm' || authority=='ipm' || authority=='admin'">
             <md-card-title>
                 <md-card-title-text>
                     <div layout="row">
                         <span class="md-title">Program Outlook</span>
                         <span flex></span>
                         <a class="md-primary" ng-click="outlookeditform.$show();" ng-hide='outlookeditform.$visible'>
-                           Edit
+                            Edit
                         </a>
                         <a class="md-primary" ng-click="refreshOutlook();" ng-hide='outlookeditform.$visible'>
                             Refresh
@@ -21,7 +21,7 @@
             </md-card-content>
         </md-card>
         <md-card>
-            <md-card-title >
+            <md-card-title>
                 <md-card-title-text>
                     <div layout="row">
                         <span class="md-title">Headline </span>
@@ -66,14 +66,18 @@
                 <headline-edit-form></headline-edit-form>
             </md-card-content>
         </md-card>
-        <md-card >
+        <md-card>
             <md-card-title>
                 <md-card-title-text>
                     <div layout="row">
                         <span class="md-title">Resource Summary </span>
                         <span ng-bind-html="trustAsHtml(resourceTimestamp)"></span></span>
                         <span flex></span>
-                        <a class='md-primary' ng-click="go(rid, 'resourceSummary');"  ng-disabled="!milestoneResourceValid">More </a>
+                        <a type='button' class='md-primary' ngf-select ngf-change="uploadResource($files)"
+                           ng-if="authority=='pm' || authority=='ipm' || authority=='admin'"
+                           ngf-multiple="multiple"><strong>Upload Resource File</strong></a>
+                        <a class='md-primary' ng-click="go(rid, 'resourceSummary');"
+                           ng-disabled="!milestoneResourceValid">More </a>
                     </div>
                 </md-card-title-text>
             </md-card-title>
@@ -100,13 +104,15 @@
                         </table>
                     </div>
                     <div class="row">
-                        <highchart id="resourceDashboardTrendChart" config="resourceMonthlyChartConfig"  style="height: 400px; margin: 0 auto"></highchart>
+                        <highchart id="resourceDashboardTrendChart" config="resourceMonthlyChartConfig"
+                                   style="height: 400px; margin: 0 auto"></highchart>
                     </div>
                 </div>
                 <div ng-hide='milestoneResourceValid'>
                     <div class="alert alert-info">
                         <strong>INFO: </strong> the plot cannot be displayed because some dates are missing in the
-                        Milestone table.  See this <a ng-click="openNewTab('http://confluence.broadcom.com/display/SWITCHPM/No+resource+plot ')">link</a>
+                        Milestone table. See this <a
+                            ng-click="openNewTab('http://confluence.broadcom.com/display/SWITCHPM/No+resource+plot ')">link</a>
                         for more info.
                     </div>
                 </div>
@@ -213,7 +219,8 @@
                         <span flex></span>
                         <span>
                             <a class='md-primary' ng-click="go(rid, 'milestone');">More</a>
-                            <a class='md-primary' ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'" ng-click="refreshFrontPageMilestone()">Refresh</a>
+                            <a class='md-primary' ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'"
+                               ng-click="refreshFrontPageMilestone()">Refresh</a>
                         </span>
                     </div>
                 </md-card-title-text>

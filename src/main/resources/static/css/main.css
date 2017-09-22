@@ -9,6 +9,7 @@ body {
     background-color: #FFF;
 
 }
+
 p {
     line-height: 1.6;
 }
@@ -25,6 +26,7 @@ a {
     cursor: pointer;
     padding-left: 10px !important;
 }
+
 a.link-effect {
     position: relative;
 }

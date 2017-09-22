@@ -93,7 +93,7 @@ public interface IndicatorService {
 
     void cloneIndicatorFromAnotherRevision(Revision oldRev, Revision rev);
 
-    void cloneIndicatorFromAnotherCategory(IGroup iGroup, Revision rev);
+    void cloneIndicatorFromAnotherCategory(IGroup iGroup, Revision rev, Authentication authentication);
 
     @Async
     void cloneAsyncIndicatorFromAnotherCategory(IGroup iGroup, Revision rev, Authentication authentication);

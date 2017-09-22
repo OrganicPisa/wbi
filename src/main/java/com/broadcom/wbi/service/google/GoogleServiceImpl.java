@@ -28,7 +28,7 @@ import java.util.List;
 public class GoogleServiceImpl implements GoogleService {
 
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-    private static final java.io.File DATA_STORE_DIR = new java.io.File("~/Documents/.credential/google-java-api");
+    private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/google-java-api");
     private static HttpTransport HTTP_TRANSPORT;
     private static List<String> SCOPES = Arrays.asList(
             GmailScopes.GMAIL_READONLY,
@@ -55,7 +55,6 @@ public class GoogleServiceImpl implements GoogleService {
     @Override
     public Credential authorize() throws IOException {
         InputStream in = this.getClass().getClassLoader().getResourceAsStream("client_secret.json");
-        //GoogleServiceImpl.class.getResourceAsStream("/client_secret.json");
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
         // Build flow and trigger user authorization request.
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(

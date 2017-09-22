@@ -15,8 +15,8 @@ public class AuthenticationFailureHandler extends SimpleUrlAuthenticationFailure
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                         AuthenticationException exception) throws IOException, ServletException {
-		 RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
-		 redirectStrategy.sendRedirect(request, response, "/login?error=true&message=Authentication failed");
+        RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+        redirectStrategy.sendRedirect(request, response, "/login?error=true&message=Authentication failed");
 //        super.onAuthenticationFailure(request, response, exception);
     }
 }

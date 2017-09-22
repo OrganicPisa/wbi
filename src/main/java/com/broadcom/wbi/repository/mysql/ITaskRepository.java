@@ -4,10 +4,12 @@ import com.broadcom.wbi.model.mysql.IGroup;
 import com.broadcom.wbi.model.mysql.ITask;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
 
+@Repository
 public interface ITaskRepository extends JpaRepository<ITask, Integer> {
 
     List<ITask> findByIGroupOrderByCreatedDateDesc(IGroup igroup);

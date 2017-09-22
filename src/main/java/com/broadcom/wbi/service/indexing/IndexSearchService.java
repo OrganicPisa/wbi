@@ -2,6 +2,7 @@ package com.broadcom.wbi.service.indexing;
 
 import org.joda.time.DateTime;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
 
 import java.util.concurrent.Future;
 
@@ -39,4 +40,7 @@ public interface IndexSearchService {
 
     @Async
     Future<Boolean> indexAllResourcePlan(DateTime dt);
+
+    @Async
+    Future<Boolean> checkAndAuditTemplate(String type, String category, String group, Authentication currentAuthentication);
 }

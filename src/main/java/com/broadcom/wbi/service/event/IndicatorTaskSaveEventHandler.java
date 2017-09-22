@@ -51,7 +51,11 @@ public class IndicatorTaskSaveEventHandler implements ApplicationListener<Indica
             its.setStatus(iTaskHistory.getStatus().toString().toLowerCase().trim());
             its.setTask_id(iTask.getId());
             its.setTask_name(iTask.getName().toLowerCase().trim());
-            its.setTask_name_in_report(iTask.getNameInReport().toLowerCase().trim());
+            if (iTask.getNameInReport() == null || iTask.getNameInReport().isEmpty()) {
+                its.setTask_name_in_report(iTask.getName().toLowerCase().trim());
+            } else {
+                its.setTask_name_in_report(iTask.getNameInReport().toLowerCase().trim());
+            }
             indicatorTaskSearchService.saveOrUpdate(its);
         } else if (actionType.equalsIgnoreCase("delete")) {
             try {

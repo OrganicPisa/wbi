@@ -33,7 +33,6 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
 //
         Cookie authCookie = new Cookie(TOKEN_COOKIE, token);
         authCookie.setPath("/");
-        authCookie.setHttpOnly(true);
         authCookie.setMaxAge(28 * 24 * 60 * 60); //30 days
 
 //        System.out.println("authenticate success");

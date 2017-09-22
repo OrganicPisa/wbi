@@ -46,11 +46,11 @@ public class ITask extends AbstractDomainClass implements Serializable {
     private IGroup iGroup;
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "iTask", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "iTask", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<ITaskHistory> task_history = new HashSet<ITaskHistory>();
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "iTask", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "iTask", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<IDate> iDate = new HashSet<IDate>();
 
 }

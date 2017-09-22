@@ -2,9 +2,15 @@ package com.broadcom.wbi.service.jpa.implementation;
 
 import com.broadcom.wbi.model.mysql.Program;
 import com.broadcom.wbi.model.mysql.ResourcePlan;
+import com.broadcom.wbi.model.mysql.SkillMapping;
 import com.broadcom.wbi.repository.mysql.ResourcePlanRepository;
+import com.broadcom.wbi.service.event.ResourcePlanSaveEvent;
+import com.broadcom.wbi.service.event.ResourcePlanSaveEventPublisher;
 import com.broadcom.wbi.service.jpa.ResourcePlanService;
 import com.broadcom.wbi.service.jpa.SkillMappingService;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,8 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.*;
 
 @SuppressWarnings("rawtypes")
 @Service
@@ -25,12 +33,23 @@ public class ResourcePlanServiceImpl implements ResourcePlanService {
     @Resource
     private ResourcePlanRepository repo;
 
+    private final SkillMappingService skillMappingService;
+    private final ResourcePlanSaveEventPublisher resourcePlanSaveEventPublisher;
+
     @Autowired
-    private SkillMappingService skillMappingService;
+    public ResourcePlanServiceImpl(SkillMappingService skillMappingService, ResourcePlanSaveEventPublisher resourcePlanSaveEventPublisher) {
+        this.skillMappingService = skillMappingService;
+        this.resourcePlanSaveEventPublisher = resourcePlanSaveEventPublisher;
+    }
 
     @Override
     public ResourcePlan saveOrUpdate(ResourcePlan resourcePlan) {
-        return repo.save(resourcePlan);
+        ResourcePlan rs = repo.save(resourcePlan);
+        HashMap map = new HashMap<>();
+        map.put("action", "save");
+        map.put("data", rs);
+        resourcePlanSaveEventPublisher.publish(new ResourcePlanSaveEvent(map));
+        return rs;
     }
 
     @Override
@@ -40,6 +59,10 @@ public class ResourcePlanServiceImpl implements ResourcePlanService {
 
     @Override
     public void delete(Integer id) {
+        HashMap map = new HashMap<>();
+        map.put("action", "delete");
+        map.put("data", id);
+        resourcePlanSaveEventPublisher.publish(new ResourcePlanSaveEvent(map));
         repo.delete(id);
     }
 
@@ -79,7 +102,6 @@ public class ResourcePlanServiceImpl implements ResourcePlanService {
         return repo.findDistinctByProgram(program);
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public Date findMaxResourceDate(Program program) {
@@ -93,8 +115,8 @@ public class ResourcePlanServiceImpl implements ResourcePlanService {
     }
 
     @Override
-    public List<String> findDistinctPlanSkill(Program program, String type) {
-        return repo.findDistinctSkillByProgramAndType(program, type);
+    public List<ResourcePlan> findByProgramAndType(Program program, String type) {
+        return repo.findDistinctByProgramAndType(program, type);
     }
 
     @Override
@@ -102,185 +124,168 @@ public class ResourcePlanServiceImpl implements ResourcePlanService {
         return repo.findDistinctTypeByProgram(program);
     }
 
+    @Override
+    public List<String> findDistinctTypeByProgram(Program program) {
+        return repo.findDistinctTypeByProgram(program);
+    }
 
-//	@Override
-//	@SuppressWarnings("unchecked")
-//	public List doParse(String f, Program program, String username) {
-//		File file = new File(f);
-//		List list = new ArrayList();
-//		List<ResourcePlan> rplist = new ArrayList();
-//		List<SkillMapping> skills = new ArrayList();
-//		try {
-//			FileInputStream is = new FileInputStream(file);
-//			Workbook wb = WorkbookFactory.create(is);
-//			for (int sheet_num = 0; sheet_num < wb.getNumberOfSheets(); sheet_num++) {
-//				Sheet sheet = wb.getSheetAt(sheet_num);
-//				Row row = null;
-//				Row dateRow = null;
-//				int skillCount = 0;
-//
-//				List<String> projectRegion = new ArrayList();
-//				CellRangeAddress range;
-//				for (int m = 0; m < sheet.getNumMergedRegions(); m++) {
-//					range = sheet.getMergedRegion(m);
-//					String[] addr = range.formatAsString().split(":");
-//					if ((addr[0].contains("A")) && (addr[1].contains("A"))) {
-//						projectRegion.add(range.formatAsString());
-//					}
-//				}
-//				Collections.sort(projectRegion);
-//				Collections.reverse(projectRegion);
-//				for (String projectRange : projectRegion) {
-//					String[] xpRange = projectRange.replaceAll("[a-zA-Z]", "").split(":");
-//					int start = Integer.parseInt(xpRange[0]);
-//					int stop = Integer.parseInt(xpRange[1]);
-//					int titleStart = start - 1;
-//					String title = sheet.getRow(titleStart).getCell(0)
-//							.getStringCellValue();
-//					if (title.toLowerCase().indexOf("map") != -1) {
-//						QSkillMapping qsm = QSkillMapping.skillMapping;
-//						List<SkillMapping> skillList = new JPAQuery(em)
-//								.from(qsm).where(qsm.program.eq(program)).list(qsm);
-//						if (skillList != null) {
-//							for (SkillMapping skillmap : skillList) {
-//								try {
-//									skillServ.delete(skillmap.getId());
-//								} catch (IDNotFoundException e) {
-//									e.printStackTrace();
-//								}
-//							}
-//						}
-//						for (int i = start; i < stop; i++) {
-//							if ((sheet.getRow(i) != null)
-//									&& (sheet.getRow(i).getCell(1)
-//											.getCellType() != 3)) {
-//								SkillMapping skill = new SkillMapping();
-//								skill.setPlan_skill(sheet.getRow(i).getCell(1).getStringCellValue().trim());
-//								skill.setActual_skill(sheet.getRow(i).getCell(2).getStringCellValue().trim());
-//								skill.setProgram(program);
-//								skill.setOrderNum(Integer.valueOf(skillCount));
-//								skill.setCreatedBy(username);
-//								skill.setCreatedDate(new Date());
-//								skill.setExclude(sheet.getRow(i).getCell(3).getStringCellValue().trim());
-//								skills.add(skill);
-//								skillCount++;
-//							}
-//						}
-//					} else {
-//						List<Integer> rppl = new JPAQuery(em)
-//								.from(qrpp)
-//								.where(qrpp.program.eq(program).and(
-//										qrpp.type.toLowerCase().like(title)))
-//								.list(qrpp.id);
-//						dateRow = sheet.getRow(titleStart);
-//						int colCount = dateRow.getLastCellNum();
-//						title = dateRow.getCell(0).getStringCellValue().trim();
-//						if ((rppl == null) || (rppl.isEmpty())) {
-//							for (int i = start; i < stop; i++) {
-//								row = sheet.getRow(i);
-//								if (row.getCell(1).getCellType() != 3) {
-//									for (int j = 2; j < colCount; j++) {
-//										if (dateRow.getCell(j).getCellType() != 3) {
-//											try {
-//												ResourcePlan rp = new ResourcePlan();
-//												rp.setCreatedBy(username);
-//												rp.setInclude_contractor(true);
-//												rp.setMonth(dateRow.getCell(j).getDateCellValue());
-//												rp.setProgram(program);
-//												rp.setPlan_skill(row.getCell(1).getStringCellValue().trim());
-//												rp.setType(title);
-//												rp.setCreatedDate(new Date());
-//												Double count = 0.0;
-//												switch (row.getCell(j).getCellType()) {
-//												case 3:
-//													count = 0.0;
-//													break;
-//												case 0:
-//													count = row.getCell(j).getNumericCellValue();
-//													break;
-//												case 1:
-//													String cs = row.getCell(j).getStringCellValue().replaceAll("\\s",	"");
-//													if (cs.indexOf("0.5") != -1) {
-//														count = 0.5;
-//													} else {
-//														count = Double.parseDouble(cs);
-//													}
-//													break;
-//												}
-//												rp.setCount(count);
-//												rplist.add(rp);
-//											} catch (IllegalStateException localIllegalStateException) {
-//											}
-//										}
-//									}
-//								}
-//							}
-//						} else {
-//							rppl = new JPAQuery(em).from(qrpp)
-//									.where(qrpp.program.eq(program)
-//											.and(qrpp.type.toLowerCase().like("por")))
-//											.list(qrpp.id);
-//							if (rppl != null && !rppl.isEmpty()) {
-//								for (Integer rp_id : rppl) {
-//									try {
-//										delete(rp_id);
-//									} catch (IDNotFoundException e) {
-//										e.printStackTrace();
-//									}
-//								}
-//							}
-//							for (int i = start; i < stop; i++) {
-//								row = sheet.getRow(i);
-//								if (row.getCell(1).getCellType() != 3) {
-//									for (int j = 2; j < colCount; j++) {
-//										if (dateRow.getCell(j).getCellType() != 3) {
-//											try {
-//												ResourcePlan rp = new ResourcePlan();
-//												rp.setCreatedBy(username);
-//												rp.setInclude_contractor(true);
-//												rp.setMonth(dateRow.getCell(j).getDateCellValue());
-//												rp.setProgram(program);
-//												rp.setPlan_skill(row.getCell(1).getStringCellValue().trim());
-//												rp.setType("POR");
-//												rp.setCreatedDate(new Date());
-//												Double count = 0.0;
-//												switch (row.getCell(j).getCellType()) {
-//												case 3:
-//													count = 0.0;
-//													break;
-//												case 0:
-//													count = row.getCell(j).getNumericCellValue();
-//													break;
-//												case 1:
-//													String cs = row.getCell(j).getStringCellValue().replaceAll("\\s","");
-//													if (cs.indexOf("0.5") != -1) {
-//														count = 0.5D;
-//													} else {
-//														count = Double.parseDouble(cs);
-//													}
-//													break;
-//												}
-//												rp.setCount(count);
-//												rplist.add(rp);
-//											} catch (IllegalStateException localIllegalStateException) {
-//											}
-//										}
-//									}
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}
-//			list.add(skills);
-//			list.add(rplist);
-//			return list;
-//		} catch (InvalidFormatException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		return null;
-//	}
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void doParse(Program program, File file) {
+        List list = new ArrayList();
+        List<ResourcePlan> rplist = new ArrayList();
+        List<SkillMapping> skills = new ArrayList();
+        Set<String> exceltypeList = new HashSet<String>();
+        try {
+            FileInputStream is = new FileInputStream(file);
+            Workbook wb = WorkbookFactory.create(is);
+            sheetLoop:
+            for (int sheet_num = 0; sheet_num < wb.getNumberOfSheets(); sheet_num++) {
+                Sheet sheet = wb.getSheetAt(sheet_num);
+                if (sheet.getRow(0) == null ||
+                        sheet.getRow(0).getCell(0) == null ||
+                        sheet.getRow(0).getCell(0).getCellTypeEnum().equals(CellType.BLANK)) {
+                    continue sheetLoop;
+                }
+                if (sheet.getRow(0).getCell(0).getStringCellValue().toLowerCase().indexOf("mapping") == -1)
+                    continue sheetLoop;
+                Row row = null;
+                Row dateRow = null;
+                int skillCount = 0;
+                List<String> projectRegion = new ArrayList();
+                CellRangeAddress range;
+                for (int m = 0; m < sheet.getNumMergedRegions(); m++) {
+                    range = sheet.getMergedRegion(m);
+                    String[] addr = range.formatAsString().split(":");
+                    if ((addr[0].contains("A")) && (addr[1].contains("A"))) {
+                        projectRegion.add(range.formatAsString());
+                    }
+                }
+                Collections.sort(projectRegion);
+                Collections.reverse(projectRegion);
+                projectRegionLoop:
+                for (String projectRange : projectRegion) {
+                    String[] xpRange = projectRange.replaceAll("[a-zA-Z]", "").split(":");
+                    int startRange = Integer.parseInt(xpRange[0]);
+                    int stopRange = Integer.parseInt(xpRange[1]);
+                    int titleStart = startRange - 1;
+                    String title = sheet.getRow(titleStart).getCell(0).getStringCellValue();
+                    //handle mapping table section
+                    if (title.toLowerCase().indexOf("mapping") != -1) {
+                        List<SkillMapping> skillMappingList = skillMappingService.findByProgram(program);
+                        if (skillMappingList != null && !skillMappingList.isEmpty()) {
+                            for (SkillMapping skillMapping : skillMappingList) {
+                                skillMappingService.delete(skillMapping.getId());
+                            }
+                        }
+                        for (int i = startRange; i < stopRange; i++) {
+                            if (sheet.getRow(i) != null && sheet.getRow(i).getCell(1).getCellTypeEnum().equals(CellType.STRING)) {
+                                SkillMapping skill = new SkillMapping();
+                                skill.setPlan_skill(sheet.getRow(i).getCell(1).getStringCellValue().trim());
+                                skill.setActual_skill(sheet.getRow(i).getCell(2).getStringCellValue().trim());
+                                skill.setProgram(program);
+                                skill.setOrderNum(Integer.valueOf(skillCount));
+                                skill.setExclude(sheet.getRow(i).getCell(3).getStringCellValue().trim());
+                                skillMappingService.saveOrUpdate(skill);
+                                skillCount++;
+                            }
+                        }
+                    }
+                    //process data
+                    else {
+                        exceltypeList.add(title.toUpperCase().trim());
+                        List<ResourcePlan> resourcePlanList = findByProgramAndType(program, title.trim());
+                        dateRow = sheet.getRow(titleStart);
+                        int colCount = dateRow.getLastCellNum();
+                        if (resourcePlanList != null && !resourcePlanList.isEmpty()) {
+                            if (title.equalsIgnoreCase("pc")) {
+                                continue projectRegionLoop;
+                            }
+                            for (ResourcePlan resourcePlan : resourcePlanList) {
+                                delete(resourcePlan.getId());
+                            }
+                        }
+                        for (int rowIndex = startRange; rowIndex < stopRange; rowIndex++) {
+                            row = sheet.getRow(rowIndex);
+                            if (row.getCell(1).getCellTypeEnum().equals(CellType.STRING)) {
+                                colloop:
+                                for (int colIndex = 2; colIndex < colCount; colIndex++) {
+                                    if (DateUtil.isCellDateFormatted(dateRow.getCell(colIndex))) {
+                                        try {
+                                            DateTime ds = new DateTime(dateRow.getCell(colIndex).getDateCellValue());
+                                            if (ds.getYear() < 2005)
+                                                continue colloop;
+                                            ResourcePlan rp = new ResourcePlan();
+                                            rp.setInclude_contractor(true);
+                                            rp.setMonth(ds.toDate());
+                                            rp.setProgram(program);
+                                            rp.setPlan_skill(row.getCell(1).getStringCellValue().trim());
+                                            rp.setType(title.toUpperCase().trim());
+                                            Double count = 0.0;
+
+                                            try {
+                                                if (row.getCell(colIndex).getCellTypeEnum().equals(CellType.BLANK)) {
+                                                    count = 0.0;
+                                                } else if (row.getCell(colIndex).getCellTypeEnum().equals(CellType.NUMERIC)) {
+                                                    count = row.getCell(colIndex).getNumericCellValue();
+                                                } else if (row.getCell(colIndex).getCellTypeEnum().equals(CellType.STRING)) {
+                                                    String cs = row.getCell(colIndex).getStringCellValue().replaceAll("\\s", "");
+                                                    if (cs.indexOf("0.5") != -1) {
+                                                        count = 0.5;
+                                                    } else {
+                                                        count = Double.parseDouble(cs);
+                                                    }
+                                                } else if (row.getCell(colIndex).getCellTypeEnum().equals(CellType.FORMULA)) {
+                                                    count = 0.0;
+                                                    if (row.getCell(colIndex).getCachedFormulaResultTypeEnum().equals(CellType.NUMERIC)) {
+                                                        count = row.getCell(colIndex).getNumericCellValue();
+                                                    } else if (row.getCell(colIndex).getCachedFormulaResultTypeEnum().equals(CellType.STRING)) {
+                                                        String cs = row.getCell(colIndex).getStringCellValue().replaceAll("\\s", "");
+                                                        if (cs.indexOf("0.5") != -1) {
+                                                            count = 0.5;
+                                                        } else {
+                                                            count = Double.parseDouble(cs);
+                                                        }
+                                                    }
+                                                }
+                                            } catch (NumberFormatException e) {
+                                                e.printStackTrace();
+                                            }
+                                            rp.setCount(count);
+                                            saveOrUpdate(rp);
+                                        } catch (IllegalStateException localIllegalStateException) {
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            List<String> dbTypeList = findDistinctResourceType(program);
+            if (dbTypeList != null && !dbTypeList.isEmpty()) {
+                if (exceltypeList != null && !exceltypeList.isEmpty()) {
+                    for (String excelType : exceltypeList) {
+                        if (!dbTypeList.contains(excelType)) {
+                            List<ResourcePlan> resourcePlanList = findByProgramAndType(program, excelType.trim());
+                            if (resourcePlanList != null && !resourcePlanList.isEmpty()) {
+                                if (!excelType.equalsIgnoreCase("pc")) {
+                                    for (ResourcePlan resourcePlan : resourcePlanList) {
+                                        delete(resourcePlan.getId());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (InvalidFormatException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

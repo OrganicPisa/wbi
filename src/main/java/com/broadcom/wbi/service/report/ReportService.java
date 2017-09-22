@@ -1,12 +1,12 @@
-package com.broadcom.wbi.service.indicator;
+package com.broadcom.wbi.service.report;
 
 import com.broadcom.wbi.util.ProjectConstant;
 import org.joda.time.format.DateTimeFormatter;
+import org.springframework.scheduling.annotation.Async;
 
 import java.util.Map;
 
-public interface IndicatorReportService {
-
+public interface ReportService {
 
     DateTimeFormatter dfmt = org.joda.time.format.DateTimeFormat.forPattern("MM/dd/yy");
 
@@ -17,4 +17,12 @@ public interface IndicatorReportService {
     Map generatePRAReport();
 
     Map generateHTOLReport();
+
+    Map generateInformationReport(ProjectConstant.EnumProgramType type);
+
+    @Async
+    void generateCustomerHeadlineWeekendEmail(String includeCustomer, String excludeCustomer, String email);
+
+    @Async
+    void generateInternalHeadlineWeekendEmail(String email);
 }

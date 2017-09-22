@@ -3,6 +3,7 @@ package com.broadcom.wbi.service.jpa;
 import com.broadcom.wbi.model.mysql.Program;
 import com.broadcom.wbi.model.mysql.ResourcePlan;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -16,10 +17,12 @@ public interface ResourcePlanService extends CRUDService<ResourcePlan> {
 
     Date findMinResourceDate(Program program);
 
-//	List doParse(String f, Program program);
+    void doParse(Program program, File file);
 
-    List<String> findDistinctPlanSkill(Program p, String type);
+    List<ResourcePlan> findByProgramAndType(Program p, String type);
 
     List<String> findDistinctResourceType(Program program);
+
+    List<String> findDistinctTypeByProgram(Program program);
 
 }

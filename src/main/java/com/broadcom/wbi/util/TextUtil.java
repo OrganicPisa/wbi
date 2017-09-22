@@ -12,8 +12,8 @@ import java.util.regex.PatternSyntaxException;
 public class TextUtil {
 
     public static String formatName(String d) {
-//		List<String> firstCapital = Arrays.asList("max", "for", "pre", "rom", "ngo", "die", "key", "lob", "zed", "lee", "kou", "kuo", "old", "rob", "box",
-//				"cao", "ver", "pin", "and", "red");
+        List<String> firstCapital = Arrays.asList("max", "for", "pre", "rom", "ngo", "die", "key", "lob", "zed", "lee", "kou", "kuo", "old", "rob", "box",
+                "cao", "ver", "pin", "and", "red");
         List<String> allCapital = Arrays.asList("ngsdk", "xldk", "umpte", "pcie", "pra", "aka", "npv", "p&r", "htol", "lob", "cmicm", "sdk", "phys",
                 "fcs", "phy", "hsip", "ae", "fae", "sw", "plm", "pm", "cpm");
 
@@ -27,7 +27,7 @@ public class TextUtil {
                     if (allCapital.contains(l))
                         l = ds.toUpperCase();
                     else {
-                        if (length > 3) {
+                        if (length > 3 || firstCapital.contains(l)) {
                             l = WordUtils.capitalizeFully(ds);
                         } else {
                             l = ds.toUpperCase();
@@ -46,7 +46,7 @@ public class TextUtil {
                 if (allCapital.contains(l))
                     newl = l.toUpperCase();
                 else {
-                    if (length > 3) {
+                    if (length > 3 || firstCapital.contains(l)) {
                         newl = WordUtils.capitalizeFully(l);
                     } else
                         newl = l.toUpperCase();

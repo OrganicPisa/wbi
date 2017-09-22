@@ -3,26 +3,34 @@ package com.broadcom.wbi.service.event;
 import com.broadcom.wbi.model.elasticSearch.RevisionSearch;
 import com.broadcom.wbi.model.mysql.Program;
 import com.broadcom.wbi.model.mysql.Revision;
+import com.broadcom.wbi.model.mysql.RevisionIP;
 import com.broadcom.wbi.model.mysql.Segment;
 import com.broadcom.wbi.service.elasticSearch.RevisionSearchService;
 import com.broadcom.wbi.service.jpa.RedisCacheRepository;
+import com.broadcom.wbi.service.jpa.RevisionIPService;
+import com.broadcom.wbi.service.jpa.RevisionService;
 import com.broadcom.wbi.util.ProjectConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 @Component
 public class RevisionSaveEventHandler implements ApplicationListener<RevisionSaveEvent> {
     private final RedisCacheRepository redis;
     private final RevisionSearchService revisionSearchService;
+    private final RevisionIPService revisionIPService;
+    private final RevisionService revisionService;
 
     @Autowired
-    public RevisionSaveEventHandler(RedisCacheRepository redis, RevisionSearchService revisionSearchService) {
+    public RevisionSaveEventHandler(RedisCacheRepository redis, RevisionSearchService revisionSearchService, RevisionIPService revisionIPService, RevisionService revisionService) {
         this.redis = redis;
         this.revisionSearchService = revisionSearchService;
+        this.revisionIPService = revisionIPService;
+        this.revisionService = revisionService;
     }
 
     @Override
@@ -66,7 +74,16 @@ public class RevisionSaveEventHandler implements ApplicationListener<RevisionSav
                 Integer id = (Integer) map.get("data");
                 if (id > 0) {
                     redis.clearCache(id, "", "revision");
-                    revisionSearchService.delete(Integer.toString(id));
+                    Revision revision = revisionService.findById(id);
+                    if (revision != null) {
+                        List<RevisionIP> revisionIPList = revisionIPService.findByEitherRevisionOrRevisionIP(revision);
+                        if (revisionIPList != null && revisionIPList.isEmpty()) {
+                            for (RevisionIP revisionIP : revisionIPList) {
+                                revisionIPService.delete(revisionIP.getId());
+                            }
+                        }
+                        revisionSearchService.delete(Integer.toString(id));
+                    }
                 }
             } catch (Exception e) {
 

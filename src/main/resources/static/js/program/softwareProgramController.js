@@ -54,6 +54,7 @@ App.controller('SoftwareProgramCtrl', function ($scope, $rootScope, $http, $sce,
                 $scope.swtabIndex = $scope.swtabs.indexOf(currentTab);
             }
         });
+
     $scope.loadSWTab = function (tab) {
         if ($scope.pid != tab.pid) {
             $scope.pid = tab.pid;

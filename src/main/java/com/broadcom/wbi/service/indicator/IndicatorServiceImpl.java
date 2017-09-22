@@ -9,7 +9,6 @@ import com.broadcom.wbi.util.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -586,13 +585,14 @@ public class IndicatorServiceImpl implements IndicatorService {
             hm.put("order", order);
             hm.put("revision", rs.getRev_name());
             hm.put("reportName", TextUtil.formatName(rs.getRev_name().toLowerCase().replaceAll("^program", "").trim()));
-            hm.put("displayName",generateRevisionURLforView(rs));
+            hm.put("displayName", generateRevisionURLforView(rs));
 
         } else if (rs.getProgram_type().equalsIgnoreCase("customer")) {
             hm.put("displayName", TextUtil.formatName(rs.getProgram_name().toLowerCase().replaceAll("^program", "").trim()));
             hm.put("rev", generateRevisionURLforView(rs));
             hm.put("reportName", TextUtil.formatName(rs.getProgram_name().toLowerCase().replaceAll("^program", "").trim()));
             hm.put("sdk_current", "");
+            hm.put("sdk_upcoming_release", "");
             hm.put("sdk_fcs", "");
             hm.put("switch_chip", "");
             hm.put("fcs", "");
@@ -604,10 +604,13 @@ public class IndicatorServiceImpl implements IndicatorService {
                         chip = chip.replaceAll("\\([^\\(]*\\)", "");
                         chip = chip.replaceAll("\\s(and|&)\\s", "<br>");
                         chip = chip.replaceAll(",", "<br>");
+                        chip = chip.replaceAll("/", "<br>");
                         hm.put("switch_chip", chip.toUpperCase());
                     } else if (pi.getName().equalsIgnoreCase("current sdk")) {
                         hm.put("sdk_current", pi.getValue().toUpperCase());
-                    } else if (pi.getName().equalsIgnoreCase("sdk for next fcs")) {
+                    } else if (pi.getName().equalsIgnoreCase("sdk for upcoming release")) {
+                        hm.put("sdk_upcoming_release", pi.getValue().toUpperCase());
+                    } else if (pi.getName().equalsIgnoreCase("sdk for fcs")) {
                         hm.put("sdk_fcs", pi.getValue().toUpperCase());
                     }
                 }
@@ -711,7 +714,7 @@ public class IndicatorServiceImpl implements IndicatorService {
         }
         hm.put("revision_btn_color", hm.get("schedule_flag"));
         hm.put("escalation_btn_color", hm.get("prediction_flag"));
-        if(hm.get("schedule_flag").toString().equalsIgnoreCase("black"))
+        if (hm.get("schedule_flag").toString().equalsIgnoreCase("black"))
             hm.put("revision_btn_color", "green");
 
         if (hm.get("prediction_flag").toString().equalsIgnoreCase("black"))
@@ -766,7 +769,7 @@ public class IndicatorServiceImpl implements IndicatorService {
 
     }
 
-    private String generateRevisionURLforView(RevisionSearch rs){
+    private String generateRevisionURLforView(RevisionSearch rs) {
         String viewState = "internalProgram";
         ///get view state for ui click
         if (rs.getProgram_type().equalsIgnoreCase("customer"))
@@ -776,19 +779,19 @@ public class IndicatorServiceImpl implements IndicatorService {
         else if (rs.getProgram_type().equalsIgnoreCase("ip"))
             viewState = "ipProgram";
 
-        String ret = "<a ui-sref=\""+viewState+"({pid:" + rs.getProgram_id() + ", rid: " + rs.getId() + ", page:'dashboard'})\">" + rs.getRev_name().toUpperCase() + "</a>";
+        String ret = "<a ui-sref=\"" + viewState + "({pid:" + rs.getProgram_id() + ", rid: " + rs.getId() + ", page:'dashboard'})\">" + rs.getRev_name().toUpperCase() + "</a>";
         if (rs.getProgram_type().equalsIgnoreCase("software")) {
             if (rs.getProgram_name().toLowerCase().indexOf(rs.getRev_name().toLowerCase()) != -1) {
                 ret = "<a ui-sref=\"" + viewState + "({pid:" + rs.getProgram_id() + ", rid: " + rs.getId() + ", page:'dashboard'})\">"
                         + TextUtil.formatName(rs.getProgram_name().toLowerCase().replaceAll("^program", "").trim())
-                                + "</a>";
+                        + "</a>";
             } else if (rs.getRev_name().toLowerCase().indexOf(rs.getProgram_name().toLowerCase()) != -1) {
                 ret = "<a ui-sref=\"" + viewState + "({pid:" + rs.getProgram_id() + ", rid: " + rs.getId() + ", page:'dashboard'})\">"
                         + TextUtil.formatName(rs.getRev_name().toLowerCase().replaceAll("^program", "").trim())
                         + "</a>";
             }
         } else if (rs.getProgram_type().equalsIgnoreCase("customer")) {
-            ret =  "<a ui-sref=\""+viewState+"({pid:" + rs.getProgram_id() + ", rid: " +
+            ret = "<a ui-sref=\"" + viewState + "({pid:" + rs.getProgram_id() + ", rid: " +
                     rs.getId() + ", page:'dashboard'})\"'>" + TextUtil.formatName(rs.getProgram_name()) + "</a>";
         }
         return ret;
@@ -983,9 +986,9 @@ public class IndicatorServiceImpl implements IndicatorService {
                         ctx.setAuthentication(currentAuthentication);
                         SecurityContextHolder.setContext(ctx);
 
-                        if (iGroup.getName().equalsIgnoreCase("project")) {
-                            cloneIndicatorFromAnotherCategory(iGroup, rev);
-                        } else
+                        if (iGroup.getName().equalsIgnoreCase("project"))
+                            cloneIndicatorFromAnotherCategory(iGroup, rev, currentAuthentication);
+                        else
                             cloneAsyncIndicatorFromAnotherCategory(iGroup, rev, currentAuthentication);
                     }
                 });
@@ -1001,7 +1004,6 @@ public class IndicatorServiceImpl implements IndicatorService {
     }
 
     @Override
-    @Async
     public void cloneAsyncIndicatorFromAnotherCategory(IGroup iGroup, Revision rev, Authentication currentAuthentication) {
         SecurityContext ctx = SecurityContextHolder.createEmptyContext();
         ctx.setAuthentication(currentAuthentication);
@@ -1026,6 +1028,7 @@ public class IndicatorServiceImpl implements IndicatorService {
                 ITask t = new ITask();
                 t.setIGroup(g);
                 t.setName(iTask.getName());
+                t.setNameInReport(iTask.getNameInReport());
                 t.setOrderNum(iTask.getOrderNum());
                 t = iTaskService.saveOrUpdate(t);
 
@@ -1071,8 +1074,11 @@ public class IndicatorServiceImpl implements IndicatorService {
     }
 
     @Override
-    public void cloneIndicatorFromAnotherCategory(IGroup iGroup, Revision rev) {
+    public void cloneIndicatorFromAnotherCategory(IGroup iGroup, Revision rev, Authentication authentication) {
         final ProjectConstant.EnumIndicatorStatus status = ProjectConstant.EnumIndicatorStatus.BLACK;
+        SecurityContext ctx = SecurityContextHolder.createEmptyContext();
+        ctx.setAuthentication(authentication);
+        SecurityContextHolder.setContext(ctx);
 
         IGroup g = new IGroup();
         g.setName(iGroup.getName());
@@ -1090,49 +1096,57 @@ public class IndicatorServiceImpl implements IndicatorService {
         if (iTaskList != null && !iTaskList.isEmpty()) {
             for (ITask iTask : iTaskList) {
                 ITaskHistory iTaskHistory = iTaskHistoryService.findByTask(iTask);
-                ITask t = new ITask();
-                t.setIGroup(g);
-                t.setName(iTask.getName());
-                t.setOrderNum(iTask.getOrderNum());
-                t = iTaskService.saveOrUpdate(t);
 
-                ITaskHistory th = new ITaskHistory();
-                th.setITask(t);
-                if (iTaskHistory != null)
-                    th.setNote(iTaskHistory.getNote());
-                else
-                    th.setNote("");
-                th.setStatus(status);
-                iTaskHistoryService.saveOrUpdate(th);
+                try {
+                    ITask t = new ITask();
+                    t.setIGroup(g);
+                    t.setName(iTask.getName());
+                    t.setNameInReport(iTask.getNameInReport());
+                    t.setOrderNum(iTask.getOrderNum());
+                    t = iTaskService.saveOrUpdate(t);
 
-                for (ProjectConstant.EnumIndicatorTrackingDateType ttype : ProjectConstant.EnumIndicatorTrackingDateType.values()) {
-                    for (ProjectConstant.EnumIndicatorEndingDateType etype : ProjectConstant.EnumIndicatorEndingDateType.values()) {
-                        IDate iDate = iDateService.findByTaskAndType(iTask, ttype, etype);
-                        DateTime vdt = emptydt;
-                        if (iDate != null) {
-                            IDateHistory iDateHistory = iDateHistoryService.findByDate(iDate);
-                            if (iDateHistory != null) {
-                                vdt = new DateTime(iDateHistory.getValue()).withTimeAtStartOfDay();
-                                if (vdt.getYear() == 1950)
-                                    vdt = nadt;
-                                else if ((vdt.getYear() > 1950) && (vdt.getYear() < 2000))
-                                    vdt = emptydt;
+                    ITaskHistory th = new ITaskHistory();
+                    th.setITask(t);
+                    if (iTaskHistory != null)
+                        th.setNote(iTaskHistory.getNote());
+                    else
+                        th.setNote("");
+                    th.setStatus(status);
+                    iTaskHistoryService.saveOrUpdate(th);
+
+                    for (ProjectConstant.EnumIndicatorTrackingDateType ttype : ProjectConstant.EnumIndicatorTrackingDateType.values()) {
+                        for (ProjectConstant.EnumIndicatorEndingDateType etype : ProjectConstant.EnumIndicatorEndingDateType.values()) {
+                            IDate iDate = iDateService.findByTaskAndType(iTask, ttype, etype);
+                            DateTime vdt = emptydt;
+                            if (iDate != null) {
+                                IDateHistory iDateHistory = iDateHistoryService.findByDate(iDate);
+                                if (iDateHistory != null) {
+                                    vdt = new DateTime(iDateHistory.getValue()).withTimeAtStartOfDay();
+                                    if (vdt.getYear() == 1950)
+                                        vdt = nadt;
+                                    else if ((vdt.getYear() > 1950) && (vdt.getYear() < 2000))
+                                        vdt = emptydt;
+                                }
                             }
-                        }
-                        IDate d = new IDate();
-                        d.setEtype(etype);
-                        d.setITask(t);
-                        d.setTtype(ttype);
-                        d = iDateService.saveOrUpdate(d);
+                            IDate d = new IDate();
+                            d.setEtype(etype);
+                            d.setITask(t);
+                            d.setTtype(ttype);
+                            d = iDateService.saveOrUpdate(d);
 
-                        IDateHistory dh = new IDateHistory();
-                        dh.setIDate(d);
-                        dh.setComment("");
-                        dh.setStatus(status);
-                        dh.setValue(vdt.toDate());
-                        iDateHistoryService.saveOrUpdate(dh);
+                            IDateHistory dh = new IDateHistory();
+                            dh.setIDate(d);
+                            dh.setComment("");
+                            dh.setStatus(status);
+                            dh.setValue(vdt.toDate());
+                            iDateHistoryService.saveOrUpdate(dh);
+                        }
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+
+
             }
         }
     }

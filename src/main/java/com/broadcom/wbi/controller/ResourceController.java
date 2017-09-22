@@ -2,12 +2,14 @@ package com.broadcom.wbi.controller;
 
 import com.broadcom.wbi.exception.CustomGenericException;
 import com.broadcom.wbi.model.elasticSearch.RevisionSearch;
+import com.broadcom.wbi.model.mysql.Program;
+import com.broadcom.wbi.model.mysql.ResourcePlan;
 import com.broadcom.wbi.model.mysql.ResourceProgramClassification;
+import com.broadcom.wbi.model.mysql.SkillMapping;
 import com.broadcom.wbi.service.elasticSearch.RevisionSearchService;
 import com.broadcom.wbi.service.indicator.IndicatorService;
-import com.broadcom.wbi.service.jpa.RedisCacheRepository;
-import com.broadcom.wbi.service.jpa.ResourcePlanService;
-import com.broadcom.wbi.service.jpa.ResourceProgramClassificationService;
+import com.broadcom.wbi.service.jpa.*;
+import com.broadcom.wbi.service.resource.parser.DataResourceParseService;
 import com.broadcom.wbi.service.resource.program.ResourceProjectService;
 import com.broadcom.wbi.service.resource.report.ResourceReportService;
 import com.broadcom.wbi.util.ProjectConstant;
@@ -48,11 +50,17 @@ public class ResourceController {
     private final ResourcePlanService resourcePlanService;
     private final RedisCacheRepository redisCacheRepository;
     private final ResourceProgramClassificationService resourceProgramClassificationService;
+    private final ProgramService programService;
+    private final SkillMappingService skillMappingService;
+
+    private final DataResourceParseService dataResourceParseService;
 
     @Autowired
     public ResourceController(RevisionSearchService revisionSearchService, IndicatorService indicatorService,
                               ResourceProjectService resourceProjectService, ResourceReportService resourceReportService,
-                              ResourcePlanService resourcePlanService, RedisCacheRepository redisCacheRepository, ResourceProgramClassificationService resourceProgramClassificationService) {
+                              ResourcePlanService resourcePlanService, RedisCacheRepository redisCacheRepository,
+                              ResourceProgramClassificationService resourceProgramClassificationService, ProgramService programService, SkillMappingService skillMappingService,
+                              DataResourceParseService dataResourceParseService) {
         this.revisionSearchService = revisionSearchService;
         this.indicatorService = indicatorService;
         this.resourceProjectService = resourceProjectService;
@@ -60,6 +68,9 @@ public class ResourceController {
         this.resourcePlanService = resourcePlanService;
         this.redisCacheRepository = redisCacheRepository;
         this.resourceProgramClassificationService = resourceProgramClassificationService;
+        this.programService = programService;
+        this.skillMappingService = skillMappingService;
+        this.dataResourceParseService = dataResourceParseService;
     }
 
     @RequestMapping(value = {"/index", "/", "/home"}, method = {RequestMethod.GET})
@@ -102,6 +113,8 @@ public class ResourceController {
                                     redisCacheRepository.put(redisk, mapper.writeValueAsString(ret));
                                     return ret;
                                 } catch (JsonProcessingException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -153,6 +166,8 @@ public class ResourceController {
                                     return ret;
                                 } catch (JsonProcessingException e) {
                                     e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
                             }
                         }
@@ -166,6 +181,36 @@ public class ResourceController {
                     return ret;
                 } catch (IOException e) {
                     e.printStackTrace();
+                }
+                return null;
+
+            }
+        };
+
+        return new WebAsyncTask<Map>(120000, callable);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @RequestMapping(value = {"/program/delete"}, method = {RequestMethod.GET})
+    @ResponseBody
+    public WebAsyncTask<Map> clearProgramResource(final HttpServletRequest req,
+                                                  @RequestParam(value = "pid", defaultValue = "0") final int pid) {
+        Callable<Map> callable = new Callable<Map>() {
+            public Map call() {
+                if (pid < 1)
+                    return null;
+                Program program = programService.findById(pid);
+                if (program == null)
+                    return null;
+                List<ResourcePlan> resourcePlanList = resourcePlanService.findByProgram(program);
+                if (resourcePlanList != null && !resourcePlanList.isEmpty()) {
+                    for (ResourcePlan resourcePlan : resourcePlanList)
+                        resourcePlanService.delete(resourcePlan.getId());
+                }
+                List<SkillMapping> skillMappingList = skillMappingService.findByProgram(program);
+                if (skillMappingList != null && !skillMappingList.isEmpty()) {
+                    for (SkillMapping skillMapping : skillMappingList)
+                        skillMappingService.delete(skillMapping.getId());
                 }
                 return null;
 
@@ -205,6 +250,8 @@ public class ResourceController {
                                     redisCacheRepository.put(redisk, mapper.writeValueAsString(ret));
                                     return ret;
                                 } catch (JsonProcessingException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -259,6 +306,8 @@ public class ResourceController {
                             redisCacheRepository.put(redisk, mapper.writeValueAsString(ret));
                             return ret;
                         } catch (JsonProcessingException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
@@ -347,6 +396,8 @@ public class ResourceController {
                             return ret;
                         } catch (JsonProcessingException e) {
                             e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }
                     return null;
@@ -408,6 +459,8 @@ public class ResourceController {
                             redisCacheRepository.put(redisk, mapper.writeValueAsString(ret));
                             return ret;
                         } catch (JsonProcessingException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
@@ -484,6 +537,8 @@ public class ResourceController {
                             redisCacheRepository.put(redisk, mapper.writeValueAsString(ret));
                             return ret;
                         } catch (JsonProcessingException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
@@ -710,6 +765,26 @@ public class ResourceController {
     public Callable<String> clearCache(HttpServletRequest req) {
         return new Callable<String>() {
             public String call() {
+                redisCacheRepository.deleteWildCard("resource_*");
+                return null;
+            }
+        };
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @RequestMapping(value = {"/sync"}, method = {RequestMethod.POST})
+    @ResponseStatus(value = HttpStatus.OK)
+    public Callable<String> syncData(HttpServletRequest req) {
+        return new Callable<String>() {
+            public String call() {
+                DateTime lastmonth = new DateTime().minusMonths(2).dayOfMonth().withMinimumValue().withTimeAtStartOfDay();
+                DateTime stopdt = new DateTime().dayOfYear().withMaximumValue().withTimeAtStartOfDay();
+                DateTime current = lastmonth;
+                while (current.getMillis() < stopdt.getMillis()) {
+                    dataResourceParseService.cleanup(current);
+                    dataResourceParseService.doCollectAndInsertData(current);
+                    current = current.plusMonths(1);
+                }
                 redisCacheRepository.deleteWildCard("resource_*");
                 return null;
             }

@@ -5,7 +5,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TaskSaveEventPublisher implements ApplicationEventPublisherAware {
+public class TaskWithSameNameSaveEventPublisher implements ApplicationEventPublisherAware {
     private ApplicationEventPublisher publisher;
 
     @Override

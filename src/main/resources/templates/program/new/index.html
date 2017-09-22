@@ -1,32 +1,32 @@
 <md-content class="md-padding" style="padding-top:1px!important;">
     <div flex ng-switch on="page" style="padding-bottom: 40px!important;">
-            <div ng-switch-default
-                 data-ng-if="authority=='ipm' || authority=='pm'  || authority=='cpm'  || authority=='ippm' || authority=='admin'">
-                <div ng-include="'/program/new/select'"></div>
-            </div>
-            <div ng-switch-when="internalprogram"
-                 data-ng-if="authority=='ipm' || authority=='pm' || authority=='admin'">
-                <div ng-include="'/program/new/internalprogram'"></div>
-            </div>
-            <div ng-switch-when="internalrevision"
-                 data-ng-if="authority=='ipm' || authority=='pm' || authority=='admin'">
-                <div ng-include="'/program/new/internalrevision'"></div>
-            </div>
-            <div ng-switch-when="customerprogram"
-                 data-ng-if="authority=='cpm' || authority=='pm' || authority=='admin'">
-                <div ng-include="'/program/new/customerprogram'"></div>
-            </div>
-            <div ng-switch-when="ipprogram"
-                 data-ng-if="authority=='ippm' || authority=='pm' || authority=='admin'">
-                <div ng-include="'/program/new/ipprogram'"></div>
-            </div>
-            <div ng-switch-when="iprevision"
-                 data-ng-if="authority=='ippm' || authority=='pm' || authority=='admin'">
-                <div ng-include="'/program/new/iprevision'"></div>
-            </div>
-            <div ng-switch-when="software"
-                 data-ng-if="authority=='swpm' || authority=='pm' || authority=='admin'">
-                <div ng-include="'/program/new/software'"></div>
-            </div>
+        <div ng-switch-default
+             data-ng-if="authority=='ipm' || authority=='pm'  || authority=='cpm'  || authority=='ippm' || authority=='admin'">
+            <div ng-include="'/program/new/select'"></div>
         </div>
+        <div ng-switch-when="internalprogram"
+             data-ng-if="authority=='ipm' || authority=='pm' || authority=='admin'">
+            <div ng-include="'/program/new/internalprogram'"></div>
+        </div>
+        <div ng-switch-when="internalrevision"
+             data-ng-if="authority=='ipm' || authority=='pm' || authority=='admin'">
+            <div ng-include="'/program/new/internalrevision'"></div>
+        </div>
+        <div ng-switch-when="customerprogram"
+             data-ng-if="authority=='cpm' || authority=='pm' || authority=='admin'">
+            <div ng-include="'/program/new/customerprogram'"></div>
+        </div>
+        <div ng-switch-when="ipprogram"
+             data-ng-if="authority=='ippm' || authority=='pm' || authority=='admin'">
+            <div ng-include="'/program/new/ipprogram'"></div>
+        </div>
+        <div ng-switch-when="iprevision"
+             data-ng-if="authority=='ippm' || authority=='pm' || authority=='admin'">
+            <div ng-include="'/program/new/iprevision'"></div>
+        </div>
+        <div ng-switch-when="software"
+             data-ng-if="authority=='swpm' || authority=='pm' || authority=='admin'">
+            <div ng-include="'/program/new/software'"></div>
+        </div>
+    </div>
 </md-content>

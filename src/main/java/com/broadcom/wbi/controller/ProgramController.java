@@ -3,14 +3,14 @@ package com.broadcom.wbi.controller;
 import com.broadcom.wbi.exception.IDNotFoundException;
 import com.broadcom.wbi.model.elasticSearch.RevisionSearch;
 import com.broadcom.wbi.model.elasticSearch.SkuSearch;
-import com.broadcom.wbi.model.mysql.*;
+import com.broadcom.wbi.model.mysql.Program;
+import com.broadcom.wbi.model.mysql.Sku;
 import com.broadcom.wbi.service.elasticSearch.RevisionSearchService;
 import com.broadcom.wbi.service.elasticSearch.SkuSearchService;
 import com.broadcom.wbi.service.elasticSearch.TemplateSearchService;
 import com.broadcom.wbi.service.event.CacheClearEventPublisher;
 import com.broadcom.wbi.service.indicator.IndicatorService;
 import com.broadcom.wbi.service.jpa.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -104,7 +104,7 @@ public class ProgramController {
             public List call() {
                 if (pid < 1)
                     throw new IDNotFoundException(pid, "program");
-                String redisKey  = pid+ "_revisionList";
+                String redisKey = pid + "_revisionList";
                 if (reload == 1)
                     redisCacheRepository.delete(redisKey);
                 if (!redisCacheRepository.hasKey(redisKey)) {
@@ -120,7 +120,6 @@ public class ProgramController {
                                             && rev.getRev_name().toLowerCase().indexOf("head_ip") == 0)
                                         return;
                                     hm = indicatorService.getFrontPageRevisionInfo(Integer.parseInt(rev.getId()));
-
                                     if (hm == null)
                                         hm = new HashMap();
 
@@ -145,9 +144,8 @@ public class ProgramController {
                         }
                         try {
                             redisCacheRepository.put(redisKey, mapper.writeValueAsString(ret));
-//                            redisCacheRepository.setExpire(redisKey, ProjectConstant.CacheTimeout.HOUR.getSecond());
                             return ret;
-                        } catch (JsonProcessingException e) {
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
@@ -346,48 +344,19 @@ public class ProgramController {
     }
 
 
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    @RequestMapping(value = {"/delete"}, method = {RequestMethod.POST})
-    @ResponseBody
-    public WebAsyncTask<ResponseEntity> deleteProgram(HttpServletRequest req, HttpServletResponse res,
-                                                      @RequestParam(value = "pid", defaultValue = "0") final int pid) {
-        Callable<ResponseEntity> callable = new Callable<ResponseEntity>() {
-            @Override
-            public ResponseEntity call() throws Exception {
-                Map ret = new HashMap();
-                ret.put("url", "deleted");
-                if (pid < 1)
-                    return null;
-
-                Program program = programService.findById(pid);
-                if (program == null)
-                    return null;
-                List<Revision> revisionList = revisionService.findByProgram(program, null);
-                if (revisionList != null && !revisionList.isEmpty()) {
-                    for (Revision revision : revisionList) {
-                        List<Link> linkList = linkService.findByRevision(revision);
-                        if (linkList != null && !linkList.isEmpty()) {
-                            for (Link link : linkList)
-                                linkService.delete(link.getId());
-                        }
-                        List<RevisionContact> revisionContactList = revisionContactService.findByRevision(revision);
-                        if (revisionContactList != null && !revisionContactList.isEmpty()) {
-                            for (RevisionContact revisionContact : revisionContactList)
-                                revisionContactService.delete(revisionContact.getId());
-                        }
-                        List<RevisionInformation> revisionInformationList = revisionInformationService.findByRevision(revision);
-                        if (revisionInformationList != null && !revisionInformationList.isEmpty()) {
-                            for (RevisionInformation revisionInformation : revisionInformationList)
-                                revisionInformationService.delete(revisionInformation.getId());
-                        }
-                        List<Headline> headlineList = headlineService.findByRevision(revision, null);
-
-                    }
+    @PreAuthorize("hasAnyRole('PM', 'ADMIN')")
+    @RequestMapping(value = {"/clearCache"}, method = {RequestMethod.POST})
+    public Callable<ResponseEntity> clearCache(HttpServletRequest req, @RequestParam(name = "pid", defaultValue = "0") int pid) {
+        return new Callable() {
+            public ResponseEntity call() {
+                System.out.println(pid);
+                if (pid > 0) {
+                    redisCacheRepository.clearCache(pid, "", "program");
                 }
-                return ResponseEntity.ok(ret);
+                Map obj = new HashMap();
+                obj.put("data", "Saved to db");
+                return ResponseEntity.ok(obj);
             }
         };
-        return new WebAsyncTask<ResponseEntity>(1800000, callable);
     }
-
 }

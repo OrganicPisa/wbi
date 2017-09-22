@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Date;
 import java.util.List;
 
+
 public interface HeadlineRepository extends JpaRepository<Headline, Integer> {
     List<Headline> findByRevisionOrderByCreatedDateDesc(Revision rev);
 
@@ -15,7 +16,7 @@ public interface HeadlineRepository extends JpaRepository<Headline, Integer> {
 
     List<Headline> findByCreatedDateAfterOrderByCreatedDateDesc(Date createdDate);
 
-    List<Headline> findByRevisionAndCreatedDateAfterOrderByCreatedDateDesc(Revision rev, Date createdDate);
+    List<Headline> findByRevisionAndCreatedDateBeforeOrderByCreatedDateDesc(Revision rev, Date createdDate);
 
     @Query("SELECT hl.createdDate from Headline hl where hl.revision = ?1 order by hl.createdDate desc")
     List<Date> findTimestampByRevision(Revision rev);

@@ -5,22 +5,15 @@ import com.broadcom.wbi.model.elasticSearch.RevisionSearch;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.springframework.data.elasticsearch.core.query.DeleteQuery;
 
 import java.util.*;
 
 @SuppressWarnings("rawtypes")
-public interface ResourceActualSearchService {
+public interface ResourceActualSearchService extends CRUDService<ResourceActualSearch> {
 
     DateTimeFormatter dfmt = DateTimeFormat.forPattern("yyyy-MM-dd");
 
-    void emptyData();
-
-    ResourceActualSearch findOne(String id);
-
-    Iterator<ResourceActualSearch> findAll();
-
-    DeleteQuery deleteByTime(DateTime dt);
+    void deleteByTime(DateTime dt);
 
     TreeMap<String, Double> groupByMonth(RevisionSearch rs);
 

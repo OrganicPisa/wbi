@@ -7,8 +7,8 @@ import com.broadcom.wbi.model.mysql.*;
 import com.broadcom.wbi.service.elasticSearch.*;
 import com.broadcom.wbi.service.event.CacheClearEvent;
 import com.broadcom.wbi.service.event.CacheClearEventPublisher;
-import com.broadcom.wbi.service.event.TaskSaveEventPublisher;
 import com.broadcom.wbi.service.event.TaskWithSameNameSaveEvent;
+import com.broadcom.wbi.service.event.TaskWithSameNameSaveEventPublisher;
 import com.broadcom.wbi.service.indicator.IndicatorService;
 import com.broadcom.wbi.service.jpa.*;
 import com.broadcom.wbi.util.*;
@@ -75,7 +75,7 @@ public class RevisionController {
     private final IDateService iDateService;
     private final IDateHistoryService iDateHistoryService;
     private final IndicatorDateSearchService indicatorDateSearchService;
-    private final TaskSaveEventPublisher taskSaveEventPublisher;
+    private final TaskWithSameNameSaveEventPublisher taskSaveEventPublisher;
     private final CacheClearEventPublisher cacheClearEventPublisher;
     private final RedisCacheRepository redisCacheRepository;
     private final SkuService skuService;
@@ -89,7 +89,7 @@ public class RevisionController {
                               IndicatorTaskSearchService indicatorTaskSearchService, IGroupHistoryService iGroupHistoryService, ITaskHistoryService iTaskHistoryService,
                               IndicatorService indicatorService, HeadlineSearchService headlineSearchService, IndicatorGroupSearchService indicatorGroupSearchService,
                               IndicatorDateSearchService indicatorDateSearchService, CacheClearEventPublisher cacheClearEventPublisher, RevisionOutlookService revisionOutlookService,
-                              LinkService linkService, TaskSaveEventPublisher taskSaveEventPublisher, HeadlineService headlineService, SkuService skuService) {
+                              LinkService linkService, TaskWithSameNameSaveEventPublisher taskSaveEventPublisher, HeadlineService headlineService, SkuService skuService) {
         this.revisionInformationSearchService = revisionInformationSearchService;
         this.revisionInformationService = revisionInformationService;
         this.revisionIPService = revisionIPService;
@@ -2145,7 +2145,6 @@ public class RevisionController {
                     ProjectConstant.EnumProgramType programType = program.getType();
                     ProjectConstant.EnumHeadlineStage programStage = ProjectConstant.EnumHeadlineStage.PLANNING;
 
-
                     final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
 
                     //create new revision
@@ -2190,8 +2189,6 @@ public class RevisionController {
                         outlook.setRevision(rev);
                         revisionOutlookService.saveOrUpdate(outlook);
 
-                        Boolean cloneIndicator = false;
-                        Boolean cloneInformation = false;
 
                         Revision oldRev = null;
                         if (map.containsKey("oldRev")) {
@@ -2205,29 +2202,16 @@ public class RevisionController {
                                 }
                             }
                         }
-                        if (map.containsKey("clone")) {
-                            HashMap cloneMap = (HashMap) map.get("clone");
-                            if (cloneMap.containsKey("milestone")) {
-                                cloneIndicator = (Boolean) cloneMap.get("milestone");
-                            }
-                            if (cloneMap.containsKey("info")) {
-                                cloneInformation = (Boolean) cloneMap.get("info");
-                            }
-                        }
-                        // clone Contact and link
+
                         if (oldRev != null) {
                             revisionContactService.cloneFromAnotherRevision(oldRev, rev, currentAuthentication);
                             linkService.cloneFromAnotherRevision(oldRev, rev, currentAuthentication);
+                            revisionInformationService.cloneFromAnotherRevision(oldRev, rev, currentAuthentication);
+                            indicatorService.cloneIndicatorFromAnotherRevision(oldRev, rev);
                         } else {
                             revisionContactService.cloneFromTemplate(rev, currentAuthentication);
-                        }
-                        // clone information
-                        if (cloneInformation) {
-                            if (oldRev != null) {
-                                revisionInformationService.cloneFromAnotherRevision(oldRev, rev, currentAuthentication);
-                            }
-                        } else {
                             revisionInformationService.cloneFromTemplate(rev, currentAuthentication);
+                            indicatorService.createNewIndicatorFromTemplate(rev, program.getType().toString().toLowerCase());
                             if (program.getType().equals(ProjectConstant.EnumProgramType.IP)) {
                                 HashMap infomap = new HashMap();
                                 if (map.containsKey("info")) {
@@ -2246,18 +2230,6 @@ public class RevisionController {
                                 }
                             }
                         }
-                        if (rev != null) {
-                            if (cloneIndicator) {
-                                if (oldRev != null) {
-                                    indicatorService.cloneIndicatorFromAnotherRevision(oldRev, rev);
-                                } else {
-                                    cloneIndicator = false;
-                                }
-                            }
-                            if (!cloneIndicator) {
-                                indicatorService.createNewIndicatorFromTemplate(rev, program.getType().toString().toLowerCase());
-                            }
-                        }
 
                         ret.put("url", "/program/" + program.getType().toString().toLowerCase() + "/" + program.getId() + "/" + rev.getId() + "/dashboard");
                     }
@@ -2268,4 +2240,19 @@ public class RevisionController {
         return new WebAsyncTask<ResponseEntity>(1800000, callable);
     }
 
+
+    @PreAuthorize("hasAnyRole('PM', 'ADMIN')")
+    @RequestMapping(value = {"/clearCache"}, method = {RequestMethod.POST})
+    public Callable<ResponseEntity> clearCache(HttpServletRequest req, @RequestParam(name = "rid", defaultValue = "0") int rid) {
+        return new Callable() {
+            public ResponseEntity call() {
+                if (rid > 0) {
+                    redisCacheRepository.deleteWildCard(rid + "_*");
+                }
+                Map obj = new HashMap();
+                obj.put("data", "Saved to db");
+                return ResponseEntity.ok(obj);
+            }
+        };
+    }
 }

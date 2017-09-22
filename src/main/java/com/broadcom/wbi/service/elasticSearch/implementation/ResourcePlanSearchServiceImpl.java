@@ -2,6 +2,7 @@ package com.broadcom.wbi.service.elasticSearch.implementation;
 
 import com.broadcom.wbi.model.elasticSearch.ResourcePlanSearch;
 import com.broadcom.wbi.model.elasticSearch.RevisionSearch;
+import com.broadcom.wbi.model.mysql.ResourcePlan;
 import com.broadcom.wbi.repository.elasticSearch.ResourcePlanSearchRepository;
 import com.broadcom.wbi.service.elasticSearch.ResourcePlanSearchService;
 import org.elasticsearch.action.search.SearchResponse;
@@ -34,10 +35,6 @@ public class ResourcePlanSearchServiceImpl implements ResourcePlanSearchService 
         this.template = template;
     }
 
-    @Override
-    public ResourcePlanSearch save(ResourcePlanSearch resource) {
-        return repo.save(resource);
-    }
 
     @Override
     public void saveBulk(List<ResourcePlanSearch> resources) {
@@ -50,13 +47,39 @@ public class ResourcePlanSearchServiceImpl implements ResourcePlanSearchService 
     }
 
     @Override
-    public ResourcePlanSearch findOne(String id) {
-        return repo.findOne(id);
+    public void deleteIndex() {
+        template.deleteIndex(ResourcePlan.class);
     }
+
+    @Override
+    public List<ResourcePlanSearch> findByDateTime(DateTime dt) {
+        return null;
+    }
+
 
     @Override
     public Iterator<ResourcePlanSearch> findAll() {
         return repo.findAll().iterator();
+    }
+
+    @Override
+    public ResourcePlanSearch findById(String id) {
+        return repo.findOne(id);
+    }
+
+    @Override
+    public ResourcePlanSearch saveOrUpdate(ResourcePlanSearch domainObject) {
+        return repo.save(domainObject);
+    }
+
+    @Override
+    public void delete(String id) {
+        repo.delete(id);
+    }
+
+    @Override
+    public long count() {
+        return repo.count();
     }
 
     @Override

@@ -108,7 +108,6 @@ public class TokenController {
 
             Cookie authCookie = new Cookie(TOKEN_COOKIE, (refreshedToken));
             authCookie.setPath("/");
-            authCookie.setHttpOnly(true);
             authCookie.setMaxAge(30 * 24 * 60 * 60);
             // Add cookie to response
             response.addCookie(authCookie);

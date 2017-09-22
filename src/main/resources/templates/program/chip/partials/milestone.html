@@ -28,28 +28,29 @@
         color: grey !IMPORTANT;
     }
 </style>
-    <div flex layout="column">
-        <div class="btn-group btn-group-justified">
-            <div class="btn-group " ng-repeat="cat in ms.categories">
-                <button class='btn catbtn' ng-class="{'btn-danger' : (cat.status.toLowerCase()=='red'),
+<div flex layout="column">
+    <div class="btn-group btn-group-justified">
+        <div class="btn-group " ng-repeat="cat in ms.categories">
+            <button class='btn catbtn' ng-class="{'btn-danger' : (cat.status.toLowerCase()=='red'),
         'btn-warning' : (cat.status.toLowerCase()=='orange'),
         'btn-success' : (cat.status.toLowerCase()=='green' || cat.status.toLowerCase()=='black')}"
-                        ng-click="ms.gid=cat.id;milestoneeditform.$cancel();"
-                        ng-bind="cat.name|uppercase"></button>
-            </div>
+                    ng-click="ms.gid=cat.id;milestoneeditform.$cancel();"
+                    ng-bind="cat.name|uppercase"></button>
         </div>
     </div>
-    <div flex layout="column">
-        <md-card>
-            <md-card-title>
-                <md-card-title-text>
-                    <div layout="row">
-                        <span class="md-title">{{ms.currentCategory|myUpperCase}} Milestone</span>
+</div>
+<div flex layout="column">
+    <md-card>
+        <md-card-title>
+            <md-card-title-text>
+                <div layout="row">
+                    <span class="md-title">{{ms.currentCategory|myUpperCase}} Milestone</span>
 
-                        <span flex></span>
-                        <span ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'"
-                              ng-hide='milestoneeditform.$visible'>
-                            <a class='md-primary' ngf-select ngf-change="uploadMPP($files)" ng-show="ms.currentCategory.toLowerCase()=='project'"
+                    <span flex></span>
+                    <span ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'"
+                          ng-hide='milestoneeditform.$visible'>
+                            <a class='md-primary' ngf-select ngf-change="uploadMPP($files)"
+                               ng-show="ms.currentCategory.toLowerCase()=='project'"
                                ngf-multiple="multiple">Upload MPP
                             </a>
                             <a class='md-primary' ng-click="addNewCat($event)">Add New Category</a>
@@ -58,32 +59,35 @@
                             <a class='md-primary' ng-click="displayMilestoneSnapshot();">Show History</a>
                             <a class='md-primary' ng-click="$event.stopPropagation();refreshMilestone();">Reload </a>
                         </span>
-                    </div>
-                </md-card-title-text>
-            </md-card-title>
-            <md-card-content flex>
-                <div layout="row" style="height: 25px!important;">
+                </div>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content flex>
+            <div layout="row" style="height: 25px!important;">
                         <span ng-show='milestoneeditform.$visible'
                               ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'">
                              Editing {{milestoneSelected.name|myUpperCase}}
                         </span>
-                    <span ng-hide='milestoneeditform.$visible'>
+                <span ng-hide='milestoneeditform.$visible'>
                             <md-select ng-model='ms.snapshotSelect' placeholder="SNAPSHOT" aria-label="Snapshot">
                                 <md-option value=''>--Latest--</md-option>
                                 <md-option ng-repeat="snapshot in snapshots track by $index" value="{{snapshot}}">{{snapshot}}</md-option>
                             </md-select>
                         </span>
-                    <span flex></span>
-                    <span ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'"
-                          ng-hide='milestoneeditform.$visible'>
-					        <a class='md-primary' ng-show="ms.currentCategory.toLowerCase()!='project'" ng-click="checkNewFormShowCondition(milestoneeditform);">New</a>
-                            <a class='md-primary' ng-show="!snapshotMilestone" ng-click="checkEditFormShowCondition(milestoneeditform);">Edit</a>
-					        <a class='md-primary' ng-show="ms.currentCategory.toLowerCase()!='project'  && ms.allowEdit" ng-click="removeMilestone();" >Delete</a>
+                <span flex></span>
+                <span ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'"
+                      ng-hide='milestoneeditform.$visible'>
+					        <a class='md-primary' ng-show="ms.currentCategory.toLowerCase()!='project'"
+                               ng-click="checkNewFormShowCondition(milestoneeditform);">New</a>
+                            <a class='md-primary' ng-show="!snapshotMilestone"
+                               ng-click="checkEditFormShowCondition(milestoneeditform);">Edit</a>
+					        <a class='md-primary' ng-show="ms.currentCategory.toLowerCase()!='project'  && ms.allowEdit"
+                               ng-click="removeMilestone();">Delete</a>
                         </span>
-                </div>
-                <internal-milestone-table></internal-milestone-table>
-                <internal-milestone-edit-form></internal-milestone-edit-form>
-            </md-card-content>
-        </md-card>
-    </div>
+            </div>
+            <internal-milestone-table></internal-milestone-table>
+            <internal-milestone-edit-form></internal-milestone-edit-form>
+        </md-card-content>
+    </md-card>
+</div>
 

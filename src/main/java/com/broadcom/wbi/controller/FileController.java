@@ -1,10 +1,15 @@
 package com.broadcom.wbi.controller;
 
 
+import com.broadcom.wbi.exception.CustomGenericException;
+import com.broadcom.wbi.exception.IDNotFoundException;
 import com.broadcom.wbi.model.elasticSearch.RevisionSearch;
+import com.broadcom.wbi.model.mysql.Program;
 import com.broadcom.wbi.service.elasticSearch.RevisionSearchService;
 import com.broadcom.wbi.service.elasticSearch.SkuSearchService;
 import com.broadcom.wbi.service.google.GoogleService;
+import com.broadcom.wbi.service.jpa.ProgramService;
+import com.broadcom.wbi.service.jpa.ResourcePlanService;
 import com.broadcom.wbi.service.template.TemplateCheckingService;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.sheets.v4.Sheets;
@@ -13,11 +18,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.WebAsyncTask;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -25,17 +38,28 @@ import java.util.concurrent.Callable;
 @RequestMapping("/api/file")
 public class FileController {
 
-    @Autowired
-    private GoogleService googleService;
+    private final GoogleService googleService;
+
+    private final RevisionSearchService revisionSearchService;
+
+    private final SkuSearchService skuSearchService;
+
+    private final TemplateCheckingService templateCheckingService;
+
+    private final ResourcePlanService resourcePlanService;
+
+    private final ProgramService programService;
 
     @Autowired
-    private RevisionSearchService revisionSearchService;
-
-    @Autowired
-    private SkuSearchService skuSearchService;
-
-    @Autowired
-    private TemplateCheckingService templateCheckingService;
+    public FileController(GoogleService googleService, RevisionSearchService revisionSearchService, SkuSearchService skuSearchService,
+                          TemplateCheckingService templateCheckingService, ResourcePlanService resourcePlanService, ProgramService programService) {
+        this.googleService = googleService;
+        this.revisionSearchService = revisionSearchService;
+        this.skuSearchService = skuSearchService;
+        this.templateCheckingService = templateCheckingService;
+        this.resourcePlanService = resourcePlanService;
+        this.programService = programService;
+    }
 
     @RequestMapping(value = "/getGoogleSheet", method = RequestMethod.GET)
     @ResponseBody
@@ -88,6 +112,42 @@ public class FileController {
             }
         };
         return new WebAsyncTask<ResponseEntity>(1800000, callable);
+    }
+
+    @PreAuthorize("hasAnyRole('PM', 'IPM', 'ADMIN')")
+    @RequestMapping(value = {"/upload/resource"}, method = {org.springframework.web.bind.annotation.RequestMethod.POST})
+    public WebAsyncTask<Boolean> uploadResource(MultipartHttpServletRequest req, @RequestParam(value = "pid", defaultValue = "0") final int pid,
+                                                @RequestParam("file") final MultipartFile file) {
+        Callable callable = new Callable() {
+            public Boolean call() {
+                if (pid < 1)
+                    throw new IDNotFoundException(Integer.valueOf(pid), "program");
+                String outputdir = System.getProperty("user.dir") + "\\projectTracker";
+                File folder = new File(outputdir);
+
+                if (!folder.exists()) {
+                    folder.mkdir();
+                }
+                if (file != null) {
+                    try {
+                        FileCopyUtils.copy(file.getBytes(), new FileOutputStream(outputdir + "/" + file.getOriginalFilename()));
+                        File newFile = new File(folder.getAbsolutePath() + "/" + file.getOriginalFilename());
+                        Program program = programService.findById(pid);
+                        if (program == null)
+                            return false;
+
+                        resourcePlanService.doParse(program, newFile);
+                        return true;
+                    } catch (FileNotFoundException e) {
+                        throw new CustomGenericException(e.getMessage());
+                    } catch (IOException e) {
+                        throw new CustomGenericException(e.getMessage());
+                    }
+                }
+                return false;
+            }
+        };
+        return new WebAsyncTask(900000, callable);
     }
 
 

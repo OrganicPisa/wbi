@@ -64,4 +64,9 @@ public class TemplateSearch implements Serializable {
     @Field(type = FieldType.Boolean, index = FieldIndex.not_analyzed, store = true)
     private Boolean isRestrictedView;
 
+    @Override
+    public String toString() {
+        return name + " " + nameInReport + " " + orderNum + " " + type + " " + category + " " + group;
+    }
+
 }

@@ -17,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,10 +35,14 @@ public class RevisionInformationServiceImpl implements RevisionInformationServic
 
     @Resource
     private RevisionInformationRepository repo;
+    private final RevisionInformationSaveEventPublisher revisionInformationSaveEventPublisher;
+    private final TemplateSearchService templateSearchService;
+
     @Autowired
-    private RevisionInformationSaveEventPublisher revisionInformationSaveEventPublisher;
-    @Autowired
-    private TemplateSearchService templateSearchService;
+    public RevisionInformationServiceImpl(RevisionInformationSaveEventPublisher revisionInformationSaveEventPublisher, TemplateSearchService templateSearchService) {
+        this.revisionInformationSaveEventPublisher = revisionInformationSaveEventPublisher;
+        this.templateSearchService = templateSearchService;
+    }
 
     @Override
     @Transactional
@@ -101,7 +104,6 @@ public class RevisionInformationServiceImpl implements RevisionInformationServic
     }
 
     @Override
-    @Async
     public void cloneFromAnotherRevision(Revision oldRev, Revision rev, Authentication currentAuthentication) {
         SecurityContext ctx = SecurityContextHolder.createEmptyContext();
         ctx.setAuthentication(currentAuthentication);
@@ -188,103 +190,7 @@ public class RevisionInformationServiceImpl implements RevisionInformationServic
         return null;
     }
 
-//	@Override
-//	public void initInfoNewRevision(Revision rev, String createtypestring, String username){
-//		List<TemplateSearch> infoTemplateSearchList = templSearchServ.findByTypeCategory(createtypestring.toLowerCase(), "information", null);
-//		Timestamp ts = new Timestamp(new Date().getTime());
-//		List<String> phases = new ArrayList<String>();
-//		if(createtypestring.toLowerCase().indexOf("chip")!=-1 ||
-//				createtypestring.toLowerCase().indexOf("rev")!=-1){
-//			phases= Arrays.asList("ca", "pc", "ecr1", "ecr2", "ecr3", "current", "to/final");
-//		}
-//		else{
-//			phases= Arrays.asList("current");
-//		}
-//
-//		//add information
-//		for (String phase : phases){
-//			for (TemplateSearch temp : infoTemplateSearchList){
-//				RevisionInformation pi = new RevisionInformation();
-//				pi.setCreatedBy(username);
-//				pi.setOrderNum(temp.getOrderNum());
-//				pi.setCreatedDate(ts);
-//				pi.setLastUpdatedDate(ts);
-//				pi.setIsRestrictedView(temp.getIsRestrictedView());
-//				pi.setName(temp.getName());
-//				pi.setRevision(rev);
-//				pi.setValue("");
-//				pi.setPhase(phase);
-//				if(phase.equalsIgnoreCase("ca")){
-//					pi.setIsUserEditable(temp.getAvailableCA());
-//				}
-//				else if(phase.equalsIgnoreCase("pc")){
-//					pi.setIsUserEditable(temp.getAvailablePC());
-//				}
-//				else if(phase.equalsIgnoreCase("current")){
-//					pi.setIsUserEditable(temp.getAvailableCurrent());
-//				}
-//				else if(phase.equalsIgnoreCase("to/final")){
-//					pi.setIsUserEditable(temp.getAvailableTO());
-//				}
-//				else if(phase.toLowerCase().indexOf("ecr")==0){
-//					pi.setIsUserEditable(temp.getAvailableECR());
-//				}
-//				pi.setOnDashboard(temp.getOnDashboard());
-//				pi = create(pi);
-//
-//				RevisionInformationSearch pis = new RevisionInformationSearch();
-//				pis.setCreated_date(ts);
-//				pis.setId(Integer.toString(pi.getId()));
-//				pis.setOrderNum(pi.getOrderNum());
-//				pis.setLast_updated_date(ts);
-//				pis.setName(pi.getName().toLowerCase().trim());
-//				pis.setOnDashboard(temp.getOnDashboard());
-//				pis.setPhase(phase.toLowerCase().trim());
-//				pis.setValue("");
-//				pis.setIsUserEditable(pi.getIsUserEditable());
-//				pis.setIsRestrictedView(pi.getIsRestrictedView());
-//				pis.setRevision(rev.getId());
-//				riSearchServ.save(pis);
-//			}
-//		}
-//	}
 
-//	@Override
-//	public void cloneInformation(Revision oldRev, Revision rev, String username){
-//		Timestamp ts = new Timestamp(new Date().getTime());
-//		List<RevisionInformation> infos = findByRevision(oldRev);
-//		if(infos != null && !infos.isEmpty()){
-//			for (RevisionInformation ct : infos){
-//				RevisionInformation pi = new RevisionInformation();
-//				pi.setCreatedBy(username);
-//				pi.setOrderNum(ct.getOrderNum());
-//				pi.setCreatedDate(ts);
-//				pi.setLastUpdatedDate(ts);
-//				pi.setIsRestrictedView(ct.getIsRestrictedView());
-//				pi.setName(ct.getName());
-//				pi.setRevision(rev);
-//				pi.setValue(ct.getValue());
-//				pi.setPhase(ct.getPhase());
-//				pi.setIsUserEditable(ct.getIsUserEditable());
-//				pi.setOnDashboard(ct.getOnDashboard());
-//				pi = create(pi);
-//
-//				RevisionInformationSearch pis = new RevisionInformationSearch();
-//				pis.setCreated_date(ts);
-//				pis.setId(Integer.toString(pi.getId()));
-//				pis.setOrderNum(pi.getOrderNum());
-//				pis.setLast_updated_date(ts);
-//				pis.setName(pi.getName().toLowerCase().trim());
-//				pis.setOnDashboard(ct.getOnDashboard());
-//				pis.setPhase(ct.getPhase().toLowerCase().trim());
-//				pis.setValue(ct.getValue());
-//				pis.setIsUserEditable(pi.getIsUserEditable());
-//				pis.setIsRestrictedView(pi.getIsRestrictedView());
-//				pis.setRevision(rev.getId());
-//				riSearchServ.save(pis);
-//			}
-//		}
-//	}
 //	@Override
 //	public HashMap parseInfoSpreadSheet(String username, File file) {
 //		HashMap ret = new HashMap();

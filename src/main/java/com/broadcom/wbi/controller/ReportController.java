@@ -8,16 +8,14 @@ import com.broadcom.wbi.model.mysql.Segment;
 import com.broadcom.wbi.service.elasticSearch.IndicatorGroupSearchService;
 import com.broadcom.wbi.service.elasticSearch.RevisionSearchService;
 import com.broadcom.wbi.service.elasticSearch.TemplateSearchService;
-import com.broadcom.wbi.service.indicator.IndicatorReportService;
 import com.broadcom.wbi.service.indicator.IndicatorService;
-import com.broadcom.wbi.service.information.InformationReportService;
 import com.broadcom.wbi.service.jpa.EmployeeService;
 import com.broadcom.wbi.service.jpa.RedisCacheRepository;
 import com.broadcom.wbi.service.jpa.SegmentService;
+import com.broadcom.wbi.service.report.ReportService;
 import com.broadcom.wbi.util.EmailUtil;
 import com.broadcom.wbi.util.ProjectConstant;
 import com.broadcom.wbi.util.TextUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.WordUtils;
@@ -51,30 +49,28 @@ import java.util.concurrent.Callable;
 @RequestMapping(value = "/api/report")
 public class ReportController {
 
-    private static final ObjectMapper mapper = new ObjectMapper();
     static final DateTimeFormatter dfmt = org.joda.time.format.DateTimeFormat.forPattern("MM/dd/yy");
-    private final IndicatorReportService indicatorReportService;
+    private static final ObjectMapper mapper = new ObjectMapper();
+    private final ReportService reportService;
     private final RedisCacheRepository redisCacheRepository;
     private final EmployeeService employeeService;
     private final TemplateSearchService templateSearchService;
     private final RevisionSearchService revisionSearchService;
     private final IndicatorService indicatorService;
     private final IndicatorGroupSearchService indicatorGroupSearchService;
-    private final InformationReportService informationReportService;
     private final SegmentService segmentService;
 
     @Autowired
-    public ReportController(IndicatorReportService indicatorReportService, RedisCacheRepository redisCacheRepository, EmployeeService employeeService,
+    public ReportController(ReportService reportService, RedisCacheRepository redisCacheRepository, EmployeeService employeeService,
                             TemplateSearchService templateSearchService, RevisionSearchService revisionSearchService, IndicatorService indicatorService,
-                            IndicatorGroupSearchService indicatorGroupSearchService, InformationReportService informationReportService, SegmentService segmentService) {
-        this.indicatorReportService = indicatorReportService;
+                            IndicatorGroupSearchService indicatorGroupSearchService, SegmentService segmentService) {
+        this.reportService = reportService;
         this.redisCacheRepository = redisCacheRepository;
         this.employeeService = employeeService;
         this.templateSearchService = templateSearchService;
         this.revisionSearchService = revisionSearchService;
         this.indicatorService = indicatorService;
         this.indicatorGroupSearchService = indicatorGroupSearchService;
-        this.informationReportService = informationReportService;
         this.segmentService = segmentService;
     }
 
@@ -94,17 +90,17 @@ public class ReportController {
                 } else if (type.toLowerCase().indexOf("ip") == 0) {
                     ptype = ProjectConstant.EnumProgramType.IP;
                 }
-                String redisk = ptype.toString().toLowerCase() + "_" + statusString.toLowerCase() + "_milestoneReport";
+                String redisk = ptype.toString().toLowerCase() + "_" + statusString.toLowerCase() + "_milestone_report";
                 if (reload == 1)
                     redisCacheRepository.delete(redisk);
                 if (!redisCacheRepository.hasKey(redisk)) {
-                    Map data = indicatorReportService.generateMilestoneReport(ptype, statusString);
+                    Map data = reportService.generateMilestoneReport(ptype, statusString);
                     TreeMap ret = new TreeMap(data);
                     if (ret.keySet().size() > 0) {
                         try {
                             redisCacheRepository.put(redisk, mapper.writeValueAsString(ret));
                             return ret;
-                        } catch (JsonProcessingException e) {
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
@@ -141,17 +137,17 @@ public class ReportController {
                 } else if (type.toLowerCase().indexOf("ip") == 0) {
                     ptype = ProjectConstant.EnumProgramType.IP;
                 }
-                String redisk = ptype.toString().toLowerCase() + "_" + statusString.toLowerCase() + "_headlineReport";
+                String redisk = ptype.toString().toLowerCase() + "_" + statusString.toLowerCase() + "_headline_report";
                 if (reload == 1)
                     redisCacheRepository.delete(redisk);
                 if (!redisCacheRepository.hasKey(redisk)) {
-                    Map data = indicatorReportService.generateHeadlineReport(ptype, statusString);
+                    Map data = reportService.generateHeadlineReport(ptype, statusString);
                     TreeMap ret = new TreeMap(data);
                     if (ret.keySet().size() > 0) {
                         try {
                             redisCacheRepository.put(redisk, mapper.writeValueAsString(ret));
                             return ret;
-                        } catch (JsonProcessingException e) {
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
@@ -839,12 +835,12 @@ public class ReportController {
                 if (reload == 1)
                     redisCacheRepository.delete(redisk);
                 if (!redisCacheRepository.hasKey(redisk)) {
-                    Map ret = indicatorReportService.generatePRAReport();
+                    Map ret = reportService.generatePRAReport();
                     if (ret != null) {
                         try {
                             redisCacheRepository.put(redisk, mapper.writeValueAsString(ret));
                             return ret;
-                        } catch (JsonProcessingException e) {
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
@@ -876,12 +872,12 @@ public class ReportController {
                 if (reload == 1)
                     redisCacheRepository.delete(redisk);
                 if (!redisCacheRepository.hasKey(redisk)) {
-                    Map ret = indicatorReportService.generateHTOLReport();
+                    Map ret = reportService.generateHTOLReport();
                     if (ret != null) {
                         try {
                             redisCacheRepository.put(redisk, mapper.writeValueAsString(ret));
                             return ret;
-                        } catch (JsonProcessingException e) {
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
@@ -919,12 +915,12 @@ public class ReportController {
                 if (reload == 1)
                     redisCacheRepository.delete(redisk);
                 if (!redisCacheRepository.hasKey(redisk)) {
-                    Map ret = informationReportService.generateInformationReport(programType);
+                    Map ret = reportService.generateInformationReport(programType);
                     if (ret != null) {
                         try {
                             redisCacheRepository.put(redisk, mapper.writeValueAsString(ret));
                             return ret;
-                        } catch (JsonProcessingException e) {
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
@@ -995,7 +991,7 @@ public class ReportController {
                         try {
                             redisCacheRepository.put(redisk, mapper.writeValueAsString(ret));
                             return ret;
-                        } catch (JsonProcessingException e) {
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }

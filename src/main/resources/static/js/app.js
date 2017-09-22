@@ -8,7 +8,6 @@
 var App = angular.module('app', [
     'ngStorage',
     'ui.router',
-    // 'ui.bootstrap',
     'ui-notification',
     'oc.lazyLoad',
     'angular-loading-bar',
@@ -74,8 +73,8 @@ var segmentState = {
                     '/webjars/lr-sticky-header/1.1.0/lrStickyHeader.js',
                     '/webjars/smart-table/2.0.3/smart-table.js',
                     '/webjars/smart-table-sticky-header/1.0.1/stStickyHeader.js',
-                    '/webjars/angular-ui-grid/4.0.6/ui-grid.min.css',
-                    '/webjars/angular-ui-grid/4.0.6/ui-grid.min.js'
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.0.6/ui-grid.min.css',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.0.6/ui-grid.min.js'
                 ]
             });
         }]
@@ -91,33 +90,28 @@ var internalProgramState = {
         rid: "0",
         page: "dashboard",
     },
-    templateUrl: function($stateParams){
+    templateUrl: function ($stateParams) {
         return '/program/chip/index.html';
     },
     controller: 'InternalProgramCtrl',
-    resolve:{
-        deps:['$ocLazyLoad',  function($ocLazyLoad){
+    resolve: {
+        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
             return $ocLazyLoad.load({
                 serie: true,
-                files : [
-                    '/webjars/tinymce/4.2.1/tinymce.min.js',
-                    '/webjars/angular-ui-tinymce/0.0.9/src/tinymce.js',
+                files: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.6.7/tinymce.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-ui-tinymce/0.0.19/tinymce.min.js',
                     '/webjars/smart-table/2.0.3/smart-table.js',
                     '/webjars/smart-table-sticky-header/1.0.1/stStickyHeader.js',
-                    '/webjars/angular-xeditable/0.1.9/css/xeditable.css',
-                    '/webjars/angular-xeditable/0.1.9/js/xeditable.min.js',
-                    '/webjars/angular-ui-grid/4.0.6/ui-grid.min.css',
-                    '/webjars/angular-ui-grid/4.0.6/ui-grid.min.js',
-                    // '/webjars/angular-confirm/1.2.3/angular-confirm.min.js',
-                    '/webjars/FileSaver.js/0.0.2/FileSaver.min.js',
-                    '/webjars/highcharts-ng/0.0.11/highcharts-ng.min.js',
-                    '/webjars/highcharts/5.0.13/highcharts.js',
-                    '/webjars/highcharts/5.0.13/modules/exporting.js',
-                    '/webjars/highcharts/5.0.13/modules/offline-exporting.js',
-                    '/webjars/highcharts/5.0.13/modules/no-data-to-display.js',
-                    '/webjars/angular-file-upload/12.2.13/FileAPI.min.js',
-                    '/webjars/angular-file-upload/12.2.13/ng-file-upload-shim.min.js',
-                    '/webjars/angular-file-upload/12.2.13/ng-file-upload.min.js'
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.8.0/css/xeditable.min.css',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.8.0/js/xeditable.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.0.6/ui-grid.min.css',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.0.6/ui-grid.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.3/FileSaver.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/highcharts-ng/1.1.0/highcharts-ng.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.2.13/FileAPI.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.2.13/ng-file-upload-shim.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.2.13/ng-file-upload.min.js'
                 ]
             });
         }]
@@ -139,8 +133,8 @@ var newProgramState = {
             return $ocLazyLoad.load({
                 serie: true,
                 files: [
-                    '/webjars/tinymce/4.2.1/tinymce.min.js',
-                    '/webjars/angular-ui-tinymce/0.0.9/src/tinymce.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.6.7/tinymce.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-ui-tinymce/0.0.19/tinymce.min.js',
                     '/webjars/smart-table/2.0.3/smart-table.js',
                     '/webjars/smart-table-sticky-header/1.0.1/stStickyHeader.js',
 
@@ -159,21 +153,21 @@ var customerProgramState = {
         rid: "0",
         page: "dashboard",
     },
-    templateUrl: function($stateParams){
+    templateUrl: function ($stateParams) {
         return '/program/customer/index.html';
     },
     controller: 'CustomerProgramCtrl',
-    resolve:{
-        deps:['$ocLazyLoad',  function($ocLazyLoad){
+    resolve: {
+        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
             return $ocLazyLoad.load({
                 serie: true,
-                files : [
-                    '/webjars/tinymce/4.2.1/tinymce.min.js',
-                    '/webjars/angular-ui-tinymce/0.0.9/src/tinymce.js',
+                files: [
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.6.7/tinymce.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-ui-tinymce/0.0.19/tinymce.min.js',
                     '/webjars/smart-table/2.0.3/smart-table.js',
                     '/webjars/smart-table-sticky-header/1.0.1/stStickyHeader.js',
-                    '/webjars/angular-xeditable/0.1.9/css/xeditable.css',
-                    '/webjars/angular-xeditable/0.1.9/js/xeditable.min.js'
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.8.0/css/xeditable.min.css',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.8.0/js/xeditable.min.js'
                 ]
             });
         }]
@@ -196,12 +190,12 @@ var softwareProgramState = {
             return $ocLazyLoad.load({
                 serie: true,
                 files: [
-                    '/webjars/tinymce/4.2.1/tinymce.min.js',
-                    '/webjars/angular-ui-tinymce/0.0.9/src/tinymce.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.6.7/tinymce.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-ui-tinymce/0.0.19/tinymce.min.js',
                     '/webjars/smart-table/2.0.3/smart-table.js',
                     '/webjars/smart-table-sticky-header/1.0.1/stStickyHeader.js',
-                    '/webjars/angular-xeditable/0.1.9/css/xeditable.css',
-                    '/webjars/angular-xeditable/0.1.9/js/xeditable.min.js'
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.8.0/css/xeditable.min.css',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.8.0/js/xeditable.min.js'
                 ]
             });
         }]
@@ -224,12 +218,12 @@ var ipProgramState = {
             return $ocLazyLoad.load({
                 serie: true,
                 files: [
-                    '/webjars/tinymce/4.2.1/tinymce.min.js',
-                    '/webjars/angular-ui-tinymce/0.0.9/src/tinymce.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.6.7/tinymce.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-ui-tinymce/0.0.19/tinymce.min.js',
                     '/webjars/smart-table/2.0.3/smart-table.js',
                     '/webjars/smart-table-sticky-header/1.0.1/stStickyHeader.js',
-                    '/webjars/angular-xeditable/0.1.9/css/xeditable.css',
-                    '/webjars/angular-xeditable/0.1.9/js/xeditable.min.js'
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.8.0/css/xeditable.min.css',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.8.0/js/xeditable.min.js'
                 ]
             });
         }]
@@ -252,14 +246,14 @@ var indicatorReportState = {
             return $ocLazyLoad.load({
                 serie: true,
                 files: [
-                    '/webjars/tinymce/4.2.1/tinymce.min.js',
-                    '/webjars/angular-ui-tinymce/0.0.9/src/tinymce.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.6.7/tinymce.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-ui-tinymce/0.0.19/tinymce.min.js',
                     '/webjars/smart-table/2.0.3/smart-table.js',
                     '/webjars/smart-table-sticky-header/1.0.1/stStickyHeader.js',
-                    '/webjars/angular-xeditable/0.1.9/css/xeditable.css',
-                    '/webjars/angular-xeditable/0.1.9/js/xeditable.min.js',
-                    '/webjars/angular-ui-grid/4.0.6/ui-grid.min.css',
-                    '/webjars/angular-ui-grid/4.0.6/ui-grid.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.8.0/css/xeditable.min.css',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.8.0/js/xeditable.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.0.6/ui-grid.min.css',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.0.6/ui-grid.min.js',
                 ]
             });
         }]
@@ -281,19 +275,15 @@ var resourceReportState = {
             return $ocLazyLoad.load({
                 serie: true,
                 files: [
-                    '/webjars/tinymce/4.2.1/tinymce.min.js',
-                    '/webjars/angular-ui-tinymce/0.0.9/src/tinymce.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.6.7/tinymce.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-ui-tinymce/0.0.19/tinymce.min.js',
                     '/webjars/smart-table/2.0.3/smart-table.js',
                     '/webjars/smart-table-sticky-header/1.0.1/stStickyHeader.js',
-                    '/webjars/angular-xeditable/0.1.9/css/xeditable.css',
-                    '/webjars/angular-xeditable/0.1.9/js/xeditable.min.js',
-                    '/webjars/highcharts-ng/0.0.11/highcharts-ng.min.js',
-                    '/webjars/highcharts/5.0.13/highcharts.js',
-                    '/webjars/highcharts/5.0.13/modules/exporting.js',
-                    '/webjars/highcharts/5.0.13/modules/offline-exporting.js',
-                    '/webjars/highcharts/5.0.13/modules/no-data-to-display.js',
-                    '/webjars/angular-ui-grid/4.0.6/ui-grid.min.css',
-                    '/webjars/angular-ui-grid/4.0.6/ui-grid.min.js'
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.8.0/css/xeditable.min.css',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.8.0/js/xeditable.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/highcharts-ng/1.1.0/highcharts-ng.min.js',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.0.6/ui-grid.min.css',
+                    'https://cdnjs.cloudflare.com/ajax/libs/angular-ui-grid/4.0.6/ui-grid.min.js'
                 ]
             });
         }]
@@ -321,15 +311,9 @@ App.run(function ($rootScope, $http, $localStorage) {
             }
         }
     });
-    if (!angular.isDefined($localStorage.ipDropDownTemplate)) {
-        $http.get('/api/getIPDropDownTemplate').then(function (ret) {
-            $localStorage.ipDropDownTemplate = ret;
-            $rootScope.ipDropDownTemplate = ret.data;
-        });
-    }
-    else{
-        $rootScope.ipDropDownTemplate = $localStorage.ipDropDownTemplate.data;
-    }
+    $http.get('/api/getIPDropDownTemplate').then(function (ret) {
+        $rootScope.ipDropDownTemplate = ret.data;
+    });
 
     $rootScope.convertDateToString = function (d) {
         if (d instanceof Date) {
@@ -356,30 +340,30 @@ App.run(function ($rootScope, $http, $localStorage) {
 
 
     $rootScope.flaglist = [
-        {value: 'On Track (Green/Black)', flag:'black', color:'no-color', order:2},
-        {value: 'Pulled In (Green)', flag:'green', color:'green', order:3},
-        {value: 'At Risk (Orange)', flag:'orange', color:'orange', order:4},
-        {value: 'Delayed (Red)', flag:'red', color:'red', order:5}       ,
-        {value: 'Non Active (Grey)', flag:'grey', color:'grey', order:6}
+        {value: 'On Track (Green/Black)', flag: 'black', color: 'no-color', order: 2},
+        {value: 'Pulled In (Green)', flag: 'green', color: 'green', order: 3},
+        {value: 'At Risk (Orange)', flag: 'orange', color: 'orange', order: 4},
+        {value: 'Delayed (Red)', flag: 'red', color: 'red', order: 5},
+        {value: 'Non Active (Grey)', flag: 'grey', color: 'grey', order: 6}
     ];
 
     if (!navigator.appVersion.match(/chrome/i)) {
         alert("WBI only supports Chrome. Please use it when accessing WBI");
     }
     $rootScope.tinymceOptions = {
-        mode:'textarea',
-        plugins: [ "table", "textcolor" , "autoresize"],
-        menubar:false,
+        mode: 'textarea',
+        plugins: ["table", "textcolor", "autoresize"],
+        menubar: false,
         statusbar: false,
         inline: false,
         width: '100%',
         height: 400,
         autoresize_min_height: 400,
         entity_encoding: "numeric",
-        browser_spellcheck : true ,
+        browser_spellcheck: true,
         toolbar1: "bold italic underline strikethrough | alignleft aligncenter alignright alignjustify |  bullist numlist outdent indent | forecolor backcolor fontsizeselect fontselect | table ",
         skin: 'lightgray',
-        theme : 'modern'
+        theme: 'modern'
     };
 });
 
@@ -403,24 +387,20 @@ App.controller('HeaderCtrl', function ($scope, $rootScope, $window, $http, $loca
     else if (hostname.match(/localhost/i)) {
         $scope.environmentMode = 'DEV';
     }
-    var searchProgramDisplay = [];
     $scope.searchProgram = function (term) {
-        searchProgramDisplay = [];
         return $http.get('/api/search/program', {
             params: {
                 'term': term.toLowerCase().replace(/\+/i, 'plus')
             }
         }).then(function (res) {
-            searchProgramDisplay = [];
-            searchProgramDisplay = res.data;
-            return searchProgramDisplay;
+            return res.data;
         });
     };
     $scope.goLogout = function () {
         window.location = "/logout";
     };
     $scope.clearAllCache = function () {
-        $http.get('/admin/clearCache')
+        $http.get('/api/admin/cache/clear/all')
             .then(function (ret) {
                 location.reload();
             });

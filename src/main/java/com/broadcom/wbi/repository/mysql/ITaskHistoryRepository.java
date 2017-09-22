@@ -4,10 +4,12 @@ import com.broadcom.wbi.model.mysql.ITask;
 import com.broadcom.wbi.model.mysql.ITaskHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
 
+@Repository
 public interface ITaskHistoryRepository extends JpaRepository<ITaskHistory, Integer> {
 
     List<ITaskHistory> findByITaskOrderByCreatedDateDesc(ITask itask);

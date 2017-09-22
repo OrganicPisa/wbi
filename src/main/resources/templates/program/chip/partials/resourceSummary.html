@@ -4,6 +4,8 @@
             <md-card-title-text>
                 <div layout="row">
                     <span class="md-title">Detail Resource Summary</span>
+                    <a ng-if="authority=='admin'" class='md-primary' ng-click="deleteAllResource()">Delete All
+                        Resource</a>
                     <span flex></span>
                     <a data-ng-click="openNewTab('http://confluence.broadcom.com/display/SWITCHPM/Detailed+Resources')">
                         <i class="material-icons">help_outline</i>
@@ -77,27 +79,27 @@
             <div>
                 <table class="table table-bordered table-condensed table-header-bg" id='resourceSkillCompareTable'>
                     <thead>
-                        <tr>
-                            <th rowspan="2" style='text-align:center; width:10%;'>Skill</th>
-                            <th colspan="3" style='text-align:center; width: 45%;'>Current Month</th>
-                            <th colspan="3" style='text-align:center; width:45%;'>Accumulative</th>
-                        </tr>
-                        <tr>
-                            <th style='text-align:center; width:15%;'>Actual</th>
-                            <th style='text-align:center;width:15%;'>POR</th>
-                            <th style='text-align:center;width:15%;'>DELTA</th>
-                            <th style='text-align:center;width:15%;'>Actual</th>
-                            <th style='text-align:center;width:15%;'>POR</th>
-                            <th style='text-align:center;width:15%;'>DELTA</th>
-                        </tr>
+                    <tr>
+                        <th rowspan="2" style='text-align:center; width:10%;'>Skill</th>
+                        <th colspan="3" style='text-align:center; width: 45%;'>Current Month</th>
+                        <th colspan="3" style='text-align:center; width:45%;'>Accumulative</th>
+                    </tr>
+                    <tr>
+                        <th style='text-align:center; width:15%;'>Actual</th>
+                        <th style='text-align:center;width:15%;'>POR</th>
+                        <th style='text-align:center;width:15%;'>DELTA</th>
+                        <th style='text-align:center;width:15%;'>Actual</th>
+                        <th style='text-align:center;width:15%;'>POR</th>
+                        <th style='text-align:center;width:15%;'>DELTA</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="(key, arr) in skillTable  track by $index">
-                            <th>{{key|formatResourceSkillName}}</th>
-                            <td ng-repeat="(k, v) in arr['data'] track by $index" style='text-align:center;'
-                                data-ng-bind-html="trustAsHtml(v)">
-                            </td>
-                        </tr>
+                    <tr ng-repeat="(key, arr) in skillTable  track by $index">
+                        <th>{{key|formatResourceSkillName}}</th>
+                        <td ng-repeat="(k, v) in arr['data'] track by $index" style='text-align:center;'
+                            data-ng-bind-html="trustAsHtml(v)">
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>

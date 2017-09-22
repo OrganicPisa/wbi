@@ -26,9 +26,9 @@ import java.util.List;
 @Transactional(rollbackFor = {Exception.class})
 public class RevisionServiceImpl implements RevisionService {
 
+    private final RevisionSaveEventPublisher revisionSaveEventPublisher;
     @Resource
     private RevisionRepository repo;
-    private final RevisionSaveEventPublisher revisionSaveEventPublisher;
     @Autowired
     private ProgramService programService;
     @Autowired
@@ -77,7 +77,7 @@ public class RevisionServiceImpl implements RevisionService {
     @Override
     public void delete(Integer id) {
         HashMap map = new HashMap<>();
-        map.put("action", "save");
+        map.put("action", "delete");
         map.put("data", id);
         revisionSaveEventPublisher.publish(new RevisionSaveEvent(map));
         repo.delete(id);
@@ -203,6 +203,18 @@ public class RevisionServiceImpl implements RevisionService {
         }
         return null;
 
+    }
+
+    @Override
+    public void deleteRecordFromDB(Revision revision) {
+        Program program = revision.getProgram();
+        delete(revision.getId());
+        if (program != null) {
+            List<Revision> revisionList = findByProgram(program, null);
+            if (revisionList == null || revisionList.isEmpty()) {
+                programService.delete(program.getId());
+            }
+        }
     }
 
 

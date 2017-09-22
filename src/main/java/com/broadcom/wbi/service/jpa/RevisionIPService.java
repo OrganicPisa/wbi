@@ -14,4 +14,7 @@ public interface RevisionIPService extends CRUDService<RevisionIP> {
 
     RevisionIP findByRevision(Revision rev, Revision revip);
 
+    List<RevisionIP> findByEitherRevisionOrRevisionIP(Revision revision);
+
+
 }

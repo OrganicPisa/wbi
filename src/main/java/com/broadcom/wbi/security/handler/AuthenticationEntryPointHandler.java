@@ -18,8 +18,7 @@ public class AuthenticationEntryPointHandler implements AuthenticationEntryPoint
             throws IOException, ServletException {
         if (request.getRequestURI().indexOf("/api") != -1) {
             SecurityUtils.sendError(response, authException, HttpServletResponse.SC_UNAUTHORIZED, "Not authentication");
-        }
-        else {
+        } else {
             RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
             redirectStrategy.sendRedirect(request, response, "/login");
         }

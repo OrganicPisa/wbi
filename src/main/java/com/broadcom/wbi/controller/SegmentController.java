@@ -11,7 +11,6 @@ import com.broadcom.wbi.service.jpa.RedisCacheRepository;
 import com.broadcom.wbi.service.jpa.RevisionService;
 import com.broadcom.wbi.service.jpa.SegmentService;
 import com.broadcom.wbi.util.ProjectConstant;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.joda.time.format.DateTimeFormat;
@@ -61,10 +60,12 @@ public class SegmentController {
     public Callable<List> getSegment(HttpServletRequest req,
                                      @RequestParam(value = "reload", defaultValue = "0") final int reload) {
         return new Callable<List>() {
-            public List call() throws JsonProcessingException {
+            public List call() throws IOException {
                 String redisk = "activeSegment";
                 List segments = new ArrayList();
-                if (reload == 1 || !redis.hasKey(redisk)) {
+                if (reload == 1)
+                    redis.delete(redisk);
+                if (!redis.hasKey(redisk)) {
                     segments = segmentService.findAllActive();
                     if (segments != null && segments.size() > 0) {
                         redis.put(redisk, mapper.writeValueAsString(segments));
@@ -106,13 +107,12 @@ public class SegmentController {
                         e.printStackTrace();
                     }
                 }
-
                 if (user == null)
                     throw new CustomGenericException("User not found");
                 final Employee employee = user;
                 final List<Integer> bookmarkRevivions = revisionService.findByEmployee(employee);
-                String redisk1 = seg.toLowerCase() + "_" + status + "_frontPageSegment";
-                String redisk2 = seg.toLowerCase() + "_" + username + "_" + status + "_frontPageSegment";
+                String redisk1 = seg.toLowerCase() + "_" + status + "_frontPage_segment";
+                String redisk2 = seg.toLowerCase() + "_" + username + "_" + status + "_frontPage_segment";
                 if (reload == 1) {
                     redis.delete(redisk1);
                     redis.delete(redisk2);
@@ -133,8 +133,7 @@ public class SegmentController {
                         }
                         List<RevisionSearch> rsl = new ArrayList<RevisionSearch>();
                         if (status)
-                            rsl = revisionSearchService.findBySegment(segment.getName().toLowerCase(),
-                                    ptype.toString().toLowerCase(), true);
+                            rsl = revisionSearchService.findBySegment(segment.getName().toLowerCase(), ptype.toString().toLowerCase(), true);
                         else
                             rsl = revisionSearchService.findBySegment(segment.getName().toLowerCase(),
                                     ptype.toString().toLowerCase(), false);
@@ -162,12 +161,10 @@ public class SegmentController {
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
-
-
                             if (ret.size() > 0) {
                                 try {
                                     redis.put(redisk1, mapper.writeValueAsString(ret));
-                                } catch (JsonProcessingException e) {
+                                } catch (IOException e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -202,7 +199,7 @@ public class SegmentController {
                             try {
                                 redis.put(redisk2, mapper.writeValueAsString(list));
                                 return list;
-                            } catch (JsonProcessingException e) {
+                            } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }

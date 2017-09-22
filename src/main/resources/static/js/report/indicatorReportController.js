@@ -666,87 +666,90 @@ App.controller('IndicatorReportCtrl', function ($scope, $rootScope, $filter, $ht
                             "' style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 13%; border: 1px solid #ddd;" + arr2['color'] + "'>" + program;
                     }
                     angular.forEach(arr2['revision'], function (arr3, revision) {
-                        if ($scope.ms.viewNote) {
-                            row += "<td rowspan='2' style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 10%; border: 1px solid #ddd;" + arr3.color + "'>" +
-                                "<a href='" + arr3['url'] + "' style='" + arr3.color + "'>" + revision + "</a></td>";
-                        }
-                        else {
-                            row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 10%; border: 1px solid #ddd;" + arr3.color + "'>" +
-                                "<a href='" + arr3['url'] + "' style='" + arr3.color + "'>" + revision + "</a></td>";
-                        }
-                        if (typeof arr3.milestone['CA'] != 'undefined') {
-                            row += arr3.milestone['CA'];
-                        }
-                        else {
-                            row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
-                        }
-                        if (typeof arr3.milestone['PC'] != 'undefined') {
-                            row += arr3.milestone['PC'];
-                        }
-                        else {
-                            row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
-                        }
-                        if (typeof arr3.milestone['RTL_FREEZE'] != 'undefined') {
-                            row += arr3.milestone['RTL_FREEZE'];
-                        }
-                        else {
-                            row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
-                        }
-                        if (typeof arr3.milestone['T/O'] != 'undefined') {
-                            row += arr3.milestone['T/O'];
-                        }
-                        else {
-                            row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
-                        }
-                        if (typeof arr3.milestone['ENG_SAMPLE'] != 'undefined') {
-                            row += arr3.milestone['ENG_SAMPLE'];
-                        }
-                        else {
-                            row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
-                        }
-                        if (typeof arr3.milestone['SDK_BRINGUP'] != 'undefined') {
-                            row += arr3.milestone['SDK_BRINGUP'];
-                        }
-                        else {
-                            row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
-                        }
-                        if (typeof arr3.milestone['DVT_COMPLETE'] != 'undefined') {
-                            row += arr3.milestone['DVT_COMPLETE'];
-                        }
-                        else {
-                            row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
-                        }
-                        if (typeof arr3.milestone['RESPIN_T/O_TARGET'] != 'undefined') {
-                            row += arr3.milestone['RESPIN_T/O_TARGET'];
-                        }
-                        else {
-                            row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
-                        }
-                        if (typeof arr3.milestone['QUAL_COMPLETE'] != 'undefined') {
-                            row += arr3.milestone['QUAL_COMPLETE'];
-                        }
-                        else {
-                            row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
-                        }
-                        if (typeof arr3.milestone['SDK_GA'] != 'undefined') {
-                            row += arr3.milestone['SDK_GA'];
-                        }
-                        else {
-                            row += "<td style='padding: 5px; border-collapse: collapse;ext-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
-                        }
-                        if (typeof arr3.milestone['PRA'] != 'undefined') {
-                            row += arr3.milestone['PRA'];
-                        }
-                        else {
-                            row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
-                        }
-                        $scope.internalrows.push(row);
-                        row = '';
-                        if ($scope.ms.viewNote) {
-                            row += arr3['note'];
+                        if (typeof arr3.milestone != 'undefined') {
+                            if ($scope.ms.viewNote) {
+                                row += "<td rowspan='2' style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 10%; border: 1px solid #ddd;" + arr3.color + "'>" +
+                                    "<a href='" + arr3['url'] + "' style='" + arr3.color + "'>" + revision + "</a></td>";
+                            }
+                            else {
+                                row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 10%; border: 1px solid #ddd;" + arr3.color + "'>" +
+                                    "<a href='" + arr3['url'] + "' style='" + arr3.color + "'>" + revision + "</a></td>";
+                            }
+                            if (typeof arr3.milestone['CA'] != 'undefined') {
+                                row += arr3.milestone['CA'];
+                            }
+                            else {
+                                row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
+                            }
+                            if (typeof arr3.milestone['PC'] != 'undefined') {
+                                row += arr3.milestone['PC'];
+                            }
+                            else {
+                                row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
+                            }
+                            if (typeof arr3.milestone['RTL_FREEZE'] != 'undefined') {
+                                row += arr3.milestone['RTL_FREEZE'];
+                            }
+                            else {
+                                row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
+                            }
+                            if (typeof arr3.milestone['T/O'] != 'undefined') {
+                                row += arr3.milestone['T/O'];
+                            }
+                            else {
+                                row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
+                            }
+                            if (typeof arr3.milestone['ENG_SAMPLE'] != 'undefined') {
+                                row += arr3.milestone['ENG_SAMPLE'];
+                            }
+                            else {
+                                row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
+                            }
+                            if (typeof arr3.milestone['SDK_BRINGUP'] != 'undefined') {
+                                row += arr3.milestone['SDK_BRINGUP'];
+                            }
+                            else {
+                                row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
+                            }
+                            if (typeof arr3.milestone['DVT_COMPLETE'] != 'undefined') {
+                                row += arr3.milestone['DVT_COMPLETE'];
+                            }
+                            else {
+                                row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
+                            }
+                            if (typeof arr3.milestone['RESPIN_T/O_TARGET'] != 'undefined') {
+                                row += arr3.milestone['RESPIN_T/O_TARGET'];
+                            }
+                            else {
+                                row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
+                            }
+                            if (typeof arr3.milestone['QUAL_COMPLETE'] != 'undefined') {
+                                row += arr3.milestone['QUAL_COMPLETE'];
+                            }
+                            else {
+                                row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
+                            }
+                            if (typeof arr3.milestone['SDK_GA'] != 'undefined') {
+                                row += arr3.milestone['SDK_GA'];
+                            }
+                            else {
+                                row += "<td style='padding: 5px; border-collapse: collapse;ext-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
+                            }
+                            if (typeof arr3.milestone['PRA'] != 'undefined') {
+                                row += arr3.milestone['PRA'];
+                            }
+                            else {
+                                row += "<td style='padding: 5px; border-collapse: collapse; text-align:center; vertical-align: middle; width: 7%; border: 1px solid #ddd;'>&nbsp;</td>";
+                            }
                             $scope.internalrows.push(row);
                             row = '';
+                            if ($scope.ms.viewNote) {
+                                row += arr3['note'];
+                                $scope.internalrows.push(row);
+                                row = '';
+                            }
                         }
+
                     });
                 });
             });

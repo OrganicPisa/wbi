@@ -4,11 +4,15 @@ import com.broadcom.wbi.service.indexing.IndexSearchService;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
 @RestController
+@PreAuthorize("hasAnyRole('ADMIN')")
 @RequestMapping("/api/admin/index")
 public class ESInsertionController {
 
@@ -119,5 +123,16 @@ public class ESInsertionController {
             dt = null;
         indexSearchService.indexAllTemplate(dt);
         return 0;
+    }
+
+    @RequestMapping(value = {"/information/applyTemplate"}, method = {RequestMethod.GET})
+    public int indexTemplateInformation(@RequestParam(value = "type", defaultValue = "chip") String type,
+                                        @RequestParam(value = "category", defaultValue = "information") String category,
+                                        @RequestParam(value = "group", defaultValue = "") String group) {
+        final Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
+
+        indexSearchService.checkAndAuditTemplate(type, category, group, currentAuthentication);
+        return 0;
+
     }
 }

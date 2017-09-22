@@ -61,4 +61,9 @@ public class RevisionSearch implements Serializable {
     @Field(type = FieldType.Date, index = FieldIndex.analyzed, store = true)
     private Date last_updated_outlook_date;
 
+    @Override
+    public String toString() {
+        return id + " " + base_num + " " + program_name + " " + rev_name.toUpperCase() + " ( " + segment.toUpperCase() + " ) ";
+    }
+
 }

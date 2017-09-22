@@ -31,7 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class TaskSaveEventHandler implements ApplicationListener<TaskWithSameNameSaveEvent> {
+public class TaskWithSameNameSaveEventHandler implements ApplicationListener<TaskWithSameNameSaveEvent> {
 
     private static final Map<String, ProjectConstant.EnumHeadlineStage> stageTaskMap;
 
@@ -60,10 +60,10 @@ public class TaskSaveEventHandler implements ApplicationListener<TaskWithSameNam
     private final RedisCacheRepository redis;
 
     @Autowired
-    public TaskSaveEventHandler(IGroupHistoryService iGroupHistoryService, RevisionService revisionService, RedisCacheRepository redis, IndicatorService indicatorService,
-                                RevisionSearchService revisionSearchService, IGroupService iGroupService, IndicatorGroupSearchService indicatorGroupSearchService,
-                                ITaskService iTaskService, ITaskHistoryService iTaskHistoryService, IndicatorTaskSearchService indicatorTaskSearchService,
-                                IDateService iDateService, IDateHistoryService iDateHistoryService, IndicatorDateSearchService indicatorDateSearchService) {
+    public TaskWithSameNameSaveEventHandler(IGroupHistoryService iGroupHistoryService, RevisionService revisionService, RedisCacheRepository redis, IndicatorService indicatorService,
+                                            RevisionSearchService revisionSearchService, IGroupService iGroupService, IndicatorGroupSearchService indicatorGroupSearchService,
+                                            ITaskService iTaskService, ITaskHistoryService iTaskHistoryService, IndicatorTaskSearchService indicatorTaskSearchService,
+                                            IDateService iDateService, IDateHistoryService iDateHistoryService, IndicatorDateSearchService indicatorDateSearchService) {
         this.iGroupHistoryService = iGroupHistoryService;
         this.revisionService = revisionService;
         this.redis = redis;

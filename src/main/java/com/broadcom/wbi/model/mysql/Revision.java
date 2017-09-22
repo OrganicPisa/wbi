@@ -55,33 +55,33 @@ public class Revision extends AbstractDomainClass implements Serializable {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OnDelete(action = OnDeleteAction.NO_ACTION)
     @JoinColumn(name = "program_id")
     private Program program;
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "revision", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "revision", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<Headline> headlines = new HashSet<Headline>();
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "revision", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "revision", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<IGroup> groups = new HashSet<IGroup>();
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "revision", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "revision", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<RevisionOutlook> outlooks = new HashSet<RevisionOutlook>();
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "revision", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "revision", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<RevisionInformation> informations = new HashSet<RevisionInformation>();
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "revision", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "revision", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<RevisionContact> contacts = new HashSet<RevisionContact>();
 
     //use for bookmark
     @JsonIgnore
-    @ManyToMany(mappedBy = "revisions", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "revisions", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private Set<Employee> employees = new HashSet<Employee>();
 
 }

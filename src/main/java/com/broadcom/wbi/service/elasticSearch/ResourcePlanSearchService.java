@@ -6,21 +6,13 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeMap;
 
-public interface ResourcePlanSearchService {
+public interface ResourcePlanSearchService extends CRUDService<ResourcePlanSearch> {
 
     DateTimeFormatter dfmt = DateTimeFormat.forPattern("yyyy-MM-dd");
-
-    ResourcePlanSearch save(ResourcePlanSearch resource);
-
-    void saveBulk(List<ResourcePlanSearch> resources);
-
-    void emptyData();
-
-    ResourcePlanSearch findOne(String id);
-
-    Iterator<ResourcePlanSearch> findAll();
 
     HashMap<String, TreeMap<String, Double>> groupByMonthSkill(RevisionSearch rs, String ptype);
 

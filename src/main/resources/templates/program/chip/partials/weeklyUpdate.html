@@ -33,51 +33,51 @@
         color: grey !IMPORTANT;
     }
 </style>
-    <div flex layout="column">
-        <div class="btn-group btn-group-justified">
-            <div class="btn-group " ng-repeat="cat in remark.categories">
-                <button class='btn catbtn' ng-class="{'btn-danger' : (cat.status.toLowerCase()=='red'),
+<div flex layout="column">
+    <div class="btn-group btn-group-justified">
+        <div class="btn-group " ng-repeat="cat in remark.categories">
+            <button class='btn catbtn' ng-class="{'btn-danger' : (cat.status.toLowerCase()=='red'),
         'btn-warning' : (cat.status.toLowerCase()=='orange'),
         'btn-success' : (cat.status.toLowerCase()=='green' || cat.status.toLowerCase()=='black')}"
-                        ng-click="remark.gid=cat.id;milestoneeditform.$cancel();"
-                        ng-bind="cat.name|uppercase"></button>
-            </div>
+                    ng-click="remark.gid=cat.id;milestoneeditform.$cancel();"
+                    ng-bind="cat.name|uppercase"></button>
         </div>
     </div>
-    <div flex layout="column">
-        <md-card>
-            <md-card-title>
-                <md-card-title-text>
-                    <div layout="row">
-                        <span class="md-title">{{remark.currentCategory|myUpperCase}} Weekly Update Note</span>
-                        <span flex></span>
+</div>
+<div flex layout="column">
+    <md-card>
+        <md-card-title>
+            <md-card-title-text>
+                <div layout="row">
+                    <span class="md-title">{{remark.currentCategory|myUpperCase}} Weekly Update Note</span>
+                    <span flex></span>
 
-                        <span ng-hide='remarkeditform.$visible'>
+                    <span ng-hide='remarkeditform.$visible'>
                             <md-select ng-model='remark.snapshotSelect' placeholder="SNAPSHOT">
                                 <md-option value=''>--Latest--</md-option>
                                 <md-option ng-repeat="snapshot in snapshots track by $index" value="{{snapshot}}">{{snapshot}}</md-option>
                             </md-select>
                         </span>
-                        <span ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'"
-                              ng-hide='remarkeditform.$visible || snapshotRemark'>
+                    <span ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'"
+                          ng-hide='remarkeditform.$visible || snapshotRemark'>
                             <a class='md-primary'
                                ng-click="$event.stopPropagation();tinymceRemark=remark; remarkeditform.$show();"> Edit</a>
                             <a class='md-primary' ng-click="$event.stopPropagation();refreshRemark();">Reload </a>
                         </span>
-                        <span ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'"
-                              ng-show='remarkeditform.$visible'>
+                    <span ng-if="authority=='pm' || authority=='ipm' ||  authority=='admin'"
+                          ng-show='remarkeditform.$visible'>
                             <a ng-disabled='remarkeditform.$waiting'
                                ng-click='remarkeditform.$cancel();remark.tinymce=remark.content;' class='md-primary'>Cancel</a>
                             <a ng-click='saveRemark();remarkeditform.$cancel();' ng-disabled='remarkeditform.$waiting'
                                class='md-primary'>Save</a>
                         </span>
-                    </div>
-                </md-card-title-text>
-            </md-card-title>
-            <md-menu-divider></md-menu-divider>
-            <md-card-content flex>
-                <div ng-hide="remarkeditform.$visible" ng-bind-html="remark.content"></div>
-                <remark-edit-form></remark-edit-form>
-            </md-card-content>
-        </md-card>
-    </div>
+                </div>
+            </md-card-title-text>
+        </md-card-title>
+        <md-menu-divider></md-menu-divider>
+        <md-card-content flex>
+            <div ng-hide="remarkeditform.$visible" ng-bind-html="remark.content"></div>
+            <remark-edit-form></remark-edit-form>
+        </md-card-content>
+    </md-card>
+</div>

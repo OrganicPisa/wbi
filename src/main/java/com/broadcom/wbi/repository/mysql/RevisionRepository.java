@@ -5,10 +5,12 @@ import com.broadcom.wbi.model.mysql.Program;
 import com.broadcom.wbi.model.mysql.Revision;
 import com.broadcom.wbi.util.ProjectConstant;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
 
+@Repository
 public interface RevisionRepository extends JpaRepository<Revision, Integer> {
 
     List<Revision> findByCreatedDateAfterOrderByCreatedDateDesc(Date dt);

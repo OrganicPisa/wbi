@@ -4,6 +4,7 @@ import com.broadcom.wbi.model.mysql.Employee;
 import com.broadcom.wbi.model.mysql.Program;
 import com.broadcom.wbi.model.mysql.Revision;
 import org.joda.time.DateTime;
+import org.springframework.scheduling.annotation.Async;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,5 +28,8 @@ public interface RevisionService extends CRUDService<Revision> {
     List<Revision> findByUpdateTime(DateTime dt);
 
     Revision createNewRevision(final HashMap map, final Program program);
+
+    @Async
+    void deleteRecordFromDB(Revision revision);
 
 }

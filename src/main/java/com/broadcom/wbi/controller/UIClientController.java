@@ -80,7 +80,7 @@ public class UIClientController {
         if (type.equalsIgnoreCase("index")) {
             return "segment/index";
         }
-        return "segment/partials/" + type.toLowerCase();
+        return "segment/partials/" + type;
     }
 
     @RequestMapping(value = {"/program/{type}"})
@@ -100,12 +100,12 @@ public class UIClientController {
                 return "program/new/sidebar";
         } else {
             if (page.equalsIgnoreCase("index") || page.trim().isEmpty()) {
-                return "program/" + type.toLowerCase() + "/index";
+                return "program/" + type + "/index";
             } else if (page.equalsIgnoreCase("sidebar")) {
-                return "program/" + type.toLowerCase() + "/sidebar";
+                return "program/" + type + "/sidebar";
             }
         }
-        return "program/" + type.toLowerCase() + "/partials/" + page.toLowerCase();
+        return "program/" + type + "/partials/" + page;
     }
 
     @RequestMapping(value = {"/program/{type}/{pid}/{rid}/{page}"})
@@ -122,11 +122,11 @@ public class UIClientController {
     @RequestMapping(value = {"/report/{type}/{page}"})
     public String reportIindex(HttpServletRequest req, Model model, @PathVariable String type, @PathVariable String page) {
         if (page.equalsIgnoreCase("index")) {
-            return "report/" + type.toLowerCase() + "/index";
+            return "report/" + type + "/index";
         } else if (page.equalsIgnoreCase("sidebar")) {
-            return "report/" + type.toLowerCase() + "/sidebar";
+            return "report/" + type + "/sidebar";
         }
-        return "report/" + type.toLowerCase() + "/partials/" + page.toLowerCase();
+        return "report/" + type + "/partials/" + page;
     }
 
     @RequestMapping(value = {"/report/{rtype}/{type}/{page}"})

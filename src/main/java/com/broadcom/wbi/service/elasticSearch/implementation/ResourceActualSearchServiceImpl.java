@@ -50,8 +50,18 @@ public class ResourceActualSearchServiceImpl implements ResourceActualSearchServ
     }
 
     @Override
-    public ResourceActualSearch findOne(String id) {
-        return repo.findOne(id);
+    public void deleteIndex() {
+        template.deleteIndex(ResourceActualSearch.class);
+    }
+
+    @Override
+    public List<ResourceActualSearch> findByDateTime(DateTime dt) {
+        return null;
+    }
+
+    @Override
+    public void saveBulk(List<ResourceActualSearch> listOfDomainObject) {
+        repo.save(listOfDomainObject);
     }
 
     @Override
@@ -60,10 +70,31 @@ public class ResourceActualSearchServiceImpl implements ResourceActualSearchServ
     }
 
     @Override
-    public DeleteQuery deleteByTime(DateTime dt) {
+    public ResourceActualSearch findById(String id) {
+        return repo.findOne(id);
+    }
+
+    @Override
+    public ResourceActualSearch saveOrUpdate(ResourceActualSearch domainObject) {
+        return repo.save(domainObject);
+    }
+
+    @Override
+    public void delete(String id) {
+        repo.delete(id);
+    }
+
+    @Override
+    public long count() {
+        return repo.count();
+    }
+
+    @Override
+    public void deleteByTime(DateTime dt) {
         DeleteQuery deleteQuery = new DeleteQuery();
         deleteQuery.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.rangeQuery("month").gte(dt.getMillis())));
-        return deleteQuery;
+
+        template.delete(deleteQuery, ResourceActualSearch.class);
     }
 
     /*******************************************************************************************

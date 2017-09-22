@@ -65,8 +65,8 @@ App.factory("contactFactory", function ($http, $filter, $q, Notification) {
                     Notification.then({message: result.data, delay: 1000});
                     callback();
                 }, function (ret) {
-                Notification.error({message: ret.data, delay: 5000, title: ret.code});
-            });
+                    Notification.error({message: ret.data, delay: 5000, title: ret.code});
+                });
         },
         del: function (contacts, id) {
             var filtered = $filter('filter')(contacts, {id: id});
@@ -154,8 +154,8 @@ App.factory("infoFactory", function ($http, $filter, $q, Notification) {
                     Notification.then({message: result.data, delay: 1000});
                     callback();
                 }, function (ret) {
-                Notification.error({message: ret.data, delay: 5000, title: ret.code});
-            });
+                    Notification.error({message: ret.data, delay: 5000, title: ret.code});
+                });
         },
         del: function (infos, info) {
             var filtered = $filter('filter')(infos.body, {field: info.field});
@@ -215,9 +215,9 @@ App.factory("linkFactory", function ($http, $filter, $q, Notification) {
                 .then(function (result) {
                     Notification.then({message: result.data, delay: 1000});
                     callback();
-                },function (ret) {
-                Notification.error({message: ret.data, delay: 5000, title: ret.code});
-            });
+                }, function (ret) {
+                    Notification.error({message: ret.data, delay: 5000, title: ret.code});
+                });
 
 //			var promises = [];
 //			angular.forEach(meetings, function(meeting){
@@ -278,8 +278,8 @@ App.factory("skuFactory", function ($http, $filter, $q, Notification) {
                     Notification.then({message: result.data, delay: 1000});
                     callback();
                 }, function (ret) {
-                Notification.error({message: ret.data, delay: 5000, title: ret.code});
-            });
+                    Notification.error({message: ret.data, delay: 5000, title: ret.code});
+                });
 
 //				var promises = [];
 //				angular.forEach(skus, function(sku){

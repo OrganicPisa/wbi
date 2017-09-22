@@ -27,8 +27,12 @@ public class IGroupHistoryServiceImpl implements IGroupHistoryService {
     @Resource
     private IGroupHistoryRepository repo;
 
+    private final IndicatorGroupSaveEventPublisher indicatorGroupSaveEventPublisher;
+
     @Autowired
-    private IndicatorGroupSaveEventPublisher indicatorGroupSaveEventPublisher;
+    public IGroupHistoryServiceImpl(IndicatorGroupSaveEventPublisher indicatorGroupSaveEventPublisher) {
+        this.indicatorGroupSaveEventPublisher = indicatorGroupSaveEventPublisher;
+    }
 
     @Override
     public IGroupHistory saveOrUpdate(IGroupHistory igrouph) {

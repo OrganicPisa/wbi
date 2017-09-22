@@ -62,6 +62,11 @@ public class RevisionIPServiceImpl implements RevisionIPService {
     }
 
     @Override
+    public List<RevisionIP> findByEitherRevisionOrRevisionIP(Revision revision) {
+        return repo.findAllByRevisionOrIprevision(revision, revision);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<RevisionIP> findByRevisionIP(Revision rev) {
 

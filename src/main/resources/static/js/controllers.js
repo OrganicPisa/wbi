@@ -26,9 +26,9 @@ App.controller('HomeCtrl', function ($scope, $log, $filter, $http, $sce, $timeou
                 $scope.tabIndex = $scope.tabs.indexOf(currenttab);
             }
         }, function (data, status) {
-        $scope.segmentloaded = true;
-        Notification.error({message: data, title: 'Error', replaceMessage: true});
-    });
+            $scope.segmentloaded = true;
+            Notification.error({message: data, title: 'Error', replaceMessage: true})
+        });
     $scope.loadTab = function (tab) {
         $scope.tabIndex = $scope.tabs.indexOf(tab);
         if ($scope.segment.localeCompare(tab.name) != 0) {
@@ -72,9 +72,9 @@ App.controller('HomeCtrl', function ($scope, $log, $filter, $http, $sce, $timeou
                     }
                     $scope.dataloaded = true;
                 }, function (data, status) {
-                $scope.dataloaded = true;
-                Notification.error({message: data, title: 'Error', replaceMessage: true});
-            });
+                    $scope.dataloaded = true;
+                    Notification.error({message: data, title: 'Error', replaceMessage: true});
+                });
         }
     });
     $scope.$watch('bookmarkdisplay', function (value) {

@@ -24,8 +24,12 @@ import java.util.List;
 public class ITaskHistoryServiceImpl implements ITaskHistoryService {
     @Resource
     private ITaskHistoryRepository repo;
+    private final IndicatorTaskSaveEventPublisher indicatorTaskSaveEventPublisher;
+
     @Autowired
-    private IndicatorTaskSaveEventPublisher indicatorTaskSaveEventPublisher;
+    public ITaskHistoryServiceImpl(IndicatorTaskSaveEventPublisher indicatorTaskSaveEventPublisher) {
+        this.indicatorTaskSaveEventPublisher = indicatorTaskSaveEventPublisher;
+    }
 
     @Override
     public ITaskHistory saveOrUpdate(ITaskHistory itaskh) {

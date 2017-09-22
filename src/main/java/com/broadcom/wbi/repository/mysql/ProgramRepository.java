@@ -4,10 +4,12 @@ import com.broadcom.wbi.model.mysql.Program;
 import com.broadcom.wbi.model.mysql.Segment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
 
+@Repository
 public interface ProgramRepository extends JpaRepository<Program, Integer> {
 
     @Query("SELECT p FROM Program  p where LOWER(p.name) like LOWER(CONCAT('%', ?1, '%')) OR  " +

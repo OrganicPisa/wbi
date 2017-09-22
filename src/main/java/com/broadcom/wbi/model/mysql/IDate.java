@@ -42,7 +42,7 @@ public class IDate extends AbstractDomainClass implements Serializable {
     private ITask iTask;
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "iDate", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "iDate", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<IDateHistory> date_history = new HashSet<IDateHistory>();
 
 }

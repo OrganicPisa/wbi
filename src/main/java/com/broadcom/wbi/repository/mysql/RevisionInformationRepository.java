@@ -3,10 +3,12 @@ package com.broadcom.wbi.repository.mysql;
 import com.broadcom.wbi.model.mysql.Revision;
 import com.broadcom.wbi.model.mysql.RevisionInformation;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
 
+@Repository
 public interface RevisionInformationRepository extends JpaRepository<RevisionInformation, Integer> {
 
     List<RevisionInformation> findByRevisionOrderByOrderNumAsc(Revision rev);
